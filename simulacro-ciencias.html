@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>PAES Lab — Ciencias</title>
+<meta name="theme-color" content="#05161A">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg-deep:#05161A;--bg-card:#0F2B33;--bg-elevated:#143A45;--border:#1A4050;--neon:#00FFD1;--neon-dim:#00FFD140;--neon-glow:#00FFD120;--coral:#FF6B6B;--coral-dim:#FF6B6B30;--teal:#4ECDC4;--teal-dim:#4ECDC430;--yellow:#FFE66D;--yellow-dim:#FFE66D30;--text:#B8FFF5;--text-muted:#6BA8A0;--text-dim:#3D6B63;--white:#E8FFFE}
+*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Outfit',sans-serif;background:var(--bg-deep);color:var(--text);min-height:100vh}
+#start-screen{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center}
+.start-icon{font-size:60px;margin-bottom:16px}.start-title{font-family:'Space Mono',monospace;font-size:28px;font-weight:700;color:var(--neon);margin-bottom:8px}.start-desc{font-size:14px;color:var(--text-muted);max-width:340px;line-height:1.6;margin-bottom:16px}
+.info-box{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:16px;width:100%;max-width:340px;text-align:left}.info-row{display:flex;justify-content:space-between;font-size:13px;padding:4px 0}.info-row .label{color:var(--text-muted)}.info-row .value{color:var(--neon);font-family:'Space Mono',monospace}
+.config-section{width:100%;max-width:340px;margin-bottom:16px}.config-label{font-size:12px;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;text-align:left}.config-options{display:flex;gap:8px;flex-wrap:wrap;flex-direction:column}
+.config-btn{padding:14px 16px;background:var(--bg-card);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'Outfit',sans-serif;font-size:13px;cursor:pointer;text-align:left}.config-btn:hover{border-color:var(--teal)}.config-btn.selected{border-color:var(--neon);background:var(--neon-glow);color:var(--neon)}
+.config-row{display:flex;gap:8px}.config-row .config-btn{flex:1;text-align:center}
+.start-btn{width:100%;max-width:340px;padding:16px;background:var(--neon);border:none;border-radius:14px;color:var(--bg-deep);font-family:'Space Mono',monospace;font-size:18px;font-weight:700;cursor:pointer;margin-top:8px}.start-btn:hover{transform:translateY(-2px)}
+.back-link{margin-top:20px;font-size:13px;color:var(--text-muted);text-decoration:none}.back-link:hover{color:var(--neon)}
+.purpose-tag{background:var(--yellow-dim);color:var(--yellow);display:inline-block;padding:4px 12px;border-radius:8px;font-size:11px;font-weight:600;margin-bottom:16px}
+
+#game-screen{display:none;min-height:100vh;padding:20px;max-width:600px;margin:0 auto}
+.game-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}.game-progress{font-family:'Space Mono',monospace;font-size:14px;color:var(--text-muted)}.game-timer{font-family:'Space Mono',monospace;font-size:16px;font-weight:700;color:var(--yellow)}.game-quit{background:none;border:1px solid var(--border);border-radius:8px;padding:6px 12px;color:var(--text-muted);font-size:12px;cursor:pointer;font-family:'Outfit',sans-serif}.game-quit:hover{border-color:var(--coral);color:var(--coral)}
+.progress-bar{height:4px;background:var(--bg-card);border-radius:2px;margin-bottom:20px;overflow:hidden}.progress-fill{height:100%;background:var(--neon);border-radius:2px;transition:width 0.3s}
+.eje-badge{display:inline-block;padding:4px 12px;border-radius:8px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px}
+.eje-biologia{background:#22C55E30;color:#4ADE80}.eje-fisica{background:var(--teal-dim);color:var(--teal)}.eje-quimica{background:var(--coral-dim);color:var(--coral)}
+.q-enunciado{font-size:17px;font-weight:500;color:var(--white);line-height:1.5;margin-bottom:20px;min-height:60px}
+.alternativas{display:grid;grid-template-columns:1fr;gap:8px}.alt-btn{padding:12px 16px;background:var(--bg-card);border:1.5px solid var(--border);border-radius:12px;color:var(--text);font-family:'Outfit',sans-serif;font-size:14px;cursor:pointer;text-align:left;line-height:1.4}.alt-btn:hover{border-color:var(--teal);background:var(--bg-elevated)}.alt-btn .alt-letter{font-family:'Space Mono',monospace;color:var(--text-muted);margin-right:8px;font-size:12px}.alt-btn.correct{border-color:var(--neon);background:var(--neon-glow);color:var(--neon)}.alt-btn.wrong{border-color:var(--coral);background:var(--coral-dim);color:var(--coral)}.alt-btn.disabled{pointer-events:none;opacity:0.4}.alt-btn.disabled.correct{opacity:1}
+.feedback{margin-top:14px;min-height:40px}.feedback-text{font-size:13px;line-height:1.5;padding:12px;border-radius:10px}.feedback-text.correct{background:var(--neon-glow);color:var(--neon)}.feedback-text.wrong{background:var(--coral-dim);color:var(--coral)}
+.nav-btns{display:flex;gap:10px;margin-top:14px}.nav-btn{flex:1;padding:12px;border-radius:10px;border:1px solid var(--border);background:var(--bg-card);color:var(--text);font-family:'Outfit',sans-serif;font-size:14px;cursor:pointer}.nav-btn.primary{background:var(--neon);color:var(--bg-deep);border:none;font-weight:600}.nav-btn.skip{color:var(--text-muted)}
+
+#results-screen{display:none;min-height:100vh;padding:24px;max-width:600px;margin:0 auto}
+.results-header{text-align:center;margin-bottom:28px}.results-emoji{font-size:50px;margin-bottom:10px}.results-title{font-family:'Space Mono',monospace;font-size:26px;font-weight:700;color:var(--neon);margin-bottom:6px}.results-subtitle{font-size:14px;color:var(--text-muted)}
+.results-stats{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:20px}.r-stat{background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:16px;text-align:center}.r-stat-value{font-family:'Space Mono',monospace;font-size:26px;font-weight:700;color:var(--neon)}.r-stat-value.coral{color:var(--coral)}.r-stat-value.teal{color:var(--teal)}.r-stat-value.yellow{color:var(--yellow)}.r-stat-label{font-size:11px;color:var(--text-muted);margin-top:4px}
+.eje-breakdown{background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:20px}.eje-breakdown-title{font-size:12px;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px}.eje-row{display:flex;align-items:center;gap:8px;margin-bottom:10px}.eje-row:last-child{margin-bottom:0}.eje-name{font-size:13px;color:var(--text);width:80px;flex-shrink:0}.eje-bar{flex:1;height:8px;background:var(--bg-deep);border-radius:4px;overflow:hidden}.eje-bar-fill{height:100%;border-radius:4px}.eje-pct{font-family:'Space Mono',monospace;font-size:12px;width:40px;text-align:right}
+.verdict{background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:20px;text-align:center}.verdict-title{font-size:13px;color:var(--text-muted);margin-bottom:8px}.verdict-text{font-size:16px;font-weight:600;color:var(--white);line-height:1.5}
+.xp-earned{background:var(--neon-glow);border:1px solid var(--neon-dim);border-radius:14px;padding:14px;text-align:center;margin-bottom:20px}.xp-earned-value{font-family:'Space Mono',monospace;font-size:22px;font-weight:700;color:var(--neon)}.xp-earned-label{font-size:12px;color:var(--teal)}
+.results-actions{display:flex;flex-direction:column;gap:10px;padding-bottom:40px}.results-btn{width:100%;padding:14px;border-radius:12px;font-family:'Outfit',sans-serif;font-size:15px;font-weight:600;cursor:pointer;border:none;text-align:center;text-decoration:none}.results-btn.primary{background:var(--neon);color:var(--bg-deep)}.results-btn.secondary{background:var(--bg-card);border:1px solid var(--border);color:var(--text)}
+</style>
+</head>
+<body>
+
+<div id="start-screen">
+  <div class="start-icon">🔬</div>
+  <div class="start-title">Ciencias</div>
+  <div class="purpose-tag">Diagnóstico para decidir tu electiva</div>
+  <div class="start-desc">Prueba cómo te va en Biología, Física y Química. Así puedes comparar con Historia y elegir mejor.</div>
+
+  <div class="info-box">
+    <div class="info-row"><span class="label">PAES Ciencias</span><span class="value">80 preg / 160 min</span></div>
+    <div class="info-row"><span class="label">Estructura</span><span class="value">Módulo Común + Electivo</span></div>
+  </div>
+
+  <div class="config-section">
+    <div class="config-label">Elige tu modo</div>
+    <div class="config-options" id="mode-options">
+      <button class="config-btn selected" onclick="setMode('express',this)">
+        <div style="font-weight:600;color:var(--white);margin-bottom:2px">☕ Diagnóstico rápido — 15 preguntas (~15 min)</div>
+        <div style="font-size:12px;color:var(--text-muted)">5 de cada área para ver dónde estás</div>
+      </button>
+      <button class="config-btn" onclick="setMode('completo',this)">
+        <div style="font-weight:600;color:var(--white);margin-bottom:2px">⚡ Entrenamiento — 30 preguntas (~30 min)</div>
+        <div style="font-size:12px;color:var(--text-muted)">10 de cada área, evaluación más completa</div>
+      </button>
+    </div>
+  </div>
+
+  <div class="config-section">
+    <div class="config-label">Enfoca tu práctica en un área</div>
+    <div class="config-options config-row" id="eje-options">
+      <button class="config-btn selected" onclick="setEje('todos',this)">Todas</button>
+      <button class="config-btn" onclick="setEje('biologia',this)">Biología</button>
+      <button class="config-btn" onclick="setEje('fisica',this)">Física</button>
+      <button class="config-btn" onclick="setEje('quimica',this)">Química</button>
+    </div>
+  </div>
+
+  <button class="start-btn" onclick="startGame()">Iniciar diagnóstico</button>
+  <a class="back-link" href="index.html">← Volver al dashboard</a>
+</div>
+
+<div id="game-screen">
+  <div class="game-top"><div class="game-progress" id="game-progress">1/15</div><div class="game-timer" id="game-timer">--:--</div><button class="game-quit" onclick="endGame()">Terminar</button></div>
+  <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+  <div class="eje-badge" id="eje-badge">Biología</div>
+  <div class="q-enunciado" id="q-enunciado"></div>
+  <div class="alternativas" id="alternativas"></div>
+  <div class="feedback" id="feedback"></div>
+  <div class="nav-btns" id="nav-btns" style="display:none"><button class="nav-btn skip" onclick="skipQ()">Saltar</button><button class="nav-btn primary" onclick="nextQ()">Siguiente</button></div>
+</div>
+
+<div id="results-screen">
+  <div class="results-header"><div class="results-emoji" id="r-emoji">🔬</div><div class="results-title" id="r-title">Diagnóstico Ciencias</div><div class="results-subtitle" id="r-sub"></div></div>
+  <div class="results-stats" id="r-stats"></div>
+  <div class="eje-breakdown"><div class="eje-breakdown-title">Rendimiento por área</div><div id="eje-rows"></div></div>
+  <div class="verdict" id="verdict"><div class="verdict-title">Veredicto diagnóstico</div><div class="verdict-text" id="verdict-text"></div></div>
+  <div class="xp-earned"><div class="xp-earned-value" id="xp-val">+0 XP</div><div class="xp-earned-label">Experiencia ganada</div></div>
+  <div class="results-actions"><button class="results-btn primary" onclick="location.reload()">Repetir diagnóstico</button><a class="results-btn secondary" href="simulacro-historia.html">Probar Historia</a><a class="results-btn secondary" href="index.html">Volver al dashboard</a></div>
+</div>
+
+<script>
+const SUPABASE_URL='https://cjpmainjspaygmrnnckk.supabase.co';
+const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNqcG1haW5qc3BheWdtcm5uY2trIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc1NjgwNjEsImV4cCI6MjA5MzE0NDA2MX0.4Cbb9nL_l9yoAEDS-1Otk4hYoxlbpHCY7Y51DITv1Sc';
+const SB_H={'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json','Prefer':'return=representation'};
+async function sbPost(t,d){try{const r=await fetch(`${SUPABASE_URL}/rest/v1/${t}`,{method:'POST',headers:SB_H,body:JSON.stringify(d)});return r.ok?await r.json():null}catch(e){return null}}
+
+const BANCO=[
+  // === BIOLOGÍA (15) ===
+  {id:'ci_b01',eje:'biologia',enunciado:'La mitosis produce:',alternativas:['2 células idénticas a la original','4 células con la mitad de cromosomas','1 célula con el doble de ADN','2 células con información diferente'],correcta:0,explicacion:'La mitosis genera 2 células hijas genéticamente idénticas (2n)'},
+  {id:'ci_b02',eje:'biologia',enunciado:'¿Cuál organelo es responsable de la respiración celular?',alternativas:['Ribosoma','Mitocondria','Aparato de Golgi','Retículo endoplasmático'],correcta:1,explicacion:'La mitocondria es la central energética de la célula'},
+  {id:'ci_b03',eje:'biologia',enunciado:'En la herencia mendeliana, si ambos padres son heterocigotos (Aa), ¿qué proporción de hijos será homocigoto recesivo (aa)?',alternativas:['100%','50%','25%','75%'],correcta:2,explicacion:'Cruce Aa × Aa → AA, Aa, Aa, aa. 1/4 = 25% homocigoto recesivo'},
+  {id:'ci_b04',eje:'biologia',enunciado:'La fotosíntesis ocurre en:',alternativas:['Mitocondrias','Cloroplastos','Ribosomas','Núcleo'],correcta:1,explicacion:'Los cloroplastos contienen clorofila y realizan la fotosíntesis'},
+  {id:'ci_b05',eje:'biologia',enunciado:'¿Cuál es la función del ADN?',alternativas:['Producir energía','Transportar oxígeno','Almacenar la información genética','Digerir alimentos'],correcta:2,explicacion:'El ADN almacena la información genética del organismo'},
+  {id:'ci_b06',eje:'biologia',enunciado:'La meiosis produce:',alternativas:['2 células diploides','4 células haploides','2 células haploides','4 células diploides'],correcta:1,explicacion:'La meiosis genera 4 células haploides (n), distintas entre sí'},
+  {id:'ci_b07',eje:'biologia',enunciado:'¿Qué tipo de molécula es una enzima?',alternativas:['Lípido','Carbohidrato','Proteína','Ácido nucleico'],correcta:2,explicacion:'Las enzimas son proteínas que catalizan reacciones químicas'},
+  {id:'ci_b08',eje:'biologia',enunciado:'En un ecosistema, los descomponedores:',alternativas:['Producen su propio alimento','Se alimentan de otros animales','Degradan materia orgánica muerta','Realizan fotosíntesis'],correcta:2,explicacion:'Los descomponedores reciclan nutrientes degradando materia orgánica'},
+  {id:'ci_b09',eje:'biologia',enunciado:'La membrana celular es selectivamente permeable. Esto significa que:',alternativas:['Deja pasar todo','No deja pasar nada','Controla qué sustancias entran y salen','Solo deja pasar agua'],correcta:2,explicacion:'La permeabilidad selectiva permite regular el paso de sustancias'},
+  {id:'ci_b10',eje:'biologia',enunciado:'¿Cuál de estos es un ejemplo de mutación?',alternativas:['Aprender un idioma nuevo','Un cambio en la secuencia del ADN','Crecer más por buena alimentación','Broncearse al sol'],correcta:1,explicacion:'Una mutación es un cambio permanente en la secuencia del ADN'},
+  {id:'ci_b11',eje:'biologia',enunciado:'La sinapsis es:',alternativas:['La división celular','La unión funcional entre dos neuronas','La replicación del ADN','La producción de hormonas'],correcta:1,explicacion:'La sinapsis es la comunicación entre neuronas mediante neurotransmisores'},
+  {id:'ci_b12',eje:'biologia',enunciado:'El flujo de energía en un ecosistema va desde:',alternativas:['Consumidores a productores','Descomponedores a productores','Productores a consumidores','Consumidores a descomponedores'],correcta:2,explicacion:'La energía fluye de productores (plantas) a consumidores'},
+  {id:'ci_b13',eje:'biologia',enunciado:'¿Qué estructura protege a las células vegetales pero no tienen las animales?',alternativas:['Membrana celular','Pared celular','Núcleo','Mitocondria'],correcta:1,explicacion:'La pared celular de celulosa es exclusiva de células vegetales'},
+  {id:'ci_b14',eje:'biologia',enunciado:'La homeostasis es:',alternativas:['El aumento de temperatura corporal','La capacidad de mantener condiciones internas estables','La reproducción celular','La adaptación al frío'],correcta:1,explicacion:'Homeostasis = mantener el equilibrio interno del organismo'},
+  {id:'ci_b15',eje:'biologia',enunciado:'Si una persona tiene grupo sanguíneo AB, puede recibir sangre de:',alternativas:['Solo AB','A, B y AB','Solo O','Cualquier grupo (receptor universal)'],correcta:3,explicacion:'AB es receptor universal porque tiene ambos antígenos'},
+
+  // === FÍSICA (15) ===
+  {id:'ci_f01',eje:'fisica',enunciado:'Si un auto viaja a velocidad constante de 60 km/h durante 2 horas, ¿qué distancia recorre?',alternativas:['30 km','60 km','120 km','180 km'],correcta:2,explicacion:'d = v × t = 60 × 2 = 120 km'},
+  {id:'ci_f02',eje:'fisica',enunciado:'La segunda ley de Newton establece que F =',alternativas:['m/a','m × a','m + a','a/m'],correcta:1,explicacion:'F = m × a. Fuerza = masa por aceleración'},
+  {id:'ci_f03',eje:'fisica',enunciado:'¿Cuál es la unidad de fuerza en el SI?',alternativas:['Joule','Watt','Newton','Pascal'],correcta:2,explicacion:'La unidad de fuerza es el Newton (N)'},
+  {id:'ci_f04',eje:'fisica',enunciado:'La energía cinética de un objeto depende de:',alternativas:['Solo su masa','Solo su velocidad','Su masa y su velocidad','Su altura'],correcta:2,explicacion:'Ec = ½mv². Depende de masa y velocidad'},
+  {id:'ci_f05',eje:'fisica',enunciado:'Si un objeto cae en caída libre (g = 10 m/s²), ¿qué velocidad alcanza a los 3 segundos?',alternativas:['10 m/s','20 m/s','30 m/s','90 m/s'],correcta:2,explicacion:'v = g × t = 10 × 3 = 30 m/s'},
+  {id:'ci_f06',eje:'fisica',enunciado:'¿Cuál de las siguientes es una magnitud vectorial?',alternativas:['Temperatura','Masa','Velocidad','Tiempo'],correcta:2,explicacion:'La velocidad tiene magnitud y dirección (es vectorial)'},
+  {id:'ci_f07',eje:'fisica',enunciado:'La ley de Ohm establece que V =',alternativas:['I/R','I × R','I + R','R/I'],correcta:1,explicacion:'V = I × R. Voltaje = Corriente × Resistencia'},
+  {id:'ci_f08',eje:'fisica',enunciado:'Si empujas una caja con 50 N a lo largo de 4 m, el trabajo realizado es:',alternativas:['12,5 J','54 J','200 J','46 J'],correcta:2,explicacion:'W = F × d = 50 × 4 = 200 J'},
+  {id:'ci_f09',eje:'fisica',enunciado:'La frecuencia de una onda se mide en:',alternativas:['Metros','Segundos','Hertz','Newton'],correcta:2,explicacion:'La frecuencia se mide en Hertz (Hz) = ciclos por segundo'},
+  {id:'ci_f10',eje:'fisica',enunciado:'Dos cargas eléctricas del mismo signo:',alternativas:['Se atraen','Se repelen','No interactúan','Se neutralizan'],correcta:1,explicacion:'Cargas iguales se repelen, cargas opuestas se atraen'},
+  {id:'ci_f11',eje:'fisica',enunciado:'La potencia se define como:',alternativas:['Fuerza × distancia','Energía × tiempo','Trabajo / tiempo','Masa × aceleración'],correcta:2,explicacion:'P = W/t. Potencia = Trabajo dividido por tiempo'},
+  {id:'ci_f12',eje:'fisica',enunciado:'Un objeto en reposo permanece en reposo a menos que actúe una fuerza sobre él. Esto es:',alternativas:['2ª ley de Newton','3ª ley de Newton','1ª ley de Newton (inercia)','Ley de gravitación'],correcta:2,explicacion:'La primera ley de Newton o ley de inercia'},
+  {id:'ci_f13',eje:'fisica',enunciado:'La energía potencial gravitatoria depende de:',alternativas:['Masa y velocidad','Masa y altura','Solo la altura','Solo la masa'],correcta:1,explicacion:'Ep = m × g × h. Depende de masa y altura'},
+  {id:'ci_f14',eje:'fisica',enunciado:'Si una resistencia de 10 Ω tiene una corriente de 2 A, ¿cuál es el voltaje?',alternativas:['5 V','12 V','20 V','0,2 V'],correcta:2,explicacion:'V = I × R = 2 × 10 = 20 V'},
+  {id:'ci_f15',eje:'fisica',enunciado:'La velocidad del sonido es mayor en:',alternativas:['El vacío','El aire','El agua','El acero'],correcta:3,explicacion:'El sonido viaja más rápido en sólidos (acero) que en líquidos o gases'},
+
+  // === QUÍMICA (15) ===
+  {id:'ci_q01',eje:'quimica',enunciado:'¿Cuántos protones tiene un átomo de carbono (Z=6)?',alternativas:['12','6','3','8'],correcta:1,explicacion:'El número atómico (Z) indica la cantidad de protones'},
+  {id:'ci_q02',eje:'quimica',enunciado:'El pH de una solución ácida es:',alternativas:['Mayor que 7','Igual a 7','Menor que 7','Igual a 14'],correcta:2,explicacion:'pH < 7 = ácido, pH = 7 = neutro, pH > 7 = básico'},
+  {id:'ci_q03',eje:'quimica',enunciado:'¿Cuál es la fórmula del agua?',alternativas:['HO','H₂O','H₂O₂','OH'],correcta:1,explicacion:'El agua es H₂O: 2 hidrógenos y 1 oxígeno'},
+  {id:'ci_q04',eje:'quimica',enunciado:'Un enlace iónico se forma entre:',alternativas:['Dos no metales','Dos metales','Un metal y un no metal','Dos gases nobles'],correcta:2,explicacion:'El enlace iónico ocurre por transferencia de electrones entre metal y no metal'},
+  {id:'ci_q05',eje:'quimica',enunciado:'En la reacción 2H₂ + O₂ → 2H₂O, ¿cuántas moléculas de agua se producen con 4 moléculas de H₂?',alternativas:['2','4','6','8'],correcta:1,explicacion:'La proporción es 2:2. Con 4 H₂ → 4 H₂O'},
+  {id:'ci_q06',eje:'quimica',enunciado:'Los gases nobles son poco reactivos porque:',alternativas:['Son muy pesados','Tienen su capa de electrones completa','No tienen protones','Son radiactivos'],correcta:1,explicacion:'La capa electrónica completa les da estabilidad'},
+  {id:'ci_q07',eje:'quimica',enunciado:'La tabla periódica ordena los elementos por:',alternativas:['Masa atómica decreciente','Número atómico creciente','Nombre alfabético','Densidad'],correcta:1,explicacion:'Se organizan por número atómico (Z) creciente'},
+  {id:'ci_q08',eje:'quimica',enunciado:'¿Qué tipo de reacción es: NaOH + HCl → NaCl + H₂O?',alternativas:['Síntesis','Descomposición','Neutralización','Combustión'],correcta:2,explicacion:'Ácido + base → sal + agua. Es una neutralización'},
+  {id:'ci_q09',eje:'quimica',enunciado:'La masa molar del CO₂ es (C=12, O=16):',alternativas:['28 g/mol','44 g/mol','32 g/mol','56 g/mol'],correcta:1,explicacion:'12 + 16×2 = 44 g/mol'},
+  {id:'ci_q10',eje:'quimica',enunciado:'Los electrones de valencia determinan:',alternativas:['La masa del átomo','El color del elemento','Las propiedades químicas del elemento','El estado físico'],correcta:2,explicacion:'Los electrones de valencia definen cómo reacciona un elemento'},
+  {id:'ci_q11',eje:'quimica',enunciado:'¿Cuál es un ejemplo de cambio químico?',alternativas:['Derretir hielo','Hervir agua','Quemar madera','Cortar papel'],correcta:2,explicacion:'La combustión transforma la madera en ceniza, CO₂ y H₂O (cambio químico)'},
+  {id:'ci_q12',eje:'quimica',enunciado:'En una solución, el solvente es:',alternativas:['La sustancia que se disuelve','La sustancia que disuelve (mayor cantidad)','El residuo que queda','La mezcla resultante'],correcta:1,explicacion:'El solvente es el componente en mayor proporción que disuelve al soluto'},
+  {id:'ci_q13',eje:'quimica',enunciado:'¿Qué ley establece que la masa se conserva en una reacción química?',alternativas:['Ley de Dalton','Ley de Lavoisier','Ley de Avogadro','Ley de Boyle'],correcta:1,explicacion:'Ley de conservación de la masa de Lavoisier'},
+  {id:'ci_q14',eje:'quimica',enunciado:'El número de Avogadro (6,022 × 10²³) representa:',alternativas:['El peso de un mol','La cantidad de partículas en un mol','La velocidad de reacción','El volumen de un gas'],correcta:1,explicacion:'Un mol contiene 6,022 × 10²³ partículas'},
+  {id:'ci_q15',eje:'quimica',enunciado:'Un catión es un átomo que:',alternativas:['Ganó electrones (carga negativa)','Perdió electrones (carga positiva)','No tiene carga','Ganó protones'],correcta:1,explicacion:'Catión = átomo que perdió electrones → carga positiva'}
+];
+
+// Motor (misma estructura que otros simulacros)
+let cfg={qty:15,time:15,eje:'todos'};
+const MODES={express:{qty:15,time:15},completo:{qty:30,time:30}};
+let questions=[],curIdx=0,results=[],sessionStart=null,globalTimer=null,globalTimeLeft=0,questionStart=null;
+
+function setMode(m,btn){cfg.qty=MODES[m].qty;cfg.time=MODES[m].time;document.querySelectorAll('#mode-options .config-btn').forEach(b=>b.classList.remove('selected'));btn.classList.add('selected')}
+function setEje(e,btn){cfg.eje=e;document.querySelectorAll('#eje-options .config-btn').forEach(b=>b.classList.remove('selected'));btn.classList.add('selected')}
+
+function startGame(){
+  let pool=cfg.eje==='todos'?[...BANCO]:BANCO.filter(q=>q.eje===cfg.eje);
+  pool.sort(()=>Math.random()-0.5);
+  questions=pool.slice(0,Math.min(cfg.qty,pool.length));
+  curIdx=0;results=[];sessionStart=Date.now();
+  document.getElementById('start-screen').style.display='none';
+  document.getElementById('results-screen').style.display='none';
+  document.getElementById('game-screen').style.display='block';
+  globalTimeLeft=cfg.time*60;
+  globalTimer=setInterval(()=>{globalTimeLeft--;const m=Math.floor(globalTimeLeft/60),s=globalTimeLeft%60;document.getElementById('game-timer').textContent=`${m}:${s<10?'0':''}${s}`;if(globalTimeLeft<=60)document.getElementById('game-timer').style.color='var(--coral)';if(globalTimeLeft<=0){clearInterval(globalTimer);endGame();}},1000);
+  showQ();
+}
+
+function showQ(){
+  if(curIdx>=questions.length){endGame();return}
+  const q=questions[curIdx];questionStart=Date.now();
+  document.getElementById('game-progress').textContent=`${curIdx+1}/${questions.length}`;
+  document.getElementById('progress-fill').style.width=`${(curIdx/questions.length)*100}%`;
+  const eN={biologia:'Biología',fisica:'Física',quimica:'Química'};
+  const badge=document.getElementById('eje-badge');badge.textContent=eN[q.eje];badge.className='eje-badge eje-'+q.eje;
+  document.getElementById('q-enunciado').innerHTML=q.enunciado;
+  const L=['A','B','C','D'];
+  document.getElementById('alternativas').innerHTML=q.alternativas.map((a,i)=>`<button class="alt-btn" onclick="answer(${i})"><span class="alt-letter">${L[i]})</span>${a}</button>`).join('');
+  document.getElementById('feedback').innerHTML='';document.getElementById('nav-btns').style.display='none';
+}
+
+function answer(idx){
+  const q=questions[curIdx],t=Math.round((Date.now()-questionStart)/100)/10,ok=idx===q.correcta;
+  document.querySelectorAll('.alt-btn').forEach((b,i)=>{b.classList.add('disabled');if(i===q.correcta)b.classList.add('correct');if(i===idx&&!ok)b.classList.add('wrong');});
+
+  const metodo = METODOS_CIENCIAS[q.eje] || '';
+  if(ok){
+    document.getElementById('feedback').innerHTML=`<div class="feedback-text correct">✓ Correcto${metodo?'<br><br>💡 '+metodo:''}</div>`;
+  } else {
+    document.getElementById('feedback').innerHTML=`<div class="feedback-text wrong">✗ ${q.explicacion}${metodo?'<br><br>💡 <strong>Tip:</strong> '+metodo:''}</div>`;
+    const errores=JSON.parse(localStorage.getItem('paes_lab_errores')||'[]');
+    errores.push({modulo:'ciencias',eje:q.eje,pregunta:q.enunciado,tu_respuesta:q.alternativas[idx],respuesta_correcta:q.alternativas[q.correcta],explicacion:q.explicacion,metodo,fecha:new Date().toISOString()});
+    if(errores.length>200)errores.splice(0,errores.length-200);
+    localStorage.setItem('paes_lab_errores',JSON.stringify(errores));
+  }
+  results.push({pregunta_id:q.id,eje:q.eje,correcta:ok,tiempo:t,saltada:false});
+  document.getElementById('nav-btns').style.display='flex';
+}
+
+const METODOS_CIENCIAS = {
+  biologia: 'En Biología, muchas preguntas se resuelven con comparaciones: mitosis vs meiosis, célula animal vs vegetal, ADN vs ARN. Arma tablas comparativas para estudiar — te ahorran tiempo en la prueba.',
+  fisica: 'En Física, identifica primero QUÉ MAGNITUD te piden (fuerza, energía, velocidad, etc.) y luego elige la FÓRMULA correcta. El 80% de los errores viene de usar la fórmula equivocada, no de calcular mal.',
+  quimica: 'En Química, la tabla periódica es tu mejor herramienta. Antes de resolver, fíjate si necesitas: número atómico, masa molar, grupo/período, o tipo de enlace. Eso te dice qué camino seguir.'
+};
+
+function skipQ(){const q=questions[curIdx];results.push({pregunta_id:q.id,eje:q.eje,correcta:false,tiempo:0,saltada:true});curIdx++;showQ()}
+function nextQ(){curIdx++;showQ()}
+
+async function endGame(){
+  clearInterval(globalTimer);document.getElementById('game-screen').style.display='none';document.getElementById('results-screen').style.display='block';window.scrollTo(0,0);
+  const total=results.length;if(total===0){window.location.href='index.html';return}
+  const aciertos=results.filter(r=>r.correcta).length,pct=Math.round((aciertos/total)*100);
+  const dur=Math.round((Date.now()-sessionStart)/1000),xp=15+(aciertos*3);
+  let emoji='🔬',titulo='Diagnóstico Ciencias';
+  if(pct>=80){emoji='🏆';titulo='¡Gran nivel!';}else if(pct>=60){emoji='🔥';titulo='¡Buen diagnóstico!';}else if(pct>=40){emoji='💪';titulo='Base para mejorar';}else{emoji='📚';titulo='Hay que estudiar';}
+  document.getElementById('r-emoji').textContent=emoji;document.getElementById('r-title').textContent=titulo;
+  const m=Math.floor(dur/60),s=dur%60;document.getElementById('r-sub').textContent=`${total} preguntas en ${m>0?m+'m ':''}${s}s`;
+  document.getElementById('r-stats').innerHTML=`<div class="r-stat"><div class="r-stat-value">${pct}%</div><div class="r-stat-label">Aciertos total</div></div><div class="r-stat"><div class="r-stat-value teal">${aciertos}/${total}</div><div class="r-stat-label">Correctas</div></div>`;
+
+  const ejes={};const eC={biologia:'#4ADE80',fisica:'var(--teal)',quimica:'var(--coral)'};const eN={biologia:'Biología',fisica:'Física',quimica:'Química'};
+  results.forEach(r=>{if(!ejes[r.eje])ejes[r.eje]={t:0,ok:0};ejes[r.eje].t++;if(r.correcta)ejes[r.eje].ok++});
+  let html='';
+  Object.keys(ejes).forEach(e=>{const p=Math.round((ejes[e].ok/ejes[e].t)*100);html+=`<div class="eje-row"><div class="eje-name">${eN[e]}</div><div class="eje-bar"><div class="eje-bar-fill" style="width:${p}%;background:${eC[e]}"></div></div><div class="eje-pct" style="color:${eC[e]}">${p}%</div></div>`;});
+  document.getElementById('eje-rows').innerHTML=html;
+
+  // Veredicto
+  let mejor=null,mejorPct=0,peor=null,peorPct=100;
+  Object.keys(ejes).forEach(e=>{const p=(ejes[e].ok/ejes[e].t)*100;if(p>mejorPct){mejorPct=p;mejor=e}if(p<peorPct){peorPct=p;peor=e}});
+  let vtext=`Tu área más fuerte es ${eN[mejor]} (${Math.round(mejorPct)}%). `;
+  if(peor&&peorPct<50)vtext+=`${eN[peor]} necesita bastante trabajo (${Math.round(peorPct)}%). `;
+  if(pct>=65)vtext+='Ciencias es una opción viable para ti.';
+  else if(pct>=45)vtext+='Ciencias es posible pero requiere preparación. Compara con tu resultado en Historia.';
+  else vtext+='Historia podría ser una mejor opción. Prueba el diagnóstico de Historia para comparar.';
+  document.getElementById('verdict-text').textContent=vtext;
+  document.getElementById('xp-val').textContent=`+${xp} XP`;
+
+  const user=JSON.parse(localStorage.getItem('paes_lab_user')||'{}');
+  if(user.id){
+    await sbPost('sesiones',{usuario_id:user.id,modulo:'ciencias',duracion_seg:dur,preguntas_total:total,aciertos,tiempo_promedio_seg:Math.round(dur/total),completada:true,pct_aciertos:pct,eje_mas_debil:peor});
+    await fetch(`${SUPABASE_URL}/rest/v1/rachas`,{method:'POST',headers:{...SB_H,'Prefer':'return=representation,resolution=merge-duplicates'},body:JSON.stringify({usuario_id:user.id,fecha:new Date().toISOString().split('T')[0],sesiones_del_dia:1,xp_del_dia:xp})}).catch(()=>{});
+  }
+}
+
+if(!localStorage.getItem('paes_lab_user'))window.location.href='index.html';
+</script>
+</body>
+</html>

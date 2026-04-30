@@ -407,6 +407,14 @@ function answer(idx){
 
   results.push({pregunta_id:q.id,eje:q.eje,dificultad:q.dif,correcta:isCorrect,tiempo:timeTaken,saltada:false});
 
+  // Guardar error
+  if(!isCorrect){
+    const errores=JSON.parse(localStorage.getItem('paes_lab_errores')||'[]');
+    errores.push({modulo:'simulacro_m1',eje:q.eje,pregunta:q.enunciado,tu_respuesta:q.alternativas[idx],respuesta_correcta:q.alternativas[q.correcta],explicacion:q.explicacion,fecha:new Date().toISOString()});
+    if(errores.length>200)errores.splice(0,errores.length-200);
+    localStorage.setItem('paes_lab_errores',JSON.stringify(errores));
+  }
+
   document.getElementById('nav-btns').style.display='flex';
 }
 

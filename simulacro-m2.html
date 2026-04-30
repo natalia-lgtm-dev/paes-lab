@@ -57,6 +57,18 @@ body{font-family:'Outfit',sans-serif;background:var(--bg-deep);color:var(--text)
         <div style="font-size:12px;color:var(--text-muted)">30 preguntas · 75 min · Ritmo exacto PAES (~2,5 min/preg)</div>
       </button>
   </div></div>
+
+  <div class="config-section">
+    <div class="config-label">Enfoca tu práctica en un eje</div>
+    <div class="config-options" id="eje-options">
+      <button class="config-btn selected" onclick="setEje('todos',this)">Todos</button>
+      <button class="config-btn" onclick="setEje('algebra_av',this)">Álgebra Av.</button>
+      <button class="config-btn" onclick="setEje('funciones',this)">Funciones</button>
+      <button class="config-btn" onclick="setEje('geometria_3d',this)">Geometría</button>
+      <button class="config-btn" onclick="setEje('prob_avanzada',this)">Prob. Av.</button>
+    </div>
+  </div>
+
   <button class="start-btn" onclick="startGame()">Iniciar simulacro M2</button>
   <a class="back-link" href="index.html">← Volver al dashboard</a>
 </div>
@@ -177,8 +189,10 @@ function setMode(mode,btn){
   btn.classList.add('selected');
 }
 
+function setEje(e,btn){cfg.eje=e;document.querySelectorAll('#eje-options .config-btn').forEach(b=>b.classList.remove('selected'));btn.classList.add('selected')}
+
 function startGame(){
-  let pool=[...BANCO_M2];
+  let pool=cfg.eje==='todos'?[...BANCO_M2]:BANCO_M2.filter(q=>q.eje===cfg.eje);
   pool.sort(()=>Math.random()-0.5);
   questions=pool.slice(0,Math.min(cfg.qty,pool.length));
   curIdx=0;results=[];sessionStart=Date.now();questionStart=Date.now();

@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>PAES Lab — Historia</title>
+<meta name="theme-color" content="#05161A">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg-deep:#05161A;--bg-card:#0F2B33;--bg-elevated:#143A45;--border:#1A4050;--neon:#00FFD1;--neon-dim:#00FFD140;--neon-glow:#00FFD120;--coral:#FF6B6B;--coral-dim:#FF6B6B30;--teal:#4ECDC4;--teal-dim:#4ECDC430;--yellow:#FFE66D;--yellow-dim:#FFE66D30;--text:#B8FFF5;--text-muted:#6BA8A0;--text-dim:#3D6B63;--white:#E8FFFE}
+*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Outfit',sans-serif;background:var(--bg-deep);color:var(--text);min-height:100vh}
+#start-screen{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center}
+.start-icon{font-size:60px;margin-bottom:16px}.start-title{font-family:'Space Mono',monospace;font-size:28px;font-weight:700;color:var(--neon);margin-bottom:8px}.start-desc{font-size:14px;color:var(--text-muted);max-width:340px;line-height:1.6;margin-bottom:16px}
+.info-box{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:16px;width:100%;max-width:340px;text-align:left}.info-row{display:flex;justify-content:space-between;font-size:13px;padding:4px 0}.info-row .label{color:var(--text-muted)}.info-row .value{color:var(--neon);font-family:'Space Mono',monospace}
+.config-section{width:100%;max-width:340px;margin-bottom:16px}.config-label{font-size:12px;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;text-align:left}.config-options{display:flex;gap:8px;flex-wrap:wrap;flex-direction:column}.config-row{display:flex;gap:8px}.config-row .config-btn{flex:1;text-align:center}
+.config-btn{padding:14px 16px;background:var(--bg-card);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'Outfit',sans-serif;font-size:13px;cursor:pointer;text-align:left}.config-btn:hover{border-color:var(--teal)}.config-btn.selected{border-color:var(--neon);background:var(--neon-glow);color:var(--neon)}
+.start-btn{width:100%;max-width:340px;padding:16px;background:var(--neon);border:none;border-radius:14px;color:var(--bg-deep);font-family:'Space Mono',monospace;font-size:18px;font-weight:700;cursor:pointer;margin-top:8px}.start-btn:hover{transform:translateY(-2px)}
+.back-link{margin-top:20px;font-size:13px;color:var(--text-muted);text-decoration:none}.back-link:hover{color:var(--neon)}
+.purpose-tag{background:var(--yellow-dim);color:var(--yellow);display:inline-block;padding:4px 12px;border-radius:8px;font-size:11px;font-weight:600;margin-bottom:16px}
+
+#game-screen{display:none;min-height:100vh;padding:20px;max-width:600px;margin:0 auto}
+.game-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}.game-progress{font-family:'Space Mono',monospace;font-size:14px;color:var(--text-muted)}.game-timer{font-family:'Space Mono',monospace;font-size:16px;font-weight:700;color:var(--yellow)}.game-quit{background:none;border:1px solid var(--border);border-radius:8px;padding:6px 12px;color:var(--text-muted);font-size:12px;cursor:pointer;font-family:'Outfit',sans-serif}.game-quit:hover{border-color:var(--coral);color:var(--coral)}
+.progress-bar{height:4px;background:var(--bg-card);border-radius:2px;margin-bottom:20px;overflow:hidden}.progress-fill{height:100%;background:var(--neon);border-radius:2px;transition:width 0.3s}
+.eje-badge{display:inline-block;padding:4px 12px;border-radius:8px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px}
+.eje-historia{background:var(--yellow-dim);color:var(--yellow)}.eje-geografia{background:var(--teal-dim);color:var(--teal)}.eje-ciudadania{background:#7B61FF30;color:#B8A5FF}.eje-economia{background:var(--coral-dim);color:var(--coral)}
+.q-enunciado{font-size:17px;font-weight:500;color:var(--white);line-height:1.5;margin-bottom:20px;min-height:60px}
+.alternativas{display:grid;grid-template-columns:1fr;gap:8px}.alt-btn{padding:12px 16px;background:var(--bg-card);border:1.5px solid var(--border);border-radius:12px;color:var(--text);font-family:'Outfit',sans-serif;font-size:14px;cursor:pointer;text-align:left;line-height:1.4}.alt-btn:hover{border-color:var(--teal);background:var(--bg-elevated)}.alt-btn .alt-letter{font-family:'Space Mono',monospace;color:var(--text-muted);margin-right:8px;font-size:12px}.alt-btn.correct{border-color:var(--neon);background:var(--neon-glow);color:var(--neon)}.alt-btn.wrong{border-color:var(--coral);background:var(--coral-dim);color:var(--coral)}.alt-btn.disabled{pointer-events:none;opacity:0.4}.alt-btn.disabled.correct{opacity:1}
+.feedback{margin-top:14px;min-height:40px}.feedback-text{font-size:13px;line-height:1.5;padding:12px;border-radius:10px}.feedback-text.correct{background:var(--neon-glow);color:var(--neon)}.feedback-text.wrong{background:var(--coral-dim);color:var(--coral)}
+.nav-btns{display:flex;gap:10px;margin-top:14px}.nav-btn{flex:1;padding:12px;border-radius:10px;border:1px solid var(--border);background:var(--bg-card);color:var(--text);font-family:'Outfit',sans-serif;font-size:14px;cursor:pointer}.nav-btn.primary{background:var(--neon);color:var(--bg-deep);border:none;font-weight:600}.nav-btn.skip{color:var(--text-muted)}
+
+#results-screen{display:none;min-height:100vh;padding:24px;max-width:600px;margin:0 auto}
+.results-header{text-align:center;margin-bottom:28px}.results-emoji{font-size:50px;margin-bottom:10px}.results-title{font-family:'Space Mono',monospace;font-size:26px;font-weight:700;color:var(--neon);margin-bottom:6px}.results-subtitle{font-size:14px;color:var(--text-muted)}
+.results-stats{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:20px}.r-stat{background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:16px;text-align:center}.r-stat-value{font-family:'Space Mono',monospace;font-size:26px;font-weight:700;color:var(--neon)}.r-stat-value.coral{color:var(--coral)}.r-stat-value.teal{color:var(--teal)}.r-stat-label{font-size:11px;color:var(--text-muted);margin-top:4px}
+.eje-breakdown{background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:20px}.eje-breakdown-title{font-size:12px;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px}.eje-row{display:flex;align-items:center;gap:8px;margin-bottom:10px}.eje-row:last-child{margin-bottom:0}.eje-name{font-size:13px;color:var(--text);width:90px;flex-shrink:0}.eje-bar{flex:1;height:8px;background:var(--bg-deep);border-radius:4px;overflow:hidden}.eje-bar-fill{height:100%;border-radius:4px}.eje-pct{font-family:'Space Mono',monospace;font-size:12px;width:40px;text-align:right}
+.verdict{background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:20px;text-align:center}.verdict-title{font-size:13px;color:var(--text-muted);margin-bottom:8px}.verdict-text{font-size:16px;font-weight:600;color:var(--white);line-height:1.5}
+.xp-earned{background:var(--neon-glow);border:1px solid var(--neon-dim);border-radius:14px;padding:14px;text-align:center;margin-bottom:20px}.xp-earned-value{font-family:'Space Mono',monospace;font-size:22px;font-weight:700;color:var(--neon)}.xp-earned-label{font-size:12px;color:var(--teal)}
+.results-actions{display:flex;flex-direction:column;gap:10px;padding-bottom:40px}.results-btn{width:100%;padding:14px;border-radius:12px;font-family:'Outfit',sans-serif;font-size:15px;font-weight:600;cursor:pointer;border:none;text-align:center;text-decoration:none}.results-btn.primary{background:var(--neon);color:var(--bg-deep)}.results-btn.secondary{background:var(--bg-card);border:1px solid var(--border);color:var(--text)}
+</style>
+</head>
+<body>
+
+<div id="start-screen">
+  <div class="start-icon">🏛️</div>
+  <div class="start-title">Historia</div>
+  <div class="purpose-tag">Diagnóstico para decidir tu electiva</div>
+  <div class="start-desc">Prueba tus conocimientos en Historia, Geografía, Ciudadanía y Economía. Compara con Ciencias y elige.</div>
+
+  <div class="info-box">
+    <div class="info-row"><span class="label">PAES Historia</span><span class="value">65 preg / 120 min</span></div>
+    <div class="info-row"><span class="label">Ventaja</span><span class="value">Cultura general ayuda</span></div>
+  </div>
+
+  <div class="config-section">
+    <div class="config-label">Elige tu modo</div>
+    <div class="config-options" id="mode-options">
+      <button class="config-btn selected" onclick="setMode('express',this)">
+        <div style="font-weight:600;color:var(--white);margin-bottom:2px">☕ Diagnóstico rápido — 15 preguntas (~12 min)</div>
+        <div style="font-size:12px;color:var(--text-muted)">Muestra equilibrada de las 4 áreas</div>
+      </button>
+      <button class="config-btn" onclick="setMode('completo',this)">
+        <div style="font-weight:600;color:var(--white);margin-bottom:2px">⚡ Entrenamiento — 30 preguntas (~25 min)</div>
+        <div style="font-size:12px;color:var(--text-muted)">Evaluación más completa por área</div>
+      </button>
+    </div>
+  </div>
+
+  <div class="config-section">
+    <div class="config-label">Enfoca tu práctica en un área</div>
+    <div class="config-options config-row" id="eje-options">
+      <button class="config-btn selected" onclick="setEje('todos',this)">Todas</button>
+      <button class="config-btn" onclick="setEje('historia',this)">Historia</button>
+      <button class="config-btn" onclick="setEje('geografia',this)">Geografía</button>
+      <button class="config-btn" onclick="setEje('ciudadania',this)">Ciudadanía</button>
+    </div>
+  </div>
+
+  <button class="start-btn" onclick="startGame()">Iniciar diagnóstico</button>
+  <a class="back-link" href="index.html">← Volver al dashboard</a>
+</div>
+
+<div id="game-screen">
+  <div class="game-top"><div class="game-progress" id="game-progress">1/15</div><div class="game-timer" id="game-timer">--:--</div><button class="game-quit" onclick="endGame()">Terminar</button></div>
+  <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+  <div class="eje-badge" id="eje-badge">Historia</div>
+  <div class="q-enunciado" id="q-enunciado"></div>
+  <div class="alternativas" id="alternativas"></div>
+  <div class="feedback" id="feedback"></div>
+  <div class="nav-btns" id="nav-btns" style="display:none"><button class="nav-btn skip" onclick="skipQ()">Saltar</button><button class="nav-btn primary" onclick="nextQ()">Siguiente</button></div>
+</div>
+
+<div id="results-screen">
+  <div class="results-header"><div class="results-emoji" id="r-emoji">🏛️</div><div class="results-title" id="r-title">Diagnóstico Historia</div><div class="results-subtitle" id="r-sub"></div></div>
+  <div class="results-stats" id="r-stats"></div>
+  <div class="eje-breakdown"><div class="eje-breakdown-title">Rendimiento por área</div><div id="eje-rows"></div></div>
+  <div class="verdict" id="verdict"><div class="verdict-title">Veredicto diagnóstico</div><div class="verdict-text" id="verdict-text"></div></div>
+  <div class="xp-earned"><div class="xp-earned-value" id="xp-val">+0 XP</div><div class="xp-earned-label">Experiencia ganada</div></div>
+  <div class="results-actions"><button class="results-btn primary" onclick="location.reload()">Repetir diagnóstico</button><a class="results-btn secondary" href="simulacro-ciencias.html">Probar Ciencias</a><a class="results-btn secondary" href="index.html">Volver al dashboard</a></div>
+</div>
+
+<script>
+const SUPABASE_URL='https://cjpmainjspaygmrnnckk.supabase.co';
+const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNqcG1haW5qc3BheWdtcm5uY2trIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc1NjgwNjEsImV4cCI6MjA5MzE0NDA2MX0.4Cbb9nL_l9yoAEDS-1Otk4hYoxlbpHCY7Y51DITv1Sc';
+const SB_H={'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json','Prefer':'return=representation'};
+async function sbPost(t,d){try{const r=await fetch(`${SUPABASE_URL}/rest/v1/${t}`,{method:'POST',headers:SB_H,body:JSON.stringify(d)});return r.ok?await r.json():null}catch(e){return null}}
+
+const BANCO=[
+  // === HISTORIA (12) ===
+  {id:'hi_h01',eje:'historia',enunciado:'La Revolución Francesa (1789) fue causada principalmente por:',alternativas:['La invasión de Inglaterra','La crisis económica, desigualdad social y el absolutismo','Un terremoto que destruyó París','La renuncia voluntaria del rey'],correcta:1,explicacion:'Crisis fiscal, hambruna, desigualdad estamental y monarquía absoluta'},
+  {id:'hi_h02',eje:'historia',enunciado:'La Guerra Fría (1947-1991) fue un conflicto entre:',alternativas:['Francia y Alemania','China y Japón','Estados Unidos (capitalismo) y la URSS (comunismo)','Inglaterra y España'],correcta:2,explicacion:'Enfrentamiento ideológico, político y militar entre EE.UU. y la URSS'},
+  {id:'hi_h03',eje:'historia',enunciado:'¿Qué acontecimiento marcó el inicio de la Primera Guerra Mundial?',alternativas:['La caída del Muro de Berlín','El asesinato del archiduque Francisco Fernando','La Revolución Rusa','El bombardeo de Pearl Harbor'],correcta:1,explicacion:'El asesinato en Sarajevo (1914) detonó las alianzas y el conflicto'},
+  {id:'hi_h04',eje:'historia',enunciado:'La independencia de Chile fue proclamada oficialmente en:',alternativas:['1810','1818','1820','1830'],correcta:1,explicacion:'La Declaración de Independencia fue el 12 de febrero de 1818'},
+  {id:'hi_h05',eje:'historia',enunciado:'El concepto de "Estado de bienestar" se refiere a:',alternativas:['Un Estado sin impuestos','Un Estado que garantiza derechos sociales básicos a todos','Un Estado gobernado por militares','Un Estado sin partidos políticos'],correcta:1,explicacion:'El Estado de bienestar provee salud, educación y protección social'},
+  {id:'hi_h06',eje:'historia',enunciado:'La caída del Muro de Berlín ocurrió en:',alternativas:['1985','1989','1991','1995'],correcta:1,explicacion:'El Muro de Berlín cayó el 9 de noviembre de 1989'},
+  {id:'hi_h07',eje:'historia',enunciado:'La Reforma Agraria en Chile (1962-1973) buscaba:',alternativas:['Aumentar las exportaciones mineras','Redistribuir la tierra de los latifundios','Privatizar toda la agricultura','Eliminar la agricultura'],correcta:1,explicacion:'La Reforma Agraria expropió latifundios para redistribuir tierras a campesinos'},
+  {id:'hi_h08',eje:'historia',enunciado:'¿Qué fue la Ilustración (siglo XVIII)?',alternativas:['Un movimiento artístico medieval','Un movimiento intelectual que promovía la razón, la ciencia y los derechos','Una revolución militar','Un período de oscurantismo'],correcta:1,explicacion:'La Ilustración promovió la razón, libertad individual y progreso científico'},
+  {id:'hi_h09',eje:'historia',enunciado:'El golpe de Estado en Chile de 1973 derrocó al presidente:',alternativas:['Eduardo Frei Montalva','Augusto Pinochet','Salvador Allende','Patricio Aylwin'],correcta:2,explicacion:'El golpe del 11 de septiembre de 1973 derrocó a Salvador Allende'},
+  {id:'hi_h10',eje:'historia',enunciado:'La globalización se caracteriza por:',alternativas:['El aislamiento de los países','La interconexión económica, cultural y tecnológica mundial','La desaparición de Internet','El fin del comercio internacional'],correcta:1,explicacion:'La globalización integra mercados, culturas y comunicaciones a escala mundial'},
+  {id:'hi_h11',eje:'historia',enunciado:'Las civilizaciones precolombinas más importantes de América fueron:',alternativas:['Griegos, romanos y egipcios','Mayas, aztecas e incas','Vikingos y celtas','Chinos y japoneses'],correcta:1,explicacion:'Mayas, aztecas e incas desarrollaron civilizaciones complejas en América'},
+  {id:'hi_h12',eje:'historia',enunciado:'La ONU fue creada en 1945 con el objetivo principal de:',alternativas:['Promover el comercio libre','Mantener la paz y seguridad internacional','Conquistar nuevos territorios','Eliminar las religiones'],correcta:1,explicacion:'La ONU busca mantener la paz, la cooperación y los derechos humanos'},
+
+  // === GEOGRAFÍA (10) ===
+  {id:'hi_g01',eje:'geografia',enunciado:'Chile se ubica en una zona de alta actividad sísmica porque:',alternativas:['Está cerca del polo sur','Está en el Cinturón de Fuego del Pacífico (subducción de placas)','Tiene muchos volcanes activos por el clima','Está en una isla'],correcta:1,explicacion:'La subducción de la placa de Nazca bajo la Sudamericana genera sismos'},
+  {id:'hi_g02',eje:'geografia',enunciado:'¿Qué recurso natural es el principal producto de exportación de Chile?',alternativas:['Petróleo','Trigo','Cobre','Madera'],correcta:2,explicacion:'Chile es el mayor productor mundial de cobre'},
+  {id:'hi_g03',eje:'geografia',enunciado:'El cambio climático provoca en Chile:',alternativas:['Más lluvias en todo el país','Mega sequía en la zona central, retroceso de glaciares','Enfriamiento global','Desaparición de los volcanes'],correcta:1,explicacion:'Chile enfrenta mega sequía, retroceso glaciar y eventos extremos'},
+  {id:'hi_g04',eje:'geografia',enunciado:'La zona norte de Chile (Atacama) se caracteriza por:',alternativas:['Bosques lluviosos','El desierto más árido del mundo','Clima tropical','Glaciares extensos'],correcta:1,explicacion:'El Desierto de Atacama es el más árido del mundo'},
+  {id:'hi_g05',eje:'geografia',enunciado:'¿Qué es la migración rural-urbana?',alternativas:['El movimiento de la ciudad al campo','El desplazamiento de personas del campo a la ciudad','El turismo rural','La exportación agrícola'],correcta:1,explicacion:'La migración rural-urbana es el éxodo del campo a las ciudades'},
+  {id:'hi_g06',eje:'geografia',enunciado:'La densidad de población se calcula como:',alternativas:['Personas × superficie','Personas / superficie (km²)','Superficie / personas','Nacimientos − defunciones'],correcta:1,explicacion:'Densidad = población total / superficie en km²'},
+  {id:'hi_g07',eje:'geografia',enunciado:'¿Cuál es el océano que baña las costas de Chile?',alternativas:['Atlántico','Índico','Pacífico','Ártico'],correcta:2,explicacion:'Chile limita al oeste con el Océano Pacífico'},
+  {id:'hi_g08',eje:'geografia',enunciado:'Las energías renovables incluyen:',alternativas:['Petróleo y carbón','Solar, eólica e hidroeléctrica','Gas natural y nuclear','Solo la energía atómica'],correcta:1,explicacion:'Solar, eólica, hidroeléctrica y geotérmica son renovables'},
+  {id:'hi_g09',eje:'geografia',enunciado:'La Región Metropolitana concentra aproximadamente qué porcentaje de la población de Chile:',alternativas:['10%','25%','40%','60%'],correcta:2,explicacion:'La RM concentra cerca del 40% de la población chilena'},
+  {id:'hi_g10',eje:'geografia',enunciado:'El riesgo de tsunami en Chile se relaciona con:',alternativas:['Las lluvias torrenciales','Los terremotos submarinos por subducción','La contaminación del mar','El calentamiento global'],correcta:1,explicacion:'Los terremotos por subducción generan tsunamis en la costa chilena'},
+
+  // === FORMACIÓN CIUDADANA (13) ===
+  {id:'hi_c01',eje:'ciudadania',enunciado:'En Chile, el Poder Legislativo es ejercido por:',alternativas:['El Presidente','El Congreso Nacional (Senado y Cámara de Diputados)','La Corte Suprema','Los Municipios'],correcta:1,explicacion:'El Congreso Nacional ejerce el poder legislativo en Chile'},
+  {id:'hi_c02',eje:'ciudadania',enunciado:'Los derechos humanos son:',alternativas:['Privilegios de algunos ciudadanos','Derechos universales, inherentes e inalienables de toda persona','Leyes que solo aplican en Europa','Beneficios otorgados por el empleador'],correcta:1,explicacion:'Los DDHH son universales, pertenecen a todas las personas por el hecho de serlo'},
+  {id:'hi_c03',eje:'ciudadania',enunciado:'La democracia representativa se caracteriza por:',alternativas:['El pueblo gobierna directamente','Los ciudadanos eligen representantes que toman decisiones','El gobierno militar','La ausencia de elecciones'],correcta:1,explicacion:'En la democracia representativa, los ciudadanos eligen a sus representantes'},
+  {id:'hi_c04',eje:'ciudadania',enunciado:'¿Cuál es la función del Tribunal Constitucional?',alternativas:['Juzgar delitos comunes','Controlar la constitucionalidad de las leyes','Administrar las cárceles','Cobrar impuestos'],correcta:1,explicacion:'El TC verifica que las leyes se ajusten a la Constitución'},
+  {id:'hi_c05',eje:'ciudadania',enunciado:'El Estado de Derecho implica que:',alternativas:['El Estado no tiene leyes','Todos, incluyendo el gobierno, están sujetos a la ley','Solo los ciudadanos cumplen las leyes','Las leyes cambian cada año'],correcta:1,explicacion:'En el Estado de Derecho, nadie está por encima de la ley'},
+  {id:'hi_c06',eje:'ciudadania',enunciado:'El sufragio universal significa que:',alternativas:['Solo votan los hombres','Solo votan los mayores de 21','Todos los ciudadanos mayores de edad pueden votar','Solo votan los que pagan impuestos'],correcta:2,explicacion:'Sufragio universal = derecho a voto para todos los ciudadanos adultos'},
+  {id:'hi_c07',eje:'ciudadania',enunciado:'¿Qué es el bien común?',alternativas:['El beneficio de una sola persona','Las condiciones que permiten a todos desarrollarse plenamente','La riqueza material del Estado','Un partido político'],correcta:1,explicacion:'El bien común es el conjunto de condiciones para el desarrollo integral de todos'},
+  {id:'hi_c08',eje:'ciudadania',enunciado:'La separación de poderes (Ejecutivo, Legislativo, Judicial) busca:',alternativas:['Concentrar el poder en una persona','Evitar el abuso de poder mediante controles mutuos','Eliminar el gobierno','Crear más burocracia'],correcta:1,explicacion:'La separación de poderes previene la concentración y el abuso del poder'},
+  {id:'hi_c09',eje:'ciudadania',enunciado:'¿Qué es la participación ciudadana?',alternativas:['Solo votar en elecciones','La intervención de los ciudadanos en decisiones públicas por diversas vías','Pagar impuestos','Pertenecer a un partido'],correcta:1,explicacion:'Incluye votar, organizarse, opinar, fiscalizar y proponer'},
+  {id:'hi_c10',eje:'ciudadania',enunciado:'El concepto de "igualdad ante la ley" significa que:',alternativas:['Todos ganan lo mismo','La ley se aplica igual a todas las personas sin discriminación','No existen leyes','Solo aplica a los ricos'],correcta:1,explicacion:'Igualdad ante la ley = mismas reglas para todos, sin privilegios'},
+  {id:'hi_c11',eje:'ciudadania',enunciado:'¿Qué son los impuestos?',alternativas:['Donaciones voluntarias','Contribuciones obligatorias al Estado para financiar servicios públicos','Multas por infringir la ley','Préstamos del gobierno'],correcta:1,explicacion:'Los impuestos financian educación, salud, infraestructura y servicios públicos'},
+  {id:'hi_c12',eje:'ciudadania',enunciado:'La Constitución es la norma más importante de un país porque:',alternativas:['Es la más antigua','Establece los derechos fundamentales y la organización del Estado','La escribió el presidente','Tiene más páginas que otras leyes'],correcta:1,explicacion:'La Constitución es la ley suprema que organiza el Estado y garantiza derechos'},
+  {id:'hi_c13',eje:'ciudadania',enunciado:'¿Cuál es un ejemplo de derecho social?',alternativas:['Derecho a portar armas','Derecho a la educación','Derecho a la propiedad privada','Derecho al voto'],correcta:1,explicacion:'Los derechos sociales incluyen educación, salud, vivienda y trabajo'}
+];
+
+// Motor
+let cfg={qty:15,time:12,eje:'todos'};
+const MODES={express:{qty:15,time:12},completo:{qty:30,time:25}};
+let questions=[],curIdx=0,results=[],sessionStart=null,globalTimer=null,globalTimeLeft=0,questionStart=null;
+
+function setMode(m,btn){cfg.qty=MODES[m].qty;cfg.time=MODES[m].time;document.querySelectorAll('#mode-options .config-btn').forEach(b=>b.classList.remove('selected'));btn.classList.add('selected')}
+function setEje(e,btn){cfg.eje=e;document.querySelectorAll('#eje-options .config-btn').forEach(b=>b.classList.remove('selected'));btn.classList.add('selected')}
+
+function startGame(){
+  let pool=cfg.eje==='todos'?[...BANCO]:BANCO.filter(q=>q.eje===cfg.eje);
+  pool.sort(()=>Math.random()-0.5);questions=pool.slice(0,Math.min(cfg.qty,pool.length));
+  curIdx=0;results=[];sessionStart=Date.now();
+  document.getElementById('start-screen').style.display='none';document.getElementById('results-screen').style.display='none';document.getElementById('game-screen').style.display='block';
+  globalTimeLeft=cfg.time*60;
+  globalTimer=setInterval(()=>{globalTimeLeft--;const m=Math.floor(globalTimeLeft/60),s=globalTimeLeft%60;document.getElementById('game-timer').textContent=`${m}:${s<10?'0':''}${s}`;if(globalTimeLeft<=60)document.getElementById('game-timer').style.color='var(--coral)';if(globalTimeLeft<=0){clearInterval(globalTimer);endGame();}},1000);
+  showQ();
+}
+
+function showQ(){
+  if(curIdx>=questions.length){endGame();return}
+  const q=questions[curIdx];questionStart=Date.now();
+  document.getElementById('game-progress').textContent=`${curIdx+1}/${questions.length}`;
+  document.getElementById('progress-fill').style.width=`${(curIdx/questions.length)*100}%`;
+  const eN={historia:'Historia',geografia:'Geografía',ciudadania:'Form. Ciudadana',economia:'Economía'};
+  const badge=document.getElementById('eje-badge');badge.textContent=eN[q.eje];badge.className='eje-badge eje-'+q.eje;
+  document.getElementById('q-enunciado').innerHTML=q.enunciado;
+  const L=['A','B','C','D'];
+  document.getElementById('alternativas').innerHTML=q.alternativas.map((a,i)=>`<button class="alt-btn" onclick="answer(${i})"><span class="alt-letter">${L[i]})</span>${a}</button>`).join('');
+  document.getElementById('feedback').innerHTML='';document.getElementById('nav-btns').style.display='none';
+}
+
+function answer(idx){
+  const q=questions[curIdx],t=Math.round((Date.now()-questionStart)/100)/10,ok=idx===q.correcta;
+  document.querySelectorAll('.alt-btn').forEach((b,i)=>{b.classList.add('disabled');if(i===q.correcta)b.classList.add('correct');if(i===idx&&!ok)b.classList.add('wrong');});
+
+  const metodo = METODOS_HISTORIA[q.eje] || '';
+  if(ok){
+    document.getElementById('feedback').innerHTML=`<div class="feedback-text correct">✓ Correcto${metodo?'<br><br>💡 '+metodo:''}</div>`;
+  } else {
+    document.getElementById('feedback').innerHTML=`<div class="feedback-text wrong">✗ ${q.explicacion}${metodo?'<br><br>💡 <strong>Tip:</strong> '+metodo:''}</div>`;
+    const errores=JSON.parse(localStorage.getItem('paes_lab_errores')||'[]');
+    errores.push({modulo:'historia',eje:q.eje,pregunta:q.enunciado,tu_respuesta:q.alternativas[idx],respuesta_correcta:q.alternativas[q.correcta],explicacion:q.explicacion,metodo,fecha:new Date().toISOString()});
+    if(errores.length>200)errores.splice(0,errores.length-200);
+    localStorage.setItem('paes_lab_errores',JSON.stringify(errores));
+  }
+  results.push({pregunta_id:q.id,eje:q.eje,correcta:ok,tiempo:t,saltada:false});
+  document.getElementById('nav-btns').style.display='flex';
+}
+
+const METODOS_HISTORIA = {
+  historia: 'En Historia, ubica siempre la ÉPOCA primero (¿antigüedad, edad media, moderna, contemporánea?). Las preguntas de causa-efecto son las más comunes: busca QUÉ provocó el evento y QUÉ consecuencias tuvo.',
+  geografia: 'En Geografía, piensa en CAPAS: físico (relieve, clima), humano (población, ciudades), económico (recursos, actividades). La mayoría de las preguntas conectan al menos dos de estas capas.',
+  ciudadania: 'En Formación Ciudadana, la clave es diferenciar conceptos cercanos: democracia directa vs representativa, derechos civiles vs sociales, Estado vs Gobierno. Si dos alternativas se parecen, una suele ser la trampa.',
+  economia: 'En Economía, identifica si la pregunta habla de micro (empresas, consumidores) o macro (país, inflación, PIB). Los conceptos básicos de oferta/demanda resuelven la mayoría de las preguntas.'
+};
+function skipQ(){results.push({pregunta_id:questions[curIdx].id,eje:questions[curIdx].eje,correcta:false,tiempo:0,saltada:true});curIdx++;showQ()}
+function nextQ(){curIdx++;showQ()}
+
+async function endGame(){
+  clearInterval(globalTimer);document.getElementById('game-screen').style.display='none';document.getElementById('results-screen').style.display='block';window.scrollTo(0,0);
+  const total=results.length;if(total===0){window.location.href='index.html';return}
+  const aciertos=results.filter(r=>r.correcta).length,pct=Math.round((aciertos/total)*100);
+  const dur=Math.round((Date.now()-sessionStart)/1000),xp=15+(aciertos*3);
+  let emoji='🏛️',titulo='Diagnóstico Historia';
+  if(pct>=80){emoji='🏆';titulo='¡Excelente!';}else if(pct>=60){emoji='🔥';titulo='¡Buen nivel!';}else if(pct>=40){emoji='💪';titulo='Base para mejorar';}else{emoji='📚';titulo='Hay que estudiar';}
+  document.getElementById('r-emoji').textContent=emoji;document.getElementById('r-title').textContent=titulo;
+  const m=Math.floor(dur/60),s=dur%60;document.getElementById('r-sub').textContent=`${total} preguntas en ${m>0?m+'m ':''}${s}s`;
+  document.getElementById('r-stats').innerHTML=`<div class="r-stat"><div class="r-stat-value">${pct}%</div><div class="r-stat-label">Aciertos total</div></div><div class="r-stat"><div class="r-stat-value teal">${aciertos}/${total}</div><div class="r-stat-label">Correctas</div></div>`;
+
+  const ejes={};const eC={historia:'var(--yellow)',geografia:'var(--teal)',ciudadania:'#B8A5FF',economia:'var(--coral)'};const eN={historia:'Historia',geografia:'Geografía',ciudadania:'Ciudadanía',economia:'Economía'};
+  results.forEach(r=>{if(!ejes[r.eje])ejes[r.eje]={t:0,ok:0};ejes[r.eje].t++;if(r.correcta)ejes[r.eje].ok++});
+  let html='';
+  Object.keys(ejes).forEach(e=>{const p=Math.round((ejes[e].ok/ejes[e].t)*100);html+=`<div class="eje-row"><div class="eje-name">${eN[e]}</div><div class="eje-bar"><div class="eje-bar-fill" style="width:${p}%;background:${eC[e]}"></div></div><div class="eje-pct" style="color:${eC[e]}">${p}%</div></div>`;});
+  document.getElementById('eje-rows').innerHTML=html;
+
+  let mejor=null,mejorPct=0,peor=null,peorPct=100;
+  Object.keys(ejes).forEach(e=>{const p=(ejes[e].ok/ejes[e].t)*100;if(p>mejorPct){mejorPct=p;mejor=e}if(p<peorPct){peorPct=p;peor=e}});
+  let vtext=`Tu área más fuerte es ${eN[mejor]} (${Math.round(mejorPct)}%). `;
+  if(peor&&peorPct<50)vtext+=`${eN[peor]} necesita refuerzo (${Math.round(peorPct)}%). `;
+  if(pct>=65)vtext+='Historia es una opción viable para ti. Tu cultura general te ayuda.';
+  else if(pct>=45)vtext+='Historia es posible con algo de estudio. Compara con tu resultado en Ciencias.';
+  else vtext+='Ciencias podría ser mejor opción. Prueba el diagnóstico de Ciencias para comparar.';
+  document.getElementById('verdict-text').textContent=vtext;
+  document.getElementById('xp-val').textContent=`+${xp} XP`;
+
+  const user=JSON.parse(localStorage.getItem('paes_lab_user')||'{}');
+  if(user.id){
+    await sbPost('sesiones',{usuario_id:user.id,modulo:'historia',duracion_seg:dur,preguntas_total:total,aciertos,tiempo_promedio_seg:Math.round(dur/total),completada:true,pct_aciertos:pct,eje_mas_debil:peor});
+    await fetch(`${SUPABASE_URL}/rest/v1/rachas`,{method:'POST',headers:{...SB_H,'Prefer':'return=representation,resolution=merge-duplicates'},body:JSON.stringify({usuario_id:user.id,fecha:new Date().toISOString().split('T')[0],sesiones_del_dia:1,xp_del_dia:xp})}).catch(()=>{});
+  }
+}
+
+if(!localStorage.getItem('paes_lab_user'))window.location.href='index.html';
+</script>
+</body>
+</html>

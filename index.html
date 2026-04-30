@@ -628,6 +628,12 @@ body {
       <div class="module-desc">Gráficos, logros y evolución.</div>
       <div class="module-badge active">Disponible</div>
     </a>
+    <a class="module-card" href="errores.html">
+      <div class="module-emoji">🔍</div>
+      <div class="module-name">Mis Errores</div>
+      <div class="module-desc">Revisa lo que fallaste y aprende el método.</div>
+      <div class="module-badge active">Disponible</div>
+    </a>
     <a class="module-card" href="estratega.html">
       <div class="module-emoji">🧠</div>
       <div class="module-name">Estratega</div>
@@ -638,6 +644,18 @@ body {
       <div class="module-emoji">📖</div>
       <div class="module-name">Lectora</div>
       <div class="module-desc">Lectura táctica cronometrada.</div>
+      <div class="module-badge active">Disponible</div>
+    </a>
+    <a class="module-card" href="simulacro-ciencias.html">
+      <div class="module-emoji">🔬</div>
+      <div class="module-name">Ciencias</div>
+      <div class="module-desc">Diagnóstico: Bio, Física, Química.</div>
+      <div class="module-badge active">Disponible</div>
+    </a>
+    <a class="module-card" href="simulacro-historia.html">
+      <div class="module-emoji">🏛️</div>
+      <div class="module-name">Historia</div>
+      <div class="module-desc">Diagnóstico: Historia, Geo, Ciudadanía.</div>
       <div class="module-badge active">Disponible</div>
     </a>
   </div>
@@ -912,11 +930,20 @@ function calcStreak(sesiones) {
 
 function generateTip(sesiones, streak, xp) {
   const tipEl = document.getElementById('tip-text');
-  const tips = [];
 
   if (sesiones.length === 0) {
     tipEl.textContent = 'Empieza con el Modo Relámpago para calentar motores. 10 minutos diarios marcan la diferencia.';
     return;
+  }
+
+  // Sugerencia diaria personalizada
+  const tips = [];
+  const countdown = calcCountdown();
+
+  // Revisar errores acumulados
+  const errores = JSON.parse(localStorage.getItem('paes_lab_errores') || '[]');
+  if (errores.length >= 5) {
+    tips.push(`Tienes ${errores.length} errores acumulados. Revísalos en "Mis Errores" — ahí es donde más se aprende.`);
   }
 
   // Tip por racha
@@ -928,34 +955,54 @@ function generateTip(sesiones, streak, xp) {
     tips.push(`${streak} días de racha. Buen ritmo, no pierdas el impulso.`);
   }
 
-  // Tip por velocidad
-  const recientes = sesiones.slice(0, 5);
-  const tiemposProm = recientes.filter(s => s.tiempo_promedio_seg).map(s => Number(s.tiempo_promedio_seg));
-  if (tiemposProm.length >= 2) {
-    const mejora = tiemposProm[tiemposProm.length - 1] - tiemposProm[0];
-    if (mejora > 0) {
-      tips.push('Tu velocidad está mejorando. Seguí practicando para que sea automático.');
-    } else if (mejora < -3) {
-      tips.push('La velocidad bajó un poco. Hacé unas rondas de Relámpago para recuperar el ritmo.');
+  // Sugerencia de plan diario según datos
+  const recientes = sesiones.slice(0, 10);
+  const modulos = {};
+  recientes.forEach(s => { modulos[s.modulo] = (modulos[s.modulo] || 0) + 1; });
+
+  if (!modulos['simulacro_m1'] && sesiones.length >= 3) {
+    tips.push('Ya calentaste con Relámpago. Es buen momento para probar un Simulacro M1 Express y ver cómo te va con preguntas tipo PAES.');
+  }
+
+  if (!modulos['simulacro_m2'] && sesiones.length >= 5) {
+    tips.push('Todavía no has probado Simulacro M2. Para ingeniería es clave — hacé un diagnóstico rápido.');
+  }
+
+  // Tip por eje débil
+  const ultimasSesiones = sesiones.slice(0, 5);
+  const ejesDebiles = ultimasSesiones.filter(s => s.eje_mas_debil).map(s => s.eje_mas_debil);
+  if (ejesDebiles.length >= 2) {
+    const conteo = {};
+    ejesDebiles.forEach(e => conteo[e] = (conteo[e] || 0) + 1);
+    const peor = Object.keys(conteo).sort((a, b) => conteo[b] - conteo[a])[0];
+    const nombres = { numeros: 'Números', algebra: 'Álgebra', geometria: 'Geometría', prob_estadistica: 'Prob/Estadística' };
+    if (nombres[peor]) {
+      tips.push(`${nombres[peor]} sigue siendo tu eje más débil. Hoy enfoca un Simulacro M1 solo en ese eje.`);
     }
   }
 
+  // Tip por velocidad
+  const tiemposProm = recientes.filter(s => s.tiempo_promedio_seg).map(s => Number(s.tiempo_promedio_seg));
+  if (tiemposProm.length >= 2 && tiemposProm[0] < tiemposProm[tiemposProm.length - 1]) {
+    tips.push('Tu velocidad viene mejorando. Seguí con Relámpago para consolidar.');
+  }
+
   // Tip por aciertos
-  const ultimasSesiones = sesiones.slice(0, 3);
   const pctProm = ultimasSesiones.reduce((acc, s) => {
     return acc + (s.preguntas_total > 0 ? (s.aciertos / s.preguntas_total) * 100 : 0);
   }, 0) / ultimasSesiones.length;
 
   if (pctProm >= 85) {
-    tips.push('Tus aciertos están altos. Podés subir la dificultad o probar sesiones más largas.');
+    tips.push('Tus aciertos están altos. Podés subir la dificultad con Ensayo Real o bajar el tiempo.');
   } else if (pctProm < 60) {
     tips.push('Enfocate en precisión antes que velocidad. Mejor lento y correcto que rápido y con errores.');
   }
 
-  // Tip genérico motivacional
-  const countdown = calcCountdown();
-  if (countdown <= 60) {
-    tips.push(`Quedan ${countdown} días. Cada sesión cuenta. Hoy es un buen día para practicar.`);
+  // Countdown urgencia
+  if (countdown <= 30) {
+    tips.push(`¡Quedan ${countdown} días! Hacé un simulacro completo hoy. Cada sesión cuenta.`);
+  } else if (countdown <= 60) {
+    tips.push(`Quedan ${countdown} días. Buen momento para aumentar la frecuencia de simulacros.`);
   }
 
   if (tips.length > 0) {

@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>PAES Lab — Estratega</title>
+<meta name="theme-color" content="#05161A">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg-deep:#05161A;--bg-card:#0F2B33;--bg-elevated:#143A45;--border:#1A4050;--neon:#00FFD1;--neon-dim:#00FFD140;--neon-glow:#00FFD120;--coral:#FF6B6B;--coral-dim:#FF6B6B30;--teal:#4ECDC4;--teal-dim:#4ECDC430;--yellow:#FFE66D;--yellow-dim:#FFE66D30;--text:#B8FFF5;--text-muted:#6BA8A0;--text-dim:#3D6B63;--white:#E8FFFE}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Outfit',sans-serif;background:var(--bg-deep);color:var(--text);min-height:100vh;overflow-x:hidden}
+
+#start-screen{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center}
+.start-icon{font-size:60px;margin-bottom:16px}.start-title{font-family:'Space Mono',monospace;font-size:28px;font-weight:700;color:var(--neon);margin-bottom:8px}.start-desc{font-size:14px;color:var(--text-muted);max-width:340px;line-height:1.6;margin-bottom:16px}
+.start-btn{width:100%;max-width:340px;padding:16px;background:var(--neon);border:none;border-radius:14px;color:var(--bg-deep);font-family:'Space Mono',monospace;font-size:18px;font-weight:700;cursor:pointer;margin-top:16px}.start-btn:hover{transform:translateY(-2px);box-shadow:0 4px 20px var(--neon-dim)}
+.back-link{margin-top:20px;font-size:13px;color:var(--text-muted);text-decoration:none}.back-link:hover{color:var(--neon)}
+
+.how-it-works{background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:18px;width:100%;max-width:340px;text-align:left;margin-bottom:8px}
+.how-title{font-size:12px;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px}
+.how-step{display:flex;gap:10px;margin-bottom:10px;align-items:flex-start}
+.how-step:last-child{margin-bottom:0}
+.how-num{width:24px;height:24px;border-radius:50%;background:var(--neon-glow);color:var(--neon);font-family:'Space Mono',monospace;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.how-text{font-size:13px;color:var(--text);line-height:1.4}
+
+.config-section{width:100%;max-width:340px;margin-bottom:16px}
+.config-label{font-size:12px;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;text-align:left}
+.config-options{display:flex;gap:8px;flex-wrap:wrap}
+.config-btn{flex:1;min-width:70px;padding:10px 8px;background:var(--bg-card);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'Outfit',sans-serif;font-size:13px;cursor:pointer;text-align:center}.config-btn:hover{border-color:var(--teal)}.config-btn.selected{border-color:var(--neon);background:var(--neon-glow);color:var(--neon)}
+
+#game-screen{display:none;min-height:100vh;padding:20px;max-width:600px;margin:0 auto}
+.game-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.game-progress{font-family:'Space Mono',monospace;font-size:14px;color:var(--text-muted)}
+.game-quit{background:none;border:1px solid var(--border);border-radius:8px;padding:6px 12px;color:var(--text-muted);font-size:12px;cursor:pointer;font-family:'Outfit',sans-serif}.game-quit:hover{border-color:var(--coral);color:var(--coral)}
+.progress-bar{height:4px;background:var(--bg-card);border-radius:2px;margin-bottom:20px;overflow:hidden}.progress-fill{height:100%;background:var(--neon);border-radius:2px;transition:width 0.3s}
+
+/* Fases del ejercicio */
+.phase-label{font-size:11px;color:var(--bg-deep);background:var(--teal);display:inline-block;padding:3px 10px;border-radius:6px;font-weight:600;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px}
+.phase-label.phase2{background:var(--yellow);color:var(--bg-deep)}
+.phase-label.phase3{background:var(--neon);color:var(--bg-deep)}
+
+.q-enunciado{font-size:18px;font-weight:500;color:var(--white);line-height:1.5;margin-bottom:20px;min-height:60px}
+.q-instruction{font-size:13px;color:var(--text-muted);margin-bottom:14px;line-height:1.4}
+
+.option-grid{display:grid;grid-template-columns:1fr;gap:8px}
+.option-btn{padding:12px 16px;background:var(--bg-card);border:1.5px solid var(--border);border-radius:12px;color:var(--text);font-family:'Outfit',sans-serif;font-size:14px;cursor:pointer;transition:all 0.15s;text-align:left;line-height:1.4}
+.option-btn:hover{border-color:var(--teal);background:var(--bg-elevated)}
+.option-btn.selected-opt{border-color:var(--neon);background:var(--neon-glow);color:var(--neon)}
+.option-btn.correct{border-color:var(--neon);background:var(--neon-glow);color:var(--neon)}
+.option-btn.wrong{border-color:var(--coral);background:var(--coral-dim);color:var(--coral)}
+.option-btn.disabled{pointer-events:none;opacity:0.4}.option-btn.disabled.correct{opacity:1}
+.option-btn .alt-letter{font-family:'Space Mono',monospace;color:var(--text-muted);margin-right:8px;font-size:12px}
+
+.feedback{margin-top:14px;min-height:40px}.feedback-text{font-size:13px;line-height:1.5;padding:12px;border-radius:10px}.feedback-text.correct{background:var(--neon-glow);color:var(--neon)}.feedback-text.wrong{background:var(--coral-dim);color:var(--coral)}.feedback-text.neutral{background:var(--teal-dim);color:var(--teal)}
+
+.next-btn{width:100%;padding:14px;border-radius:12px;border:none;background:var(--neon);color:var(--bg-deep);font-family:'Outfit',sans-serif;font-size:15px;font-weight:600;cursor:pointer;margin-top:14px;display:none}
+.next-btn.visible{display:block}
+
+#results-screen{display:none;min-height:100vh;padding:24px;max-width:600px;margin:0 auto}
+.results-header{text-align:center;margin-bottom:28px}.results-emoji{font-size:50px;margin-bottom:10px}.results-title{font-family:'Space Mono',monospace;font-size:26px;font-weight:700;color:var(--neon);margin-bottom:6px}.results-subtitle{font-size:14px;color:var(--text-muted)}
+.results-stats{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:20px}.r-stat{background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:16px;text-align:center}.r-stat-value{font-family:'Space Mono',monospace;font-size:26px;font-weight:700;color:var(--neon)}.r-stat-value.coral{color:var(--coral)}.r-stat-value.teal{color:var(--teal)}.r-stat-value.yellow{color:var(--yellow)}.r-stat-label{font-size:11px;color:var(--text-muted);margin-top:4px}
+.xp-earned{background:var(--neon-glow);border:1px solid var(--neon-dim);border-radius:14px;padding:14px;text-align:center;margin-bottom:20px}.xp-earned-value{font-family:'Space Mono',monospace;font-size:22px;font-weight:700;color:var(--neon)}.xp-earned-label{font-size:12px;color:var(--teal);margin-top:2px}
+.results-tip{background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:14px;margin-bottom:24px;display:flex;gap:10px}.results-tip-icon{font-size:18px;flex-shrink:0}.results-tip-text{font-size:13px;color:var(--text);line-height:1.5}
+.results-actions{display:flex;flex-direction:column;gap:10px;padding-bottom:40px}.results-btn{width:100%;padding:14px;border-radius:12px;font-family:'Outfit',sans-serif;font-size:15px;font-weight:600;cursor:pointer;border:none;text-align:center;text-decoration:none}.results-btn.primary{background:var(--neon);color:var(--bg-deep)}.results-btn.secondary{background:var(--bg-card);border:1px solid var(--border);color:var(--text)}
+</style>
+</head>
+<body>
+
+<div id="start-screen">
+  <div class="start-icon">🧠</div>
+  <div class="start-title">Estratega</div>
+  <div class="start-desc">Entrena tu memoria de trabajo: antes de resolver, aprende a clasificar y planificar. Esta habilidad te ahorra tiempo en la PAES real.</div>
+
+  <div class="how-it-works">
+    <div class="how-title">Cómo funciona</div>
+    <div class="how-step"><div class="how-num">1</div><div class="how-text">Lees el problema</div></div>
+    <div class="how-step"><div class="how-num">2</div><div class="how-text">Clasificas: ¿qué tipo de problema es?</div></div>
+    <div class="how-step"><div class="how-num">3</div><div class="how-text">Eliges la estrategia correcta para resolverlo</div></div>
+    <div class="how-step"><div class="how-num">4</div><div class="how-text">Resuelves con la estrategia elegida</div></div>
+  </div>
+
+  <div class="config-section">
+    <div class="config-label">Cantidad de problemas</div>
+    <div class="config-options" id="qty-options">
+      <button class="config-btn selected" onclick="setQty(5,this)">5</button>
+      <button class="config-btn" onclick="setQty(10,this)">10</button>
+      <button class="config-btn" onclick="setQty(15,this)">15</button>
+    </div>
+  </div>
+
+  <button class="start-btn" onclick="startGame()">Iniciar entrenamiento</button>
+  <a class="back-link" href="index.html">← Volver al dashboard</a>
+</div>
+
+<div id="game-screen">
+  <div class="game-top"><div class="game-progress" id="game-progress">1/5</div><button class="game-quit" onclick="endGame()">Terminar</button></div>
+  <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+
+  <div id="phase-label" class="phase-label">Paso 1: Clasifica</div>
+  <div class="q-enunciado" id="q-enunciado"></div>
+  <div class="q-instruction" id="q-instruction"></div>
+  <div class="option-grid" id="options"></div>
+  <div class="feedback" id="feedback"></div>
+  <button class="next-btn" id="next-btn" onclick="nextStep()">Siguiente</button>
+</div>
+
+<div id="results-screen">
+  <div class="results-header"><div class="results-emoji" id="r-emoji">🧠</div><div class="results-title" id="r-title">Entrenamiento completo</div><div class="results-subtitle" id="r-sub"></div></div>
+  <div class="results-stats" id="r-stats"></div>
+  <div class="xp-earned"><div class="xp-earned-value" id="xp-val">+0 XP</div><div class="xp-earned-label">Experiencia ganada</div></div>
+  <div class="results-tip"><div class="results-tip-icon">💡</div><div class="results-tip-text" id="r-tip"></div></div>
+  <div class="results-actions"><button class="results-btn primary" onclick="location.reload()">Otra ronda</button><a class="results-btn secondary" href="index.html">Volver al dashboard</a></div>
+</div>
+
+<script>
+const SUPABASE_URL='https://cjpmainjspaygmrnnckk.supabase.co';
+const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNqcG1haW5qc3BheWdtcm5uY2trIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc1NjgwNjEsImV4cCI6MjA5MzE0NDA2MX0.4Cbb9nL_l9yoAEDS-1Otk4hYoxlbpHCY7Y51DITv1Sc';
+const SB_H={'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json','Prefer':'return=representation'};
+async function sbPost(t,d){try{const r=await fetch(`${SUPABASE_URL}/rest/v1/${t}`,{method:'POST',headers:SB_H,body:JSON.stringify(d)});return r.ok?await r.json():null}catch(e){return null}}
+
+// Estrategias disponibles
+const ESTRATEGIAS = {
+  despeje_lineal: 'Despejar la incógnita paso a paso',
+  factorizacion: 'Factorizar la expresión',
+  diferencia_cuadrados: 'Aplicar diferencia de cuadrados',
+  pitagoras: 'Usar el Teorema de Pitágoras',
+  porcentaje_directo: 'Calcular el porcentaje directamente',
+  sistema_ecuaciones: 'Resolver sistema de ecuaciones',
+  completar_cuadrado: 'Completar el cuadrado o usar fórmula',
+  lectura_grafico: 'Leer datos del gráfico/tabla',
+  probabilidad_clasica: 'Aplicar probabilidad clásica (favorables/posibles)',
+  area_formula: 'Aplicar fórmula de área/perímetro/volumen',
+  sustitucion: 'Sustituir valores y evaluar',
+  patron_secuencia: 'Identificar el patrón de la secuencia'
+};
+
+// Banco de problemas con clasificación y estrategia correcta
+const BANCO = [
+  {id:'e01',enunciado:'Si 2x − 5 = 11, ¿cuánto vale x?',eje:'algebra',eje_label:'Álgebra',estrategia:'despeje_lineal',alternativas:['3','8','6','16'],correcta:1,explicacion:'2x = 16, x = 8'},
+  {id:'e02',enunciado:'Factoriza: x² − 9',eje:'algebra',eje_label:'Álgebra',estrategia:'diferencia_cuadrados',alternativas:['(x−3)(x+3)','(x−9)(x+1)','(x−3)²','x(x−9)'],correcta:0,explicacion:'Diferencia de cuadrados: a²−b² = (a+b)(a−b)'},
+  {id:'e03',enunciado:'Un triángulo rectángulo tiene catetos 6 y 8. ¿Cuánto mide la hipotenusa?',eje:'geometria',eje_label:'Geometría',estrategia:'pitagoras',alternativas:['10','14','48','7'],correcta:0,explicacion:'√(36+64) = √100 = 10'},
+  {id:'e04',enunciado:'Un producto de $50.000 tiene 20% de descuento. ¿Cuánto pagas?',eje:'numeros',eje_label:'Números',estrategia:'porcentaje_directo',alternativas:['$40.000','$45.000','$30.000','$10.000'],correcta:0,explicacion:'50.000 × 0,8 = 40.000'},
+  {id:'e05',enunciado:'Si x + y = 10 y x − y = 4, ¿cuánto vale x?',eje:'algebra',eje_label:'Álgebra',estrategia:'sistema_ecuaciones',alternativas:['3','7','6','14'],correcta:1,explicacion:'Sumando: 2x = 14, x = 7'},
+  {id:'e06',enunciado:'¿Cuáles son las soluciones de x² − 5x + 6 = 0?',eje:'algebra',eje_label:'Álgebra',estrategia:'factorizacion',alternativas:['x=1, x=6','x=2, x=3','x=−2, x=−3','x=0, x=5'],correcta:1,explicacion:'(x−2)(x−3) = 0'},
+  {id:'e07',enunciado:'Si lanzas un dado, ¿cuál es la probabilidad de obtener un número par?',eje:'prob_estadistica',eje_label:'Prob/Estadística',estrategia:'probabilidad_clasica',alternativas:['1/6','1/3','1/2','2/3'],correcta:2,explicacion:'Pares: 2,4,6. Son 3 de 6 = 1/2'},
+  {id:'e08',enunciado:'¿Cuál es el área de un círculo de radio 5 cm? (π ≈ 3,14)',eje:'geometria',eje_label:'Geometría',estrategia:'area_formula',alternativas:['15,7 cm²','31,4 cm²','78,5 cm²','25 cm²'],correcta:2,explicacion:'πr² = 3,14 × 25 = 78,5'},
+  {id:'e09',enunciado:'Si f(x) = 3x − 7, ¿cuánto vale f(5)?',eje:'algebra',eje_label:'Álgebra',estrategia:'sustitucion',alternativas:['8','15','22','−2'],correcta:0,explicacion:'f(5) = 3(5) − 7 = 15 − 7 = 8'},
+  {id:'e10',enunciado:'La sucesión 3, 7, 11, 15, ... ¿cuál es el término 10?',eje:'algebra',eje_label:'Álgebra',estrategia:'patron_secuencia',alternativas:['39','43','35','41'],correcta:0,explicacion:'a_n = 3 + (n−1)×4. a_10 = 3 + 36 = 39'},
+  {id:'e11',enunciado:'Factoriza: 2x² + 4x',eje:'algebra',eje_label:'Álgebra',estrategia:'factorizacion',alternativas:['2(x²+4x)','2x(x+2)','x(2x+4)','4x(x+1)'],correcta:1,explicacion:'Factor común 2x: 2x(x+2)'},
+  {id:'e12',enunciado:'El volumen de un cubo de arista 4 cm es:',eje:'geometria',eje_label:'Geometría',estrategia:'area_formula',alternativas:['16 cm³','48 cm³','64 cm³','12 cm³'],correcta:2,explicacion:'4³ = 64 cm³'},
+  {id:'e13',enunciado:'¿Qué porcentaje es 45 de 180?',eje:'numeros',eje_label:'Números',estrategia:'porcentaje_directo',alternativas:['20%','30%','25%','15%'],correcta:2,explicacion:'45/180 × 100 = 25%'},
+  {id:'e14',enunciado:'La media de 4, 6, 8, 10, 12 es:',eje:'prob_estadistica',eje_label:'Prob/Estadística',estrategia:'lectura_grafico',alternativas:['6','8','10','40'],correcta:1,explicacion:'(4+6+8+10+12)/5 = 40/5 = 8'},
+  {id:'e15',enunciado:'Resuelve: −3x > 12',eje:'algebra',eje_label:'Álgebra',estrategia:'despeje_lineal',alternativas:['x > 4','x < −4','x > −4','x < 4'],correcta:1,explicacion:'Dividir por −3 invierte la desigualdad: x < −4'},
+  {id:'e16',enunciado:'(x + 3)² =',eje:'algebra',eje_label:'Álgebra',estrategia:'factorizacion',alternativas:['x² + 9','x² + 3x + 9','x² + 6x + 9','2x + 6'],correcta:2,explicacion:'Binomio al cuadrado: x² + 2(x)(3) + 9'},
+  {id:'e17',enunciado:'En una bolsa hay 3 rojas, 5 azules y 2 verdes. ¿P(azul)?',eje:'prob_estadistica',eje_label:'Prob/Estadística',estrategia:'probabilidad_clasica',alternativas:['3/10','5/10','2/10','5/8'],correcta:1,explicacion:'5 azules de 10 total = 5/10 = 1/2'},
+  {id:'e18',enunciado:'Un trapecio tiene bases 8 y 12 cm, y altura 5 cm. ¿Su área?',eje:'geometria',eje_label:'Geometría',estrategia:'area_formula',alternativas:['50 cm²','100 cm²','60 cm²','40 cm²'],correcta:0,explicacion:'(8+12)/2 × 5 = 50 cm²'},
+  {id:'e19',enunciado:'Si 4ˣ = 64, entonces x =',eje:'algebra',eje_label:'Álgebra',estrategia:'sustitucion',alternativas:['2','3','4','16'],correcta:1,explicacion:'4³ = 64'},
+  {id:'e20',enunciado:'Un precio sube de $800 a $1.000. ¿Porcentaje de aumento?',eje:'numeros',eje_label:'Números',estrategia:'porcentaje_directo',alternativas:['20%','25%','30%','15%'],correcta:1,explicacion:'(1000−800)/800 × 100 = 25%'},
+];
+
+// Estado
+let cfg = { qty: 5 };
+let questions = [], curIdx = 0, phase = 1, results = [], sessionStart = null;
+
+function setQty(n,btn){cfg.qty=n;document.querySelectorAll('#qty-options .config-btn').forEach(b=>b.classList.remove('selected'));btn.classList.add('selected')}
+
+function startGame(){
+  let pool = [...BANCO];
+  pool.sort(() => Math.random() - 0.5);
+  questions = pool.slice(0, Math.min(cfg.qty, pool.length));
+  curIdx = 0; phase = 1; results = []; sessionStart = Date.now();
+
+  document.getElementById('start-screen').style.display = 'none';
+  document.getElementById('results-screen').style.display = 'none';
+  document.getElementById('game-screen').style.display = 'block';
+  showPhase();
+}
+
+function showPhase(){
+  if(curIdx >= questions.length){ endGame(); return; }
+  const q = questions[curIdx];
+
+  document.getElementById('game-progress').textContent = `${curIdx+1}/${questions.length}`;
+  document.getElementById('progress-fill').style.width = `${(curIdx/questions.length)*100}%`;
+  document.getElementById('q-enunciado').innerHTML = q.enunciado;
+  document.getElementById('feedback').innerHTML = '';
+  document.getElementById('next-btn').classList.remove('visible');
+
+  if(!results[curIdx]) results[curIdx] = { pregunta_id: q.id, eje: q.eje, clasificacion_ok: false, estrategia_ok: false, respuesta_ok: false, tiempo: 0 };
+
+  const label = document.getElementById('phase-label');
+  const instrEl = document.getElementById('q-instruction');
+  const optEl = document.getElementById('options');
+
+  if(phase === 1){
+    // FASE 1: Clasificar el eje
+    label.textContent = 'Paso 1: Clasifica';
+    label.className = 'phase-label';
+    instrEl.textContent = '¿A qué eje temático pertenece este problema?';
+
+    const ejes = ['Números','Álgebra','Geometría','Prob/Estadística'];
+    optEl.innerHTML = ejes.map(e => `<button class="option-btn" onclick="classifyEje('${e}')">${e}</button>`).join('');
+
+  } else if(phase === 2){
+    // FASE 2: Elegir estrategia
+    label.textContent = 'Paso 2: Estrategia';
+    label.className = 'phase-label phase2';
+    instrEl.textContent = '¿Qué estrategia usarías para resolver este problema?';
+
+    // Mostrar 4 estrategias: la correcta + 3 distractoras
+    let opciones = [q.estrategia];
+    const todas = Object.keys(ESTRATEGIAS).filter(e => e !== q.estrategia);
+    todas.sort(() => Math.random() - 0.5);
+    opciones.push(...todas.slice(0,3));
+    opciones.sort(() => Math.random() - 0.5);
+
+    optEl.innerHTML = opciones.map(e => `<button class="option-btn" onclick="chooseStrategy('${e}')">${ESTRATEGIAS[e]}</button>`).join('');
+
+  } else if(phase === 3){
+    // FASE 3: Resolver
+    label.textContent = 'Paso 3: Resuelve';
+    label.className = 'phase-label phase3';
+    instrEl.textContent = 'Ahora sí, elige la respuesta correcta.';
+
+    const letters = ['A','B','C','D'];
+    optEl.innerHTML = q.alternativas.map((a,i) => `<button class="option-btn" onclick="answer(${i})"><span class="alt-letter">${letters[i]})</span>${a}</button>`).join('');
+  }
+}
+
+function classifyEje(selected){
+  const q = questions[curIdx];
+  const correct = q.eje_label;
+  const ok = selected === correct;
+  results[curIdx].clasificacion_ok = ok;
+
+  document.querySelectorAll('.option-btn').forEach(btn => {
+    btn.classList.add('disabled');
+    if(btn.textContent === correct) btn.classList.add('correct');
+    if(btn.textContent === selected && !ok) btn.classList.add('wrong');
+  });
+
+  document.getElementById('feedback').innerHTML = ok
+    ? `<div class="feedback-text correct">✓ Correcto — es un problema de ${correct}</div>`
+    : `<div class="feedback-text wrong">✗ Es un problema de ${correct}</div>`;
+
+  document.getElementById('next-btn').classList.add('visible');
+}
+
+function chooseStrategy(selected){
+  const q = questions[curIdx];
+  const ok = selected === q.estrategia;
+  results[curIdx].estrategia_ok = ok;
+
+  document.querySelectorAll('.option-btn').forEach(btn => {
+    btn.classList.add('disabled');
+    if(btn.textContent === ESTRATEGIAS[q.estrategia]) btn.classList.add('correct');
+    if(btn.textContent === ESTRATEGIAS[selected] && !ok) btn.classList.add('wrong');
+  });
+
+  document.getElementById('feedback').innerHTML = ok
+    ? `<div class="feedback-text correct">✓ Buena decisión</div>`
+    : `<div class="feedback-text wrong">✗ La mejor estrategia era: ${ESTRATEGIAS[q.estrategia]}</div>`;
+
+  document.getElementById('next-btn').classList.add('visible');
+}
+
+function answer(idx){
+  const q = questions[curIdx];
+  const ok = idx === q.correcta;
+  results[curIdx].respuesta_ok = ok;
+
+  document.querySelectorAll('.option-btn').forEach((btn,i) => {
+    btn.classList.add('disabled');
+    if(i === q.correcta) btn.classList.add('correct');
+    if(i === idx && !ok) btn.classList.add('wrong');
+  });
+
+  document.getElementById('feedback').innerHTML = ok
+    ? `<div class="feedback-text correct">✓ Correcto</div>`
+    : `<div class="feedback-text wrong">✗ ${q.explicacion}</div>`;
+
+  document.getElementById('next-btn').classList.add('visible');
+  document.getElementById('next-btn').textContent = curIdx < questions.length - 1 ? 'Siguiente problema' : 'Ver resultados';
+}
+
+function nextStep(){
+  if(phase < 3){
+    phase++;
+    showPhase();
+  } else {
+    curIdx++;
+    phase = 1;
+    document.getElementById('next-btn').textContent = 'Siguiente';
+    showPhase();
+  }
+}
+
+async function endGame(){
+  document.getElementById('game-screen').style.display = 'none';
+  document.getElementById('results-screen').style.display = 'block';
+  window.scrollTo(0,0);
+
+  const total = results.length;
+  if(total === 0){ window.location.href = 'index.html'; return; }
+
+  const clasOk = results.filter(r => r.clasificacion_ok).length;
+  const stratOk = results.filter(r => r.estrategia_ok).length;
+  const respOk = results.filter(r => r.respuesta_ok).length;
+  const duracion = Math.round((Date.now() - sessionStart) / 1000);
+  const xp = 20 + (clasOk * 2) + (stratOk * 3) + (respOk * 4);
+
+  let emoji='🧠',titulo='Entrenamiento completo';
+  const totalPts = clasOk + stratOk + respOk;
+  const maxPts = total * 3;
+  const pct = Math.round((totalPts/maxPts)*100);
+  if(pct>=85){emoji='🏆';titulo='¡Estratega nivel pro!';}
+  else if(pct>=65){emoji='🔥';titulo='¡Buen análisis!';}
+  else if(pct>=45){emoji='💪';titulo='Vas mejorando';}
+
+  document.getElementById('r-emoji').textContent = emoji;
+  document.getElementById('r-title').textContent = titulo;
+  const m=Math.floor(duracion/60),s=duracion%60;
+  document.getElementById('r-sub').textContent = `${total} problemas en ${m>0?m+'m ':''}${s}s`;
+
+  document.getElementById('r-stats').innerHTML = `
+    <div class="r-stat"><div class="r-stat-value">${Math.round((clasOk/total)*100)}%</div><div class="r-stat-label">Clasificación</div></div>
+    <div class="r-stat"><div class="r-stat-value teal">${Math.round((stratOk/total)*100)}%</div><div class="r-stat-label">Estrategia</div></div>
+    <div class="r-stat"><div class="r-stat-value yellow">${Math.round((respOk/total)*100)}%</div><div class="r-stat-label">Respuesta</div></div>
+    <div class="r-stat"><div class="r-stat-value coral">${total*3 - totalPts}</div><div class="r-stat-label">Errores totales</div></div>`;
+
+  document.getElementById('xp-val').textContent = `+${xp} XP`;
+
+  let tip = 'Pensar antes de resolver es la clave. En la PAES, 5 segundos clasificando te ahorran 30 segundos resolviendo.';
+  if(clasOk < total * 0.5) tip = 'Te cuesta identificar el tipo de problema. Practicá leer el enunciado y preguntarte: ¿qué me piden? ¿qué datos tengo?';
+  else if(stratOk < total * 0.5) tip = 'Clasificas bien pero te cuesta elegir la estrategia. Revisá las fórmulas y métodos de cada tipo de problema.';
+  else if(respOk < total * 0.7) tip = 'Buena clasificación y estrategia, pero fallan las respuestas. Practica más ejecución con Relámpago y Simulacros.';
+  document.getElementById('r-tip').textContent = tip;
+
+  // Guardar en Supabase
+  const user = JSON.parse(localStorage.getItem('paes_lab_user') || '{}');
+  if(user.id){
+    const sd = {usuario_id:user.id,modulo:'estratega',duracion_seg:duracion,preguntas_total:total,aciertos:respOk,tiempo_promedio_seg:Math.round(duracion/total),completada:true,pct_aciertos:Math.round((respOk/total)*100)};
+    const resp = await sbPost('sesiones', sd);
+    if(resp && resp.length > 0){
+      await sbPost('respuestas', results.map(r => ({sesion_id:resp[0].id,usuario_id:user.id,pregunta_id:r.pregunta_id,modulo:'estratega',eje:r.eje,correcta:r.respuesta_ok,estrategia_elegida:r.estrategia_ok?'correcta':'incorrecta'})));
+    }
+    await fetch(`${SUPABASE_URL}/rest/v1/rachas`,{method:'POST',headers:{...SB_H,'Prefer':'return=representation,resolution=merge-duplicates'},body:JSON.stringify({usuario_id:user.id,fecha:new Date().toISOString().split('T')[0],sesiones_del_dia:1,xp_del_dia:xp})}).catch(()=>{});
+  }
+}
+
+if(!localStorage.getItem('paes_lab_user'))window.location.href='index.html';
+</script>
+</body>
+</html>

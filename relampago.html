@@ -464,27 +464,29 @@ body {
   <div class="start-desc">Cálculo mental rápido. Automatiza operaciones básicas para liberar tu cerebro en los problemas difíciles.</div>
 
   <div class="config-section">
-    <div class="config-label">Cantidad de preguntas</div>
-    <div class="config-options" id="qty-options">
-      <button class="config-btn selected" onclick="setQty(10, this)">10</button>
-      <button class="config-btn" onclick="setQty(20, this)">20</button>
-      <button class="config-btn" onclick="setQty(30, this)">30</button>
-      <button class="config-btn" onclick="setQty(50, this)">50</button>
+    <div class="config-label">Elige tu modo</div>
+    <div class="config-options" style="flex-direction:column">
+      <button class="config-btn selected" onclick="setMode('calentamiento',this)" style="text-align:left;padding:14px 16px">
+        <div style="font-size:15px;font-weight:600;color:var(--white);margin-bottom:2px">☕ Calentamiento</div>
+        <div style="font-size:12px;color:var(--text-muted)">10 preguntas · 20s cada una · ~4 min</div>
+      </button>
+      <button class="config-btn" onclick="setMode('diario',this)" style="text-align:left;padding:14px 16px">
+        <div style="font-size:15px;font-weight:600;color:var(--white);margin-bottom:2px">⚡ Diario (recomendado)</div>
+        <div style="font-size:12px;color:var(--text-muted)">20 preguntas · 15s cada una · ~6 min</div>
+      </button>
+      <button class="config-btn" onclick="setMode('intenso',this)" style="text-align:left;padding:14px 16px">
+        <div style="font-size:15px;font-weight:600;color:var(--white);margin-bottom:2px">🔥 Intenso</div>
+        <div style="font-size:12px;color:var(--text-muted)">30 preguntas · 10s cada una · ~8 min</div>
+      </button>
+      <button class="config-btn" onclick="setMode('maraton',this)" style="text-align:left;padding:14px 16px">
+        <div style="font-size:15px;font-weight:600;color:var(--white);margin-bottom:2px">🏆 Maratón</div>
+        <div style="font-size:12px;color:var(--text-muted)">50 preguntas · 15s cada una · ~15 min</div>
+      </button>
     </div>
   </div>
 
   <div class="config-section">
-    <div class="config-label">Tiempo por pregunta</div>
-    <div class="config-options" id="time-options">
-      <button class="config-btn" onclick="setTime(15, this)">15s</button>
-      <button class="config-btn selected" onclick="setTime(20, this)">20s</button>
-      <button class="config-btn" onclick="setTime(30, this)">30s</button>
-      <button class="config-btn" onclick="setTime(0, this)">Sin límite</button>
-    </div>
-  </div>
-
-  <div class="config-section">
-    <div class="config-label">Categoría</div>
+    <div class="config-label">Enfoca tu práctica en una categoría</div>
     <div class="config-options" id="cat-options">
       <button class="config-btn selected" onclick="setCat('todas', this)">Todas</button>
       <button class="config-btn" onclick="setCat('fracciones', this)">Fracciones</button>
@@ -653,15 +655,20 @@ let timeLeft = 0;
 let sessionStart = null;
 
 // ====== CONFIGURACIÓN ======
-function setQty(n, btn) {
-  config.qty = n;
-  document.querySelectorAll('#qty-options .config-btn').forEach(b => b.classList.remove('selected'));
-  btn.classList.add('selected');
-}
+const MODES = {
+  calentamiento: { qty: 10, time: 20 },
+  diario: { qty: 20, time: 15 },
+  intenso: { qty: 30, time: 10 },
+  maraton: { qty: 50, time: 15 }
+};
 
-function setTime(t, btn) {
-  config.time = t;
-  document.querySelectorAll('#time-options .config-btn').forEach(b => b.classList.remove('selected'));
+function setMode(mode, btn) {
+  config.qty = MODES[mode].qty;
+  config.time = MODES[mode].time;
+  document.querySelectorAll('.config-options .config-btn').forEach(b => {
+    if (b.closest('#cat-options')) return;
+    b.classList.remove('selected');
+  });
   btn.classList.add('selected');
 }
 

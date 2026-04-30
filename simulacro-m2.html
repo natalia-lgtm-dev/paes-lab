@@ -43,15 +43,19 @@ body{font-family:'Outfit',sans-serif;background:var(--bg-deep);color:var(--text)
     <div class="info-row"><span class="label">PAES real M2</span><span class="value">55 preguntas / 140 min</span></div>
     <div class="info-row"><span class="label">Requerido para</span><span class="value">Ing. Civil / Comercial</span></div>
   </div>
-  <div class="config-section"><div class="config-label">Preguntas</div><div class="config-options" id="qty-options">
-    <button class="config-btn" onclick="setQty(10,this)">10</button>
-    <button class="config-btn selected" onclick="setQty(20,this)">20</button>
-    <button class="config-btn" onclick="setQty(30,this)">30</button>
-  </div></div>
-  <div class="config-section"><div class="config-label">Tiempo total</div><div class="config-options" id="time-options">
-    <button class="config-btn" onclick="setTime(15,this)">15 min</button>
-    <button class="config-btn selected" onclick="setTime(25,this)">25 min</button>
-    <button class="config-btn" onclick="setTime(0,this)">Sin límite</button>
+  <div class="config-section"><div class="config-label">Elige tu modo</div><div class="config-options" style="flex-direction:column" id="mode-options">
+      <button class="config-btn selected" onclick="setMode('express',this)" style="text-align:left;padding:14px 16px">
+        <div style="font-size:15px;font-weight:600;color:var(--white);margin-bottom:2px">☕ Express</div>
+        <div style="font-size:12px;color:var(--text-muted)">10 preguntas · 25 min · Para practicar sin presión</div>
+      </button>
+      <button class="config-btn" onclick="setMode('entrenamiento',this)" style="text-align:left;padding:14px 16px">
+        <div style="font-size:15px;font-weight:600;color:var(--white);margin-bottom:2px">⚡ Entrenamiento (recomendado)</div>
+        <div style="font-size:12px;color:var(--text-muted)">20 preguntas · 50 min · Ritmo PAES con margen</div>
+      </button>
+      <button class="config-btn" onclick="setMode('ensayo',this)" style="text-align:left;padding:14px 16px">
+        <div style="font-size:15px;font-weight:600;color:var(--white);margin-bottom:2px">🔥 Ensayo real</div>
+        <div style="font-size:12px;color:var(--text-muted)">30 preguntas · 75 min · Ritmo exacto PAES (~2,5 min/preg)</div>
+      </button>
   </div></div>
   <button class="start-btn" onclick="startGame()">Iniciar simulacro M2</button>
   <a class="back-link" href="index.html">← Volver al dashboard</a>
@@ -160,12 +164,18 @@ const BANCO_M2=[
 BANCO_M2[BANCO_M2.length-1].correcta = 1;
 
 // ====== MOTOR DE JUEGO (igual que M1) ======
-let cfg={qty:20,time:25,eje:'todos'};
+let cfg={qty:10,time:25,eje:'todos'};
 let questions=[],curIdx=0,results=[],sessionStart=null;
 let globalTimer=null,globalTimeLeft=0,questionStart=null;
 
-function setQty(n,btn){cfg.qty=n;document.querySelectorAll('#qty-options .config-btn').forEach(b=>b.classList.remove('selected'));btn.classList.add('selected')}
-function setTime(t,btn){cfg.time=t;document.querySelectorAll('#time-options .config-btn').forEach(b=>b.classList.remove('selected'));btn.classList.add('selected')}
+const M2_MODES={express:{qty:10,time:25},entrenamiento:{qty:20,time:50},ensayo:{qty:30,time:75}};
+
+function setMode(mode,btn){
+  cfg.qty=M2_MODES[mode].qty;
+  cfg.time=M2_MODES[mode].time;
+  document.querySelectorAll('#mode-options .config-btn').forEach(b=>b.classList.remove('selected'));
+  btn.classList.add('selected');
+}
 
 function startGame(){
   let pool=[...BANCO_M2];

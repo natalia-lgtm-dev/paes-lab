@@ -133,27 +133,25 @@ body{font-family:'Outfit',sans-serif;background:var(--bg-deep);color:var(--text)
   </div>
 
   <div class="config-section">
-    <div class="config-label">Preguntas</div>
-    <div class="config-options" id="qty-options">
-      <button class="config-btn" onclick="setQty(10,this)">10</button>
-      <button class="config-btn selected" onclick="setQty(20,this)">20</button>
-      <button class="config-btn" onclick="setQty(30,this)">30</button>
-      <button class="config-btn" onclick="setQty(50,this)">50</button>
+    <div class="config-label">Elige tu modo</div>
+    <div class="config-options" style="flex-direction:column" id="mode-options">
+      <button class="config-btn selected" onclick="setMode('express',this)" style="text-align:left;padding:14px 16px">
+        <div style="font-size:15px;font-weight:600;color:var(--white);margin-bottom:2px">☕ Express</div>
+        <div style="font-size:12px;color:var(--text-muted)">10 preguntas · 20 min · Para practicar sin presión</div>
+      </button>
+      <button class="config-btn" onclick="setMode('entrenamiento',this)" style="text-align:left;padding:14px 16px">
+        <div style="font-size:15px;font-weight:600;color:var(--white);margin-bottom:2px">⚡ Entrenamiento (recomendado)</div>
+        <div style="font-size:12px;color:var(--text-muted)">20 preguntas · 40 min · Ritmo PAES con margen</div>
+      </button>
+      <button class="config-btn" onclick="setMode('ensayo',this)" style="text-align:left;padding:14px 16px">
+        <div style="font-size:15px;font-weight:600;color:var(--white);margin-bottom:2px">🔥 Ensayo real</div>
+        <div style="font-size:12px;color:var(--text-muted)">30 preguntas · 60 min · Ritmo exacto PAES (~2 min/preg)</div>
+      </button>
     </div>
   </div>
 
   <div class="config-section">
-    <div class="config-label">Tiempo total</div>
-    <div class="config-options" id="time-options">
-      <button class="config-btn" onclick="setTime(10,this)">10 min</button>
-      <button class="config-btn selected" onclick="setTime(20,this)">20 min</button>
-      <button class="config-btn" onclick="setTime(40,this)">40 min</button>
-      <button class="config-btn" onclick="setTime(0,this)">Sin límite</button>
-    </div>
-  </div>
-
-  <div class="config-section">
-    <div class="config-label">Eje temático</div>
+    <div class="config-label">Enfoca tu práctica en un eje</div>
     <div class="config-options" id="eje-options">
       <button class="config-btn selected" onclick="setEje('todos',this)">Todos</button>
       <button class="config-btn" onclick="setEje('numeros',this)">Números</button>
@@ -322,13 +320,19 @@ const BANCO_M1 = [
 ];
 
 // ====== ESTADO ======
-let cfg = { qty: 20, time: 20, eje: 'todos' };
+let cfg = { qty: 10, time: 20, eje: 'todos' };
 let questions = [], curIdx = 0, results = [], sessionStart = null;
 let globalTimer = null, globalTimeLeft = 0;
 let questionStart = null;
 
-function setQty(n,btn){cfg.qty=n;document.querySelectorAll('#qty-options .config-btn').forEach(b=>b.classList.remove('selected'));btn.classList.add('selected')}
-function setTime(t,btn){cfg.time=t;document.querySelectorAll('#time-options .config-btn').forEach(b=>b.classList.remove('selected'));btn.classList.add('selected')}
+const M1_MODES = { express: { qty:10, time:20 }, entrenamiento: { qty:20, time:40 }, ensayo: { qty:30, time:60 } };
+
+function setMode(mode,btn){
+  cfg.qty=M1_MODES[mode].qty;
+  cfg.time=M1_MODES[mode].time;
+  document.querySelectorAll('#mode-options .config-btn').forEach(b=>b.classList.remove('selected'));
+  btn.classList.add('selected');
+}
 function setEje(e,btn){cfg.eje=e;document.querySelectorAll('#eje-options .config-btn').forEach(b=>b.classList.remove('selected'));btn.classList.add('selected')}
 
 function startGame(){

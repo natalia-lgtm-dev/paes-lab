@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>PAES Lab — Lectora</title>
+<meta name="theme-color" content="#05161A">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg-deep:#05161A;--bg-card:#0F2B33;--bg-elevated:#143A45;--border:#1A4050;--neon:#00FFD1;--neon-dim:#00FFD140;--neon-glow:#00FFD120;--coral:#FF6B6B;--coral-dim:#FF6B6B30;--teal:#4ECDC4;--teal-dim:#4ECDC430;--yellow:#FFE66D;--yellow-dim:#FFE66D30;--text:#B8FFF5;--text-muted:#6BA8A0;--text-dim:#3D6B63;--white:#E8FFFE}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Outfit',sans-serif;background:var(--bg-deep);color:var(--text);min-height:100vh;overflow-x:hidden}
+
+#start-screen{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center}
+.start-icon{font-size:60px;margin-bottom:16px}.start-title{font-family:'Space Mono',monospace;font-size:28px;font-weight:700;color:var(--neon);margin-bottom:8px}.start-desc{font-size:14px;color:var(--text-muted);max-width:340px;line-height:1.6;margin-bottom:16px}
+.start-btn{width:100%;max-width:340px;padding:16px;background:var(--neon);border:none;border-radius:14px;color:var(--bg-deep);font-family:'Space Mono',monospace;font-size:18px;font-weight:700;cursor:pointer;margin-top:16px}.start-btn:hover{transform:translateY(-2px);box-shadow:0 4px 20px var(--neon-dim)}
+.back-link{margin-top:20px;font-size:13px;color:var(--text-muted);text-decoration:none}.back-link:hover{color:var(--neon)}
+
+.tip-box{background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:16px;width:100%;max-width:340px;text-align:left;margin-bottom:16px}
+.tip-box-title{font-size:12px;color:var(--neon);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
+.tip-box-text{font-size:13px;color:var(--text);line-height:1.5}
+
+.config-section{width:100%;max-width:340px;margin-bottom:16px}
+.config-label{font-size:12px;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;text-align:left}
+.config-options{display:flex;gap:8px;flex-wrap:wrap;flex-direction:column}
+.config-btn{padding:14px 16px;background:var(--bg-card);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'Outfit',sans-serif;font-size:13px;cursor:pointer;text-align:left}.config-btn:hover{border-color:var(--teal)}.config-btn.selected{border-color:var(--neon);background:var(--neon-glow);color:var(--neon)}
+
+#game-screen{display:none;min-height:100vh;padding:20px;max-width:600px;margin:0 auto;padding-bottom:60px}
+.game-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.game-progress{font-family:'Space Mono',monospace;font-size:14px;color:var(--text-muted)}
+.game-timer{font-family:'Space Mono',monospace;font-size:16px;font-weight:700;color:var(--yellow)}
+.game-quit{background:none;border:1px solid var(--border);border-radius:8px;padding:6px 12px;color:var(--text-muted);font-size:12px;cursor:pointer;font-family:'Outfit',sans-serif}.game-quit:hover{border-color:var(--coral);color:var(--coral)}
+
+.text-type{display:inline-block;padding:4px 12px;border-radius:8px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;background:var(--teal-dim);color:var(--teal)}
+
+.reading-text{background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:18px;margin-bottom:16px;font-size:14px;line-height:1.7;color:var(--text);max-height:300px;overflow-y:auto}
+.reading-text .text-title{font-size:13px;color:var(--text-muted);font-style:italic;margin-bottom:10px}
+
+.q-counter{font-size:12px;color:var(--text-muted);margin-bottom:8px}
+.q-enunciado{font-size:16px;font-weight:500;color:var(--white);line-height:1.5;margin-bottom:16px}
+
+.alternativas{display:grid;grid-template-columns:1fr;gap:8px}
+.alt-btn{padding:12px 16px;background:var(--bg-card);border:1.5px solid var(--border);border-radius:12px;color:var(--text);font-family:'Outfit',sans-serif;font-size:14px;cursor:pointer;text-align:left;line-height:1.4}.alt-btn:hover{border-color:var(--teal);background:var(--bg-elevated)}
+.alt-btn .alt-letter{font-family:'Space Mono',monospace;color:var(--text-muted);margin-right:8px;font-size:12px}
+.alt-btn.correct{border-color:var(--neon);background:var(--neon-glow);color:var(--neon)}.alt-btn.wrong{border-color:var(--coral);background:var(--coral-dim);color:var(--coral)}.alt-btn.disabled{pointer-events:none;opacity:0.4}.alt-btn.disabled.correct{opacity:1}
+
+.feedback{margin-top:12px;min-height:30px}.feedback-text{font-size:13px;line-height:1.5;padding:10px;border-radius:10px}.feedback-text.correct{background:var(--neon-glow);color:var(--neon)}.feedback-text.wrong{background:var(--coral-dim);color:var(--coral)}
+.next-btn{width:100%;padding:14px;border-radius:12px;border:none;background:var(--neon);color:var(--bg-deep);font-family:'Outfit',sans-serif;font-size:15px;font-weight:600;cursor:pointer;margin-top:12px;display:none}.next-btn.visible{display:block}
+
+#results-screen{display:none;min-height:100vh;padding:24px;max-width:600px;margin:0 auto}
+.results-header{text-align:center;margin-bottom:28px}.results-emoji{font-size:50px;margin-bottom:10px}.results-title{font-family:'Space Mono',monospace;font-size:26px;font-weight:700;color:var(--neon);margin-bottom:6px}.results-subtitle{font-size:14px;color:var(--text-muted)}
+.results-stats{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:20px}.r-stat{background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:16px;text-align:center}.r-stat-value{font-family:'Space Mono',monospace;font-size:26px;font-weight:700;color:var(--neon)}.r-stat-value.coral{color:var(--coral)}.r-stat-value.teal{color:var(--teal)}.r-stat-value.yellow{color:var(--yellow)}.r-stat-label{font-size:11px;color:var(--text-muted);margin-top:4px}
+.xp-earned{background:var(--neon-glow);border:1px solid var(--neon-dim);border-radius:14px;padding:14px;text-align:center;margin-bottom:20px}.xp-earned-value{font-family:'Space Mono',monospace;font-size:22px;font-weight:700;color:var(--neon)}.xp-earned-label{font-size:12px;color:var(--teal)}
+.results-tip{background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:14px;margin-bottom:24px;display:flex;gap:10px}.results-tip-icon{font-size:18px;flex-shrink:0}.results-tip-text{font-size:13px;color:var(--text);line-height:1.5}
+.results-actions{display:flex;flex-direction:column;gap:10px;padding-bottom:40px}.results-btn{width:100%;padding:14px;border-radius:12px;font-family:'Outfit',sans-serif;font-size:15px;font-weight:600;cursor:pointer;border:none;text-align:center;text-decoration:none}.results-btn.primary{background:var(--neon);color:var(--bg-deep)}.results-btn.secondary{background:var(--bg-card);border:1px solid var(--border);color:var(--text)}
+</style>
+</head>
+<body>
+
+<div id="start-screen">
+  <div class="start-icon">📖</div>
+  <div class="start-title">Lectora</div>
+  <div class="start-desc">Tu comprensión verbal es top. Acá entrenamos la mecánica: leer rápido, encontrar la respuesta y no perder tiempo.</div>
+
+  <div class="tip-box">
+    <div class="tip-box-title">Técnica clave</div>
+    <div class="tip-box-text">Lee la pregunta ANTES del texto. Así sabes qué buscar y no lees de más. En la PAES, eso te ahorra minutos.</div>
+  </div>
+
+  <div class="config-section">
+    <div class="config-label">Elige tu modo</div>
+    <div class="config-options" id="mode-options">
+      <button class="config-btn selected" onclick="setMode('rapido',this)">
+        <div style="font-weight:600;color:var(--white);margin-bottom:2px">☕ Rápido — 2 textos (~10 min)</div>
+        <div style="font-size:12px;color:var(--text-muted)">Practica la técnica de lectura dirigida</div>
+      </button>
+      <button class="config-btn" onclick="setMode('entrenamiento',this)">
+        <div style="font-weight:600;color:var(--white);margin-bottom:2px">⚡ Entrenamiento — 4 textos (~20 min)</div>
+        <div style="font-size:12px;color:var(--text-muted)">Sesión completa con variedad de textos</div>
+      </button>
+      <button class="config-btn" onclick="setMode('ensayo',this)">
+        <div style="font-weight:600;color:var(--white);margin-bottom:2px">🔥 Ensayo — 6 textos (~35 min)</div>
+        <div style="font-size:12px;color:var(--text-muted)">Ritmo similar a la PAES real</div>
+      </button>
+    </div>
+  </div>
+
+  <button class="start-btn" onclick="startGame()">Iniciar lectura</button>
+  <a class="back-link" href="index.html">← Volver al dashboard</a>
+</div>
+
+<div id="game-screen">
+  <div class="game-top"><div class="game-progress" id="game-progress">Texto 1/2</div><div class="game-timer" id="game-timer">--:--</div><button class="game-quit" onclick="endGame()">Terminar</button></div>
+  <div class="text-type" id="text-type">Informativo</div>
+  <div class="reading-text" id="reading-text"></div>
+  <div class="q-counter" id="q-counter">Pregunta 1 de 4</div>
+  <div class="q-enunciado" id="q-enunciado"></div>
+  <div class="alternativas" id="alternativas"></div>
+  <div class="feedback" id="feedback"></div>
+  <button class="next-btn" id="next-btn" onclick="nextQuestion()">Siguiente</button>
+</div>
+
+<div id="results-screen">
+  <div class="results-header"><div class="results-emoji" id="r-emoji">📖</div><div class="results-title" id="r-title">Lectura completa</div><div class="results-subtitle" id="r-sub"></div></div>
+  <div class="results-stats" id="r-stats"></div>
+  <div class="xp-earned"><div class="xp-earned-value" id="xp-val">+0 XP</div><div class="xp-earned-label">Experiencia ganada</div></div>
+  <div class="results-tip"><div class="results-tip-icon">💡</div><div class="results-tip-text" id="r-tip"></div></div>
+  <div class="results-actions"><button class="results-btn primary" onclick="location.reload()">Otra sesión</button><a class="results-btn secondary" href="index.html">Volver al dashboard</a></div>
+</div>
+
+<script>
+const SUPABASE_URL='https://cjpmainjspaygmrnnckk.supabase.co';
+const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNqcG1haW5qc3BheWdtcm5uY2trIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc1NjgwNjEsImV4cCI6MjA5MzE0NDA2MX0.4Cbb9nL_l9yoAEDS-1Otk4hYoxlbpHCY7Y51DITv1Sc';
+const SB_H={'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json','Prefer':'return=representation'};
+async function sbPost(t,d){try{const r=await fetch(`${SUPABASE_URL}/rest/v1/${t}`,{method:'POST',headers:SB_H,body:JSON.stringify(d)});return r.ok?await r.json():null}catch(e){return null}}
+
+// Banco de textos con preguntas
+const TEXTOS = [
+  {
+    id:'t01', tipo:'informativo', titulo:'El efecto invernadero',
+    texto:'La atmósfera terrestre actúa como una capa protectora que regula la temperatura del planeta. Los gases de efecto invernadero, como el dióxido de carbono y el metano, atrapan parte de la radiación solar que rebota desde la superficie terrestre. Sin este proceso natural, la temperatura promedio de la Tierra sería de aproximadamente −18°C, en lugar de los 15°C actuales. Sin embargo, desde la Revolución Industrial, las actividades humanas han incrementado la concentración de estos gases en un 45%, lo que ha provocado un aumento de 1,1°C en la temperatura global promedio. Los científicos advierten que si las emisiones continúan al ritmo actual, el aumento podría superar los 2°C antes de 2050, con consecuencias irreversibles para los ecosistemas polares y costeros.',
+    preguntas:[
+      {enunciado:'¿Cuál sería la temperatura de la Tierra sin efecto invernadero?',alternativas:['15°C','−18°C','2°C','0°C'],correcta:1},
+      {enunciado:'¿En cuánto ha aumentado la temperatura global según el texto?',alternativas:['2°C','0,5°C','1,1°C','18°C'],correcta:2},
+      {enunciado:'¿Cuál es la función principal de los gases de efecto invernadero?',alternativas:['Enfriar la atmósfera','Atrapar radiación solar reflejada','Producir oxígeno','Destruir la capa de ozono'],correcta:1},
+      {enunciado:'El texto presenta un tono principalmente:',alternativas:['Optimista','Neutral e informativo','Pesimista extremo','Irónico'],correcta:1}
+    ]
+  },
+  {
+    id:'t02', tipo:'argumentativo', titulo:'Opinión: la educación financiera debería ser obligatoria',
+    texto:'En Chile, solo 3 de cada 10 jóvenes entre 18 y 25 años saben calcular una tasa de interés compuesto. Esta cifra, publicada por la OCDE en 2023, revela una brecha alarmante: el sistema escolar forma ciudadanos que dominan ecuaciones cuadráticas pero no entienden cómo funciona un crédito hipotecario. La educación financiera no debería ser un electivo ni un taller extracurricular, sino una asignatura con el mismo peso que matemáticas o lenguaje. Algunos argumentan que los padres deberían enseñar finanzas en casa, pero los datos muestran que el 60% de los adultos chilenos tampoco maneja conceptos financieros básicos. No se puede delegar en las familias algo que el propio sistema educativo nunca les enseñó. Formar personas capaces de tomar decisiones financieras informadas es tan urgente como enseñarles a leer.',
+    preguntas:[
+      {enunciado:'¿Cuál es la tesis principal del texto?',alternativas:['Los jóvenes no saben matemáticas','La educación financiera debe ser obligatoria en el colegio','Los padres deben enseñar finanzas','La OCDE debería intervenir'],correcta:1},
+      {enunciado:'El autor contraargumenta la idea de que:',alternativas:['Las matemáticas son inútiles','Los bancos son responsables','Los padres deberían enseñar finanzas en casa','Los profesores no están preparados'],correcta:2},
+      {enunciado:'El dato "3 de cada 10 jóvenes" cumple la función de:',alternativas:['Exagerar el problema','Respaldar la tesis con evidencia','Atacar al sistema educativo','Comparar con otros países'],correcta:1},
+      {enunciado:'La frase final del texto busca:',alternativas:['Resumir los datos presentados','Equiparar la importancia de las finanzas con la lectura','Criticar a los profesores','Proponer un programa específico'],correcta:1}
+    ]
+  },
+  {
+    id:'t03', tipo:'literario', titulo:'Fragmento narrativo',
+    texto:'La estación estaba vacía a esa hora. Solo el ruido metálico de los rieles anunciaba que algo se acercaba, aunque todavía no se veía nada en el horizonte. Mariana apretó el boleto en el bolsillo de su chaqueta y pensó que era la primera vez en cinco años que tomaba una decisión sin consultarla con nadie. El tren apareció como una línea oscura que crecía. Cuando las puertas se abrieron, dudó un instante. Detrás de ella estaba todo lo conocido: la rutina, las expectativas, las conversaciones que se repetían como un eco. Adelante, solo el movimiento. Subió sin mirar atrás. El asiento junto a la ventana estaba libre y lo tomó como una señal, aunque no sabía de qué. Mientras el paisaje empezaba a deslizarse, sintió algo que no reconoció de inmediato. Después entendió: era alivio.',
+    preguntas:[
+      {enunciado:'¿Qué decisión tomó Mariana?',alternativas:['Volver a su casa','Irse en un tren, dejando atrás su rutina','Llamar a alguien por teléfono','Comprar un boleto de vuelta'],correcta:1},
+      {enunciado:'La frase "las conversaciones que se repetían como un eco" sugiere:',alternativas:['Que tenía buena memoria','Que su vida era monótona y previsible','Que vivía en un lugar ruidoso','Que hablaba sola'],correcta:1},
+      {enunciado:'¿Qué sentimiento experimentó Mariana al final?',alternativas:['Miedo','Tristeza','Alivio','Arrepentimiento'],correcta:2},
+      {enunciado:'El narrador del texto es:',alternativas:['Mariana contando su historia','Un narrador en primera persona','Un narrador omnisciente en tercera persona','El conductor del tren'],correcta:2}
+    ]
+  },
+  {
+    id:'t04', tipo:'informativo', titulo:'La inteligencia artificial en la medicina',
+    texto:'En 2024, un equipo de investigadores de la Universidad de Stanford desarrolló un modelo de inteligencia artificial capaz de diagnosticar ciertos tipos de cáncer de piel con una precisión del 95%, superando el promedio de los dermatólogos humanos, que alcanza un 87%. El sistema fue entrenado con más de 130.000 imágenes clínicas y utiliza redes neuronales convolucionales para identificar patrones invisibles al ojo humano. Sin embargo, los especialistas advierten que estas herramientas no deben reemplazar al médico, sino complementar su juicio clínico. Un diagnóstico no depende solo de la imagen: la historia del paciente, sus antecedentes familiares y el contexto clínico son factores que la IA aún no puede evaluar de forma integral. La regulación también es un desafío pendiente, ya que en muchos países no existen marcos legales claros para la responsabilidad médica cuando interviene un algoritmo.',
+    preguntas:[
+      {enunciado:'¿Cuál fue la precisión del modelo de IA para diagnosticar cáncer de piel?',alternativas:['87%','130.000','95%','100%'],correcta:2},
+      {enunciado:'Según el texto, ¿por qué la IA no debería reemplazar al médico?',alternativas:['Porque es muy cara','Porque el diagnóstico requiere contexto clínico integral','Porque los pacientes no confían en ella','Porque falla frecuentemente'],correcta:1},
+      {enunciado:'El texto menciona un desafío pendiente relacionado con:',alternativas:['El costo de la tecnología','La formación de médicos','La regulación legal','La velocidad de procesamiento'],correcta:2}
+    ]
+  },
+  {
+    id:'t05', tipo:'argumentativo', titulo:'¿Deberían los estudiantes elegir qué estudiar desde antes?',
+    texto:'El sistema educativo chileno obliga a los estudiantes a cursar todas las asignaturas del currículo nacional hasta cuarto medio, sin posibilidad real de especialización temprana. Esto contrasta con modelos como el finlandés, donde a partir de los 16 años los jóvenes pueden elegir entre una vía académica y una profesional, o el británico, que permite seleccionar solo tres o cuatro asignaturas para los últimos dos años. Los defensores del modelo chileno argumentan que una formación integral previene la especialización prematura y asegura un piso cultural común. Sin embargo, la consecuencia práctica es que muchos estudiantes pasan horas semanales en ramos que perciben como irrelevantes para su proyecto de vida, lo que afecta su motivación y, paradójicamente, su rendimiento general. No se trata de eliminar asignaturas, sino de permitir cierta flexibilidad para que el estudiante pueda profundizar en las áreas donde tiene mayor interés y aptitud.',
+    preguntas:[
+      {enunciado:'¿Qué propone el autor?',alternativas:['Eliminar asignaturas del currículo','Copiar el modelo finlandés','Permitir flexibilidad para profundizar en áreas de interés','Reducir los años de enseñanza media'],correcta:2},
+      {enunciado:'¿Qué argumento se presenta a favor del modelo actual chileno?',alternativas:['Es más barato','Asegura formación integral y un piso cultural común','Los profesores lo prefieren','Produce mejores resultados PAES'],correcta:1},
+      {enunciado:'El texto sugiere que la falta de flexibilidad:',alternativas:['Mejora el rendimiento','No tiene efectos medibles','Puede desmotivar y afectar el rendimiento','Solo afecta a los malos estudiantes'],correcta:2}
+    ]
+  },
+  {
+    id:'t06', tipo:'literario', titulo:'Microrrelato',
+    texto:'El anciano revisó el tablero por última vez. Todas las piezas estaban en su lugar, exactamente como las había dejado cuarenta años atrás, la noche en que su oponente se levantó sin decir una palabra y salió por la puerta. Durante décadas pensó que había sido cobardía. Ahora, con el telegrama entre las manos, entendió que había sido la jugada más valiente: su amigo había elegido no ganarle, para que él pudiera seguir creyendo que era invencible. El anciano movió el alfil del contrario y completó el jaque mate que nunca llegó. Cerró los ojos y susurró: "Gracias".',
+    preguntas:[
+      {enunciado:'¿Por qué el amigo se fue sin terminar la partida?',alternativas:['Porque no sabía jugar','Porque estaba enojado','Para dejar que el anciano creyera que era invencible','Porque tenía una emergencia'],correcta:2},
+      {enunciado:'¿Qué revela el telegrama?',alternativas:['Que el amigo ganó un torneo','Que el amigo había fallecido','Información que cambió la interpretación del anciano','Que la partida era ilegal'],correcta:2},
+      {enunciado:'El gesto final del anciano al completar el jaque mate representa:',alternativas:['Que quería ganar a toda costa','Un acto de comprensión y gratitud hacia su amigo','Frustración por no haber ganado antes','Que empezó una nueva partida'],correcta:1}
+    ]
+  }
+];
+
+// Estado
+let cfg = { mode: 'rapido', textos: 2 };
+const MODES = { rapido: 2, entrenamiento: 4, ensayo: 6 };
+let gameTexts = [], curTextIdx = 0, curQIdx = 0, results = [], sessionStart = null;
+let globalTimer = null, globalTimeLeft = 0;
+
+function setMode(mode, btn){
+  cfg.mode = mode;
+  cfg.textos = MODES[mode];
+  document.querySelectorAll('#mode-options .config-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+}
+
+function startGame(){
+  let pool = [...TEXTOS].sort(() => Math.random() - 0.5);
+  gameTexts = pool.slice(0, Math.min(cfg.textos, pool.length));
+  curTextIdx = 0; curQIdx = 0; results = []; sessionStart = Date.now();
+
+  const totalTime = cfg.textos * 5 * 60; // ~5 min por texto
+  globalTimeLeft = totalTime;
+
+  document.getElementById('start-screen').style.display = 'none';
+  document.getElementById('results-screen').style.display = 'none';
+  document.getElementById('game-screen').style.display = 'block';
+
+  globalTimer = setInterval(() => {
+    globalTimeLeft--;
+    const m = Math.floor(globalTimeLeft/60), s = globalTimeLeft%60;
+    document.getElementById('game-timer').textContent = `${m}:${s<10?'0':''}${s}`;
+    if(globalTimeLeft <= 60) document.getElementById('game-timer').style.color = 'var(--coral)';
+    if(globalTimeLeft <= 0){ clearInterval(globalTimer); endGame(); }
+  }, 1000);
+
+  showText();
+}
+
+function showText(){
+  if(curTextIdx >= gameTexts.length){ endGame(); return; }
+  const t = gameTexts[curTextIdx];
+  curQIdx = 0;
+
+  document.getElementById('game-progress').textContent = `Texto ${curTextIdx+1}/${gameTexts.length}`;
+  const tipos = { informativo:'Informativo', argumentativo:'Argumentativo', literario:'Literario' };
+  document.getElementById('text-type').textContent = tipos[t.tipo] || t.tipo;
+  document.getElementById('reading-text').innerHTML = `<div class="text-title">${t.titulo}</div>${t.texto}`;
+
+  showQuestion();
+}
+
+function showQuestion(){
+  const t = gameTexts[curTextIdx];
+  if(curQIdx >= t.preguntas.length){
+    curTextIdx++;
+    showText();
+    return;
+  }
+
+  const q = t.preguntas[curQIdx];
+  document.getElementById('q-counter').textContent = `Pregunta ${curQIdx+1} de ${t.preguntas.length}`;
+  document.getElementById('q-enunciado').textContent = q.enunciado;
+
+  const letters = ['A','B','C','D'];
+  document.getElementById('alternativas').innerHTML = q.alternativas.map((a,i) =>
+    `<button class="alt-btn" onclick="answer(${i})"><span class="alt-letter">${letters[i]})</span>${a}</button>`
+  ).join('');
+
+  document.getElementById('feedback').innerHTML = '';
+  document.getElementById('next-btn').classList.remove('visible');
+}
+
+function answer(idx){
+  const t = gameTexts[curTextIdx];
+  const q = t.preguntas[curQIdx];
+  const ok = idx === q.correcta;
+
+  document.querySelectorAll('.alt-btn').forEach((btn,i) => {
+    btn.style.pointerEvents = 'none';
+    if(i === q.correcta) btn.classList.add('correct');
+    if(i === idx && !ok) btn.classList.add('wrong');
+    if(i !== q.correcta && i !== idx) btn.style.opacity = '0.4';
+  });
+
+  document.getElementById('feedback').innerHTML = ok
+    ? `<div class="feedback-text correct">✓ Correcto</div>`
+    : `<div class="feedback-text wrong">✗ La respuesta correcta era: ${q.alternativas[q.correcta]}</div>`;
+
+  results.push({ texto_id: t.id, tipo: t.tipo, correcta: ok });
+
+  document.getElementById('next-btn').classList.add('visible');
+}
+
+function nextQuestion(){
+  curQIdx++;
+  showQuestion();
+}
+
+async function endGame(){
+  clearInterval(globalTimer);
+  document.getElementById('game-screen').style.display = 'none';
+  document.getElementById('results-screen').style.display = 'block';
+  window.scrollTo(0,0);
+
+  const total = results.length;
+  if(total === 0){ window.location.href = 'index.html'; return; }
+
+  const aciertos = results.filter(r => r.correcta).length;
+  const pct = Math.round((aciertos/total)*100);
+  const duracion = Math.round((Date.now()-sessionStart)/1000);
+  const tp = total > 0 ? Math.round(duracion/total) : 0;
+  const xp = 15 + (aciertos * 3);
+
+  let emoji='📖',titulo='Lectura completa';
+  if(pct>=85){emoji='🏆';titulo='¡Lectura impecable!';}
+  else if(pct>=65){emoji='🔥';titulo='¡Bien leído!';}
+  else if(pct>=45){emoji='💪';titulo='Vas avanzando';}
+
+  document.getElementById('r-emoji').textContent = emoji;
+  document.getElementById('r-title').textContent = titulo;
+  const m=Math.floor(duracion/60),s=duracion%60;
+  document.getElementById('r-sub').textContent = `${curTextIdx} textos · ${total} preguntas · ${m>0?m+'m ':''}${s}s`;
+
+  document.getElementById('r-stats').innerHTML = `
+    <div class="r-stat"><div class="r-stat-value">${pct}%</div><div class="r-stat-label">Aciertos</div></div>
+    <div class="r-stat"><div class="r-stat-value teal">${tp}s</div><div class="r-stat-label">Seg/pregunta</div></div>
+    <div class="r-stat"><div class="r-stat-value yellow">${aciertos}</div><div class="r-stat-label">Correctas</div></div>
+    <div class="r-stat"><div class="r-stat-value coral">${total-aciertos}</div><div class="r-stat-label">Errores</div></div>`;
+
+  document.getElementById('xp-val').textContent = `+${xp} XP`;
+
+  let tip = 'Recuerda: lee la pregunta primero, luego busca la respuesta en el texto. No leas todo de corrido.';
+  if(pct >= 90) tip = 'Excelente comprensión. Ahora enfocate en velocidad: intentá responder más rápido sin perder precisión.';
+  else if(tp > 60) tip = 'Estás tardando mucho por pregunta. Practicá la técnica de escaneo: busca palabras clave del enunciado en el texto.';
+  else if(pct < 50) tip = 'Enfocate en entender la estructura del texto: ¿cuál es la idea principal? ¿qué argumenta? ¿qué concluye?';
+  document.getElementById('r-tip').textContent = tip;
+
+  const user = JSON.parse(localStorage.getItem('paes_lab_user')||'{}');
+  if(user.id){
+    const sd = {usuario_id:user.id,modulo:'lectora',duracion_seg:duracion,preguntas_total:total,aciertos,tiempo_promedio_seg:tp,completada:true,pct_aciertos:pct};
+    await sbPost('sesiones', sd);
+    await fetch(`${SUPABASE_URL}/rest/v1/rachas`,{method:'POST',headers:{...SB_H,'Prefer':'return=representation,resolution=merge-duplicates'},body:JSON.stringify({usuario_id:user.id,fecha:new Date().toISOString().split('T')[0],sesiones_del_dia:1,xp_del_dia:xp})}).catch(()=>{});
+  }
+}
+
+if(!localStorage.getItem('paes_lab_user'))window.location.href='index.html';
+</script>
+</body>
+</html>

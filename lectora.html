@@ -257,13 +257,59 @@ function answer(idx){
     if(i !== q.correcta && i !== idx) btn.style.opacity = '0.4';
   });
 
-  document.getElementById('feedback').innerHTML = ok
-    ? `<div class="feedback-text correct">✓ Correcto</div>`
-    : `<div class="feedback-text wrong">✗ La respuesta correcta era: ${q.alternativas[q.correcta]}</div>`;
+  // Detectar tipo de pregunta y dar tip de método
+  const metodo = detectarMetodo(q.enunciado);
+  const explicacion = q.explicacion || '';
+
+  if(ok){
+    document.getElementById('feedback').innerHTML = `<div class="feedback-text correct">✓ Correcto${metodo ? '<br><br>💡 <strong>Método:</strong> ' + metodo : ''}</div>`;
+  } else {
+    document.getElementById('feedback').innerHTML = `<div class="feedback-text wrong">✗ La correcta era: <strong>${q.alternativas[q.correcta]}</strong>${explicacion ? '<br><br>' + explicacion : ''}${metodo ? '<br><br>💡 <strong>Tip para la próxima:</strong> ' + metodo : ''}</div>`;
+  }
+
+  // Guardar error para módulo de errores
+  if(!ok){
+    const errores = JSON.parse(localStorage.getItem('paes_lab_errores') || '[]');
+    errores.push({
+      modulo: 'lectora',
+      pregunta: q.enunciado,
+      tu_respuesta: q.alternativas[idx],
+      respuesta_correcta: q.alternativas[q.correcta],
+      metodo: metodo,
+      fecha: new Date().toISOString()
+    });
+    // Mantener solo últimos 200 errores
+    if(errores.length > 200) errores.splice(0, errores.length - 200);
+    localStorage.setItem('paes_lab_errores', JSON.stringify(errores));
+  }
 
   results.push({ texto_id: t.id, tipo: t.tipo, correcta: ok });
-
   document.getElementById('next-btn').classList.add('visible');
+}
+
+function detectarMetodo(enunciado) {
+  const e = enunciado.toLowerCase();
+  if(e.includes('idea principal') || e.includes('trata') || e.includes('tema central'))
+    return 'Para la idea principal, busca la oración que resume TODO el texto. Suele estar al inicio del primer párrafo o reformulada al final. Pregúntate: ¿de qué habla CADA párrafo? Lo que tienen en común es la idea principal.';
+  if(e.includes('tono') || e.includes('predominante'))
+    return 'El tono se identifica por los adjetivos y verbos del autor. ¿Usa datos fríos sin opinión? → informativo. ¿Opina, propone o critica? → argumentativo. ¿Exagera o usa humor? → irónico. Fíjate en las palabras cargadas de emoción.';
+  if(e.includes('función') || e.includes('cumple') || e.includes('sirve') || e.includes('busca'))
+    return 'Cuando te preguntan la función de un dato, pregúntate: ¿POR QUÉ el autor puso esto acá? Las opciones suelen ser: respaldar con evidencia, ejemplificar, contrastar, o persuadir. En textos argumentativos, los datos casi siempre respaldan la tesis.';
+  if(e.includes('contraargument') || e.includes('refuta') || e.includes('opone'))
+    return 'El contraargumento es la posición OPUESTA que el autor reconoce pero luego refuta. Busca frases como "algunos argumentan que...", "sin embargo...", "a pesar de...". Lo que viene después del "sin embargo" es la posición del autor.';
+  if(e.includes('tesis') || e.includes('propone') || e.includes('plantea') || e.includes('defiende'))
+    return 'La tesis es LA OPINIÓN que el autor defiende en todo el texto. No es un dato ni una descripción, es lo que el autor quiere que tú creas o aceptes. Suele estar al inicio o al final del texto. Pregúntate: ¿qué quiere convencerme de hacer/pensar?';
+  if(e.includes('narrador'))
+    return 'Narrador en 1ª persona: usa "yo", "vi", "sentí". Narrador omnisciente (3ª persona): sabe TODO, incluyendo pensamientos y sentimientos de los personajes ("ella pensó", "él sintió"). Narrador testigo: cuenta desde afuera sin saber qué piensan.';
+  if(e.includes('infier') || e.includes('deduc') || e.includes('sugiere') || e.includes('conclu'))
+    return 'Inferir = sacar una conclusión que NO está dicha textualmente. La clave: ¿qué se puede concluir LÓGICAMENTE? Descarta lo que se dice explícitamente (eso no es inferencia) y lo que no tiene base en el texto (eso es invención).';
+  if(e.includes('frase final') || e.includes('cierre') || e.includes('último párrafo'))
+    return 'La frase final de un texto suele cumplir una de estas funciones: reforzar la tesis, hacer un llamado a la acción, abrir una reflexión, o comparar con algo para dar peso emocional. Pregúntate: ¿qué efecto quiere lograr el autor al cerrar así?';
+  if(e.includes('sentimiento') || e.includes('experimentó') || e.includes('siente'))
+    return 'Para identificar emociones de un personaje, busca las pistas del narrador: acciones físicas (apretó, tembló), descripciones internas (sintió algo que no reconoció), y el contexto de la situación. No te quedes solo con lo explícito.';
+  if(e.includes('decisión') || e.includes('acción'))
+    return 'Para entender las decisiones de un personaje, busca el CONTRASTE entre lo que deja atrás y lo que elige. El texto suele mostrar el "antes" y el "después" para que tú deduzcas la motivación.';
+  return 'Lee la pregunta ANTES de releer el texto. Ubica las palabras clave del enunciado y búscalas en el texto. La respuesta casi siempre está en un párrafo específico, no repartida por todo el texto.';
 }
 
 function nextQuestion(){

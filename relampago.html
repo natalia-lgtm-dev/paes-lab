@@ -1,0 +1,1044 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>PAES Lab — Relámpago</title>
+<meta name="theme-color" content="#05161A">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg-deep: #05161A;
+  --bg-card: #0F2B33;
+  --bg-elevated: #143A45;
+  --border: #1A4050;
+  --neon: #00FFD1;
+  --neon-dim: #00FFD140;
+  --neon-glow: #00FFD120;
+  --coral: #FF6B6B;
+  --coral-dim: #FF6B6B30;
+  --teal: #4ECDC4;
+  --teal-dim: #4ECDC430;
+  --yellow: #FFE66D;
+  --yellow-dim: #FFE66D30;
+  --text: #B8FFF5;
+  --text-muted: #6BA8A0;
+  --text-dim: #3D6B63;
+  --white: #E8FFFE;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'Outfit', sans-serif;
+  background: var(--bg-deep);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ====== PANTALLA INICIO ====== */
+#start-screen {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  text-align: center;
+}
+
+.start-icon { font-size: 60px; margin-bottom: 16px; }
+.start-title { font-family: 'Space Mono', monospace; font-size: 28px; font-weight: 700; color: var(--neon); margin-bottom: 8px; }
+.start-desc { font-size: 14px; color: var(--text-muted); max-width: 320px; line-height: 1.6; margin-bottom: 32px; }
+
+.config-section {
+  width: 100%;
+  max-width: 340px;
+  margin-bottom: 24px;
+}
+
+.config-label {
+  font-size: 12px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 10px;
+  text-align: left;
+}
+
+.config-options {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.config-btn {
+  flex: 1;
+  min-width: 70px;
+  padding: 10px 8px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--text);
+  font-family: 'Outfit', sans-serif;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+}
+
+.config-btn:hover { border-color: var(--teal); }
+.config-btn.selected { border-color: var(--neon); background: var(--neon-glow); color: var(--neon); }
+
+.start-btn {
+  width: 100%;
+  max-width: 340px;
+  padding: 16px;
+  background: var(--neon);
+  border: none;
+  border-radius: 14px;
+  color: var(--bg-deep);
+  font-family: 'Space Mono', monospace;
+  font-size: 18px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.start-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 20px var(--neon-dim); }
+
+.back-link {
+  margin-top: 20px;
+  font-size: 13px;
+  color: var(--text-muted);
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.back-link:hover { color: var(--neon); }
+
+/* ====== PANTALLA JUEGO ====== */
+#game-screen {
+  display: none;
+  min-height: 100vh;
+  padding: 20px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.game-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.game-progress {
+  font-family: 'Space Mono', monospace;
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+.game-streak {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'Space Mono', monospace;
+  font-size: 16px;
+  color: var(--yellow);
+}
+
+.game-quit {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 6px 12px;
+  color: var(--text-muted);
+  font-size: 12px;
+  cursor: pointer;
+  font-family: 'Outfit', sans-serif;
+}
+
+.game-quit:hover { border-color: var(--coral); color: var(--coral); }
+
+/* Timer bar */
+.timer-container {
+  margin-bottom: 20px;
+}
+
+.timer-bar {
+  height: 6px;
+  background: var(--bg-card);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.timer-fill {
+  height: 100%;
+  background: var(--neon);
+  border-radius: 3px;
+  transition: width 0.1s linear, background 0.3s;
+}
+
+.timer-fill.warning { background: var(--yellow); }
+.timer-fill.danger { background: var(--coral); }
+
+.timer-text {
+  font-family: 'Space Mono', monospace;
+  font-size: 13px;
+  color: var(--text-muted);
+  text-align: right;
+  margin-top: 4px;
+}
+
+/* Categoría */
+.q-category {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 16px;
+}
+
+.cat-fracciones { background: var(--teal-dim); color: var(--teal); }
+.cat-porcentajes { background: var(--yellow-dim); color: var(--yellow); }
+.cat-potencias { background: var(--coral-dim); color: var(--coral); }
+.cat-factorizacion { background: #7B61FF30; color: #B8A5FF; }
+.cat-calculo { background: var(--neon-glow); color: var(--neon); }
+
+/* Pregunta */
+.q-enunciado {
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--white);
+  line-height: 1.4;
+  margin-bottom: 28px;
+  min-height: 80px;
+}
+
+.q-enunciado .math {
+  font-family: 'Space Mono', monospace;
+  color: var(--neon);
+}
+
+/* Alternativas */
+.alternativas {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.alt-btn {
+  padding: 18px 16px;
+  background: var(--bg-card);
+  border: 1.5px solid var(--border);
+  border-radius: 14px;
+  color: var(--text);
+  font-family: 'Space Mono', monospace;
+  font-size: 18px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s;
+  text-align: center;
+}
+
+.alt-btn:hover { border-color: var(--teal); background: var(--bg-elevated); }
+.alt-btn:active { transform: scale(0.97); }
+
+.alt-btn.correct {
+  border-color: var(--neon);
+  background: var(--neon-glow);
+  color: var(--neon);
+  box-shadow: 0 0 20px var(--neon-glow);
+}
+
+.alt-btn.wrong {
+  border-color: var(--coral);
+  background: var(--coral-dim);
+  color: var(--coral);
+}
+
+.alt-btn.disabled { pointer-events: none; opacity: 0.5; }
+.alt-btn.disabled.correct { opacity: 1; }
+
+/* Feedback */
+.feedback {
+  text-align: center;
+  margin-top: 20px;
+  min-height: 60px;
+}
+
+.feedback-text {
+  font-size: 14px;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+.feedback-text.correct { color: var(--neon); }
+.feedback-text.wrong { color: var(--coral); }
+
+/* ====== PANTALLA RESULTADOS ====== */
+#results-screen {
+  display: none;
+  min-height: 100vh;
+  padding: 24px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.results-header { text-align: center; margin-bottom: 32px; }
+.results-emoji { font-size: 60px; margin-bottom: 12px; }
+.results-title { font-family: 'Space Mono', monospace; font-size: 28px; font-weight: 700; color: var(--neon); margin-bottom: 8px; }
+.results-subtitle { font-size: 14px; color: var(--text-muted); }
+
+.results-stats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+.r-stat {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 18px;
+  text-align: center;
+}
+
+.r-stat-value {
+  font-family: 'Space Mono', monospace;
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--neon);
+}
+
+.r-stat-value.coral { color: var(--coral); }
+.r-stat-value.teal { color: var(--teal); }
+.r-stat-value.yellow { color: var(--yellow); }
+
+.r-stat-label {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+/* Desglose por categoría */
+.cat-breakdown {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 18px;
+  margin-bottom: 24px;
+}
+
+.cat-breakdown-title {
+  font-size: 12px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 14px;
+}
+
+.cat-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.cat-row:last-child { margin-bottom: 0; }
+
+.cat-name {
+  font-size: 13px;
+  color: var(--text);
+  width: 110px;
+  flex-shrink: 0;
+}
+
+.cat-bar {
+  flex: 1;
+  height: 8px;
+  background: var(--bg-deep);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.cat-bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.5s ease;
+}
+
+.cat-pct {
+  font-family: 'Space Mono', monospace;
+  font-size: 13px;
+  width: 44px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+/* XP ganado */
+.xp-earned {
+  background: var(--neon-glow);
+  border: 1px solid var(--neon-dim);
+  border-radius: 14px;
+  padding: 16px;
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.xp-earned-value {
+  font-family: 'Space Mono', monospace;
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--neon);
+}
+
+.xp-earned-label {
+  font-size: 12px;
+  color: var(--teal);
+  margin-top: 2px;
+}
+
+/* Tip post-sesión */
+.results-tip {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px;
+  margin-bottom: 24px;
+  display: flex;
+  gap: 10px;
+}
+
+.results-tip-icon { font-size: 20px; flex-shrink: 0; }
+.results-tip-text { font-size: 13px; color: var(--text); line-height: 1.5; }
+
+.results-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.results-btn {
+  width: 100%;
+  padding: 14px;
+  border-radius: 12px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none;
+}
+
+.results-btn.primary {
+  background: var(--neon);
+  color: var(--bg-deep);
+}
+
+.results-btn.secondary {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text);
+}
+
+.results-btn:hover { transform: translateY(-1px); }
+
+@media (max-width: 400px) {
+  .q-enunciado { font-size: 19px; }
+  .alt-btn { padding: 14px 12px; font-size: 16px; }
+  .r-stat-value { font-size: 24px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ====== INICIO ====== -->
+<div id="start-screen">
+  <div class="start-icon">⚡</div>
+  <div class="start-title">Relámpago</div>
+  <div class="start-desc">Cálculo mental rápido. Automatiza operaciones básicas para liberar tu cerebro en los problemas difíciles.</div>
+
+  <div class="config-section">
+    <div class="config-label">Cantidad de preguntas</div>
+    <div class="config-options" id="qty-options">
+      <button class="config-btn selected" onclick="setQty(10, this)">10</button>
+      <button class="config-btn" onclick="setQty(20, this)">20</button>
+      <button class="config-btn" onclick="setQty(30, this)">30</button>
+      <button class="config-btn" onclick="setQty(50, this)">50</button>
+    </div>
+  </div>
+
+  <div class="config-section">
+    <div class="config-label">Tiempo por pregunta</div>
+    <div class="config-options" id="time-options">
+      <button class="config-btn" onclick="setTime(15, this)">15s</button>
+      <button class="config-btn selected" onclick="setTime(20, this)">20s</button>
+      <button class="config-btn" onclick="setTime(30, this)">30s</button>
+      <button class="config-btn" onclick="setTime(0, this)">Sin límite</button>
+    </div>
+  </div>
+
+  <div class="config-section">
+    <div class="config-label">Categoría</div>
+    <div class="config-options" id="cat-options">
+      <button class="config-btn selected" onclick="setCat('todas', this)">Todas</button>
+      <button class="config-btn" onclick="setCat('fracciones', this)">Fracciones</button>
+      <button class="config-btn" onclick="setCat('porcentajes', this)">Porcentajes</button>
+      <button class="config-btn" onclick="setCat('potencias', this)">Potencias</button>
+      <button class="config-btn" onclick="setCat('factorizacion', this)">Factor.</button>
+      <button class="config-btn" onclick="setCat('calculo', this)">Cálculo</button>
+    </div>
+  </div>
+
+  <button class="start-btn" onclick="startGame()">Iniciar sesión</button>
+  <a class="back-link" href="index.html">← Volver al dashboard</a>
+</div>
+
+<!-- ====== JUEGO ====== -->
+<div id="game-screen">
+  <div class="game-header">
+    <div class="game-progress" id="game-progress">1 / 10</div>
+    <div class="game-streak" id="game-streak">🔥 0</div>
+    <button class="game-quit" onclick="quitGame()">Terminar</button>
+  </div>
+
+  <div class="timer-container">
+    <div class="timer-bar"><div class="timer-fill" id="timer-fill"></div></div>
+    <div class="timer-text" id="timer-text"></div>
+  </div>
+
+  <div class="q-category" id="q-category">Fracciones</div>
+  <div class="q-enunciado" id="q-enunciado"></div>
+
+  <div class="alternativas" id="alternativas"></div>
+
+  <div class="feedback" id="feedback"></div>
+</div>
+
+<!-- ====== RESULTADOS ====== -->
+<div id="results-screen">
+  <div class="results-header">
+    <div class="results-emoji" id="results-emoji">⚡</div>
+    <div class="results-title" id="results-title">Sesión completa</div>
+    <div class="results-subtitle" id="results-subtitle"></div>
+  </div>
+
+  <div class="results-stats" id="results-stats"></div>
+
+  <div class="cat-breakdown" id="cat-breakdown">
+    <div class="cat-breakdown-title">Rendimiento por categoría</div>
+    <div id="cat-rows"></div>
+  </div>
+
+  <div class="xp-earned" id="xp-earned">
+    <div class="xp-earned-value" id="xp-value">+0 XP</div>
+    <div class="xp-earned-label">Experiencia ganada</div>
+  </div>
+
+  <div class="results-tip" id="results-tip">
+    <div class="results-tip-icon">💡</div>
+    <div class="results-tip-text" id="results-tip-text"></div>
+  </div>
+
+  <div class="results-actions">
+    <button class="results-btn primary" onclick="startGame()">Otra ronda</button>
+    <a class="results-btn secondary" href="index.html" style="text-align:center;text-decoration:none">Volver al dashboard</a>
+  </div>
+</div>
+
+<script>
+// ====== SUPABASE ======
+const SUPABASE_URL = 'https://cjpmainjspaygmrnnckk.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNqcG1haW5qc3BheWdtcm5uY2trIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc1NjgwNjEsImV4cCI6MjA5MzE0NDA2MX0.4Cbb9nL_l9yoAEDS-1Otk4hYoxlbpHCY7Y51DITv1Sc';
+const SB_HEADERS = {
+  'apikey': SUPABASE_KEY,
+  'Authorization': 'Bearer ' + SUPABASE_KEY,
+  'Content-Type': 'application/json',
+  'Prefer': 'return=representation'
+};
+
+async function sbPost(table, data) {
+  try {
+    const r = await fetch(`${SUPABASE_URL}/rest/v1/${table}`, {
+      method: 'POST', headers: SB_HEADERS, body: JSON.stringify(data)
+    });
+    return r.ok ? await r.json() : null;
+  } catch (e) {
+    console.error('Error guardando en Supabase:', e);
+    // Guardar en cola offline
+    const queue = JSON.parse(localStorage.getItem('paes_lab_offline_queue') || '[]');
+    queue.push({ table, data, timestamp: Date.now() });
+    localStorage.setItem('paes_lab_offline_queue', JSON.stringify(queue));
+    return null;
+  }
+}
+
+// ====== BANCO DE PREGUNTAS (50) ======
+const BANCO = [
+  // === FRACCIONES (12) ===
+  { id:'rel_f01', tipo:'fracciones', enunciado:'1/2 + 1/3 =', alternativas:['2/5','5/6','3/5','1/6'], correcta:1 },
+  { id:'rel_f02', tipo:'fracciones', enunciado:'3/4 − 1/2 =', alternativas:['1/2','1/4','2/4','3/8'], correcta:1 },
+  { id:'rel_f03', tipo:'fracciones', enunciado:'2/3 × 3/4 =', alternativas:['6/7','1/2','5/12','2/4'], correcta:1 },
+  { id:'rel_f04', tipo:'fracciones', enunciado:'5/6 − 1/3 =', alternativas:['4/6','1/2','2/3','4/3'], correcta:1 },
+  { id:'rel_f05', tipo:'fracciones', enunciado:'3/5 + 1/10 =', alternativas:['4/15','4/10','7/10','3/10'], correcta:2 },
+  { id:'rel_f06', tipo:'fracciones', enunciado:'4/7 × 7/8 =', alternativas:['1/2','4/8','28/56','7/14'], correcta:0 },
+  { id:'rel_f07', tipo:'fracciones', enunciado:'2/3 ÷ 4/5 =', alternativas:['8/15','5/6','10/12','6/20'], correcta:1 },
+  { id:'rel_f08', tipo:'fracciones', enunciado:'7/8 − 3/8 =', alternativas:['4/8','1/2','4/16','ambas a y b'], correcta:3 },
+  { id:'rel_f09', tipo:'fracciones', enunciado:'1/4 + 2/3 =', alternativas:['3/7','11/12','9/12','3/12'], correcta:1 },
+  { id:'rel_f10', tipo:'fracciones', enunciado:'5/6 ÷ 2/3 =', alternativas:['10/18','5/4','15/12','5/9'], correcta:1 },
+  { id:'rel_f11', tipo:'fracciones', enunciado:'¿Cuánto es 3/4 de 80?', alternativas:['60','45','55','70'], correcta:0 },
+  { id:'rel_f12', tipo:'fracciones', enunciado:'Si 2/5 de un número es 30, ¿cuál es el número?', alternativas:['60','75','12','50'], correcta:1 },
+
+  // === PORCENTAJES (10) ===
+  { id:'rel_p01', tipo:'porcentajes', enunciado:'¿Cuánto es el 25% de 200?', alternativas:['25','40','50','75'], correcta:2 },
+  { id:'rel_p02', tipo:'porcentajes', enunciado:'¿Cuánto es el 15% de 400?', alternativas:['45','60','80','55'], correcta:1 },
+  { id:'rel_p03', tipo:'porcentajes', enunciado:'Un producto costaba $800 y subió un 10%. ¿Precio nuevo?', alternativas:['$810','$880','$900','$850'], correcta:1 },
+  { id:'rel_p04', tipo:'porcentajes', enunciado:'¿Qué porcentaje es 45 de 180?', alternativas:['20%','30%','25%','15%'], correcta:2 },
+  { id:'rel_p05', tipo:'porcentajes', enunciado:'Un artículo de $1.200 tiene 30% de descuento. ¿Cuánto pagas?', alternativas:['$900','$840','$360','$960'], correcta:1 },
+  { id:'rel_p06', tipo:'porcentajes', enunciado:'¿Cuánto es el 5% de 3.000?', alternativas:['15','150','1.500','50'], correcta:1 },
+  { id:'rel_p07', tipo:'porcentajes', enunciado:'Si un valor aumenta de 50 a 65, ¿cuál fue el % de aumento?', alternativas:['15%','25%','30%','20%'], correcta:2 },
+  { id:'rel_p08', tipo:'porcentajes', enunciado:'¿Cuánto es el 120% de 50?', alternativas:['60','55','70','65'], correcta:0 },
+  { id:'rel_p09', tipo:'porcentajes', enunciado:'El 40% de un curso son 12 alumnos. ¿Cuántos hay en total?', alternativas:['28','30','36','48'], correcta:1 },
+  { id:'rel_p10', tipo:'porcentajes', enunciado:'Un precio baja de $500 a $400. ¿% de descuento?', alternativas:['10%','15%','25%','20%'], correcta:3 },
+
+  // === POTENCIAS Y RAÍCES (10) ===
+  { id:'rel_t01', tipo:'potencias', enunciado:'2⁵ =', alternativas:['16','32','64','10'], correcta:1 },
+  { id:'rel_t02', tipo:'potencias', enunciado:'3³ =', alternativas:['9','18','27','81'], correcta:2 },
+  { id:'rel_t03', tipo:'potencias', enunciado:'√144 =', alternativas:['11','12','13','14'], correcta:1 },
+  { id:'rel_t04', tipo:'potencias', enunciado:'5² × 2 =', alternativas:['20','50','100','30'], correcta:1 },
+  { id:'rel_t05', tipo:'potencias', enunciado:'(−3)² =', alternativas:['−9','9','6','−6'], correcta:1 },
+  { id:'rel_t06', tipo:'potencias', enunciado:'√(81) + √(49) =', alternativas:['14','16','18','130'], correcta:1 },
+  { id:'rel_t07', tipo:'potencias', enunciado:'2⁴ + 3² =', alternativas:['20','25','17','22'], correcta:1 },
+  { id:'rel_t08', tipo:'potencias', enunciado:'10³ ÷ 10¹ =', alternativas:['10','100','1.000','10.000'], correcta:1 },
+  { id:'rel_t09', tipo:'potencias', enunciado:'(2³)² =', alternativas:['32','64','16','128'], correcta:1 },
+  { id:'rel_t10', tipo:'potencias', enunciado:'√(25 × 4) =', alternativas:['10','20','50','100'], correcta:0 },
+
+  // === FACTORIZACIÓN (8) ===
+  { id:'rel_x01', tipo:'factorizacion', enunciado:'Factoriza: x² − 9', alternativas:['(x−3)(x+3)','(x−9)(x+1)','(x−3)²','(x+9)(x−1)'], correcta:0 },
+  { id:'rel_x02', tipo:'factorizacion', enunciado:'Factoriza: x² + 6x + 9', alternativas:['(x+9)(x+1)','(x+3)²','(x+6)(x+3)','(x−3)²'], correcta:1 },
+  { id:'rel_x03', tipo:'factorizacion', enunciado:'Factoriza: 2x² + 4x', alternativas:['2(x²+4x)','2x(x+2)','x(2x+4)','(2x+4)x'], correcta:1 },
+  { id:'rel_x04', tipo:'factorizacion', enunciado:'Factoriza: x² − 16', alternativas:['(x−8)(x+2)','(x−4)²','(x+4)(x−4)','(x−16)(x+1)'], correcta:2 },
+  { id:'rel_x05', tipo:'factorizacion', enunciado:'(a+b)² =', alternativas:['a²+b²','a²+ab+b²','a²+2ab+b²','2a²+2b²'], correcta:2 },
+  { id:'rel_x06', tipo:'factorizacion', enunciado:'Factoriza: x² − 5x + 6', alternativas:['(x−2)(x−3)','(x−1)(x−6)','(x+2)(x+3)','(x−5)(x+1)'], correcta:0 },
+  { id:'rel_x07', tipo:'factorizacion', enunciado:'Factoriza: 4x² − 1', alternativas:['(4x−1)(x+1)','(2x−1)(2x+1)','(2x−1)²','4(x²−1)'], correcta:1 },
+  { id:'rel_x08', tipo:'factorizacion', enunciado:'(a−b)(a+b) =', alternativas:['a²−b²','a²+b²','a²−2ab+b²','2ab'], correcta:0 },
+
+  // === CÁLCULO MENTAL (10) ===
+  { id:'rel_c01', tipo:'calculo', enunciado:'17 × 6 =', alternativas:['96','102','112','108'], correcta:1 },
+  { id:'rel_c02', tipo:'calculo', enunciado:'144 ÷ 12 =', alternativas:['11','12','13','14'], correcta:1 },
+  { id:'rel_c03', tipo:'calculo', enunciado:'25 × 8 =', alternativas:['175','200','225','250'], correcta:1 },
+  { id:'rel_c04', tipo:'calculo', enunciado:'1.000 − 367 =', alternativas:['633','643','637','743'], correcta:0 },
+  { id:'rel_c05', tipo:'calculo', enunciado:'15² =', alternativas:['215','225','235','250'], correcta:1 },
+  { id:'rel_c06', tipo:'calculo', enunciado:'72 ÷ 0,5 =', alternativas:['36','72','144','360'], correcta:2 },
+  { id:'rel_c07', tipo:'calculo', enunciado:'0,3 × 0,7 =', alternativas:['0,21','2,1','0,021','21'], correcta:0 },
+  { id:'rel_c08', tipo:'calculo', enunciado:'999 + 456 =', alternativas:['1.445','1.455','1.355','1.465'], correcta:1 },
+  { id:'rel_c09', tipo:'calculo', enunciado:'Si x + 7 = 15, entonces 2x =', alternativas:['8','14','16','22'], correcta:2 },
+  { id:'rel_c10', tipo:'calculo', enunciado:'¿Cuántos minutos hay en 2,5 horas?', alternativas:['120','130','140','150'], correcta:3 }
+];
+
+// ====== ESTADO DEL JUEGO ======
+let config = { qty: 10, time: 20, cat: 'todas' };
+let gameQuestions = [];
+let currentIndex = 0;
+let currentStreak = 0;
+let maxStreak = 0;
+let sessionResults = [];
+let timerInterval = null;
+let timeLeft = 0;
+let sessionStart = null;
+
+// ====== CONFIGURACIÓN ======
+function setQty(n, btn) {
+  config.qty = n;
+  document.querySelectorAll('#qty-options .config-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+}
+
+function setTime(t, btn) {
+  config.time = t;
+  document.querySelectorAll('#time-options .config-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+}
+
+function setCat(cat, btn) {
+  config.cat = cat;
+  document.querySelectorAll('#cat-options .config-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+}
+
+// ====== JUEGO ======
+function startGame() {
+  // Filtrar banco por categoría
+  let pool = config.cat === 'todas' ? [...BANCO] : BANCO.filter(q => q.tipo === config.cat);
+
+  // Mezclar
+  pool.sort(() => Math.random() - 0.5);
+
+  // Tomar la cantidad elegida
+  gameQuestions = pool.slice(0, Math.min(config.qty, pool.length));
+
+  currentIndex = 0;
+  currentStreak = 0;
+  maxStreak = 0;
+  sessionResults = [];
+  sessionStart = Date.now();
+
+  document.getElementById('start-screen').style.display = 'none';
+  document.getElementById('results-screen').style.display = 'none';
+  document.getElementById('game-screen').style.display = 'block';
+
+  showQuestion();
+}
+
+function showQuestion() {
+  if (currentIndex >= gameQuestions.length) {
+    endGame();
+    return;
+  }
+
+  const q = gameQuestions[currentIndex];
+
+  document.getElementById('game-progress').textContent = `${currentIndex + 1} / ${gameQuestions.length}`;
+  document.getElementById('game-streak').innerHTML = `🔥 ${currentStreak}`;
+
+  // Categoría
+  const catEl = document.getElementById('q-category');
+  const catNames = { fracciones:'Fracciones', porcentajes:'Porcentajes', potencias:'Potencias y raíces', factorizacion:'Factorización', calculo:'Cálculo mental' };
+  catEl.textContent = catNames[q.tipo] || q.tipo;
+  catEl.className = 'q-category cat-' + q.tipo;
+
+  // Enunciado
+  document.getElementById('q-enunciado').innerHTML = q.enunciado;
+
+  // Alternativas
+  const altContainer = document.getElementById('alternativas');
+  altContainer.innerHTML = q.alternativas.map((alt, i) => `
+    <button class="alt-btn" onclick="answer(${i})">${alt}</button>
+  `).join('');
+
+  // Feedback
+  document.getElementById('feedback').innerHTML = '';
+
+  // Timer
+  startTimer();
+}
+
+function startTimer() {
+  clearInterval(timerInterval);
+
+  if (config.time === 0) {
+    document.getElementById('timer-fill').style.width = '100%';
+    document.getElementById('timer-fill').className = 'timer-fill';
+    document.getElementById('timer-text').textContent = '';
+    return;
+  }
+
+  timeLeft = config.time * 10; // décimas de segundo
+  const total = timeLeft;
+
+  timerInterval = setInterval(() => {
+    timeLeft--;
+    const pct = (timeLeft / total) * 100;
+    const fill = document.getElementById('timer-fill');
+    fill.style.width = pct + '%';
+
+    if (pct <= 20) fill.className = 'timer-fill danger';
+    else if (pct <= 50) fill.className = 'timer-fill warning';
+    else fill.className = 'timer-fill';
+
+    document.getElementById('timer-text').textContent = (timeLeft / 10).toFixed(1) + 's';
+
+    if (timeLeft <= 0) {
+      clearInterval(timerInterval);
+      answer(-1); // tiempo agotado
+    }
+  }, 100);
+}
+
+function answer(idx) {
+  clearInterval(timerInterval);
+
+  const q = gameQuestions[currentIndex];
+  const isCorrect = idx === q.correcta;
+  const timeTaken = config.time > 0 ? (config.time - timeLeft / 10) : 0;
+
+  // Deshabilitar botones
+  const btns = document.querySelectorAll('.alt-btn');
+  btns.forEach((btn, i) => {
+    btn.classList.add('disabled');
+    if (i === q.correcta) btn.classList.add('correct');
+    if (i === idx && !isCorrect) btn.classList.add('wrong');
+  });
+
+  // Feedback
+  const feedbackEl = document.getElementById('feedback');
+  if (idx === -1) {
+    feedbackEl.innerHTML = `<div class="feedback-text wrong">⏱ Tiempo agotado</div>`;
+    currentStreak = 0;
+  } else if (isCorrect) {
+    currentStreak++;
+    if (currentStreak > maxStreak) maxStreak = currentStreak;
+    const messages = ['Correcto', 'Bien', 'Exacto', 'Así se hace'];
+    feedbackEl.innerHTML = `<div class="feedback-text correct">✓ ${messages[Math.floor(Math.random() * messages.length)]}</div>`;
+  } else {
+    feedbackEl.innerHTML = `<div class="feedback-text wrong">✗ La respuesta era: ${q.alternativas[q.correcta]}</div>`;
+    currentStreak = 0;
+  }
+
+  document.getElementById('game-streak').innerHTML = `🔥 ${currentStreak}`;
+
+  // Guardar resultado
+  sessionResults.push({
+    pregunta_id: q.id,
+    tipo: q.tipo,
+    correcta: isCorrect,
+    tiempo: Math.round(timeTaken * 100) / 100,
+    saltada: idx === -1
+  });
+
+  // Siguiente pregunta
+  currentIndex++;
+  setTimeout(() => showQuestion(), isCorrect ? 800 : 1500);
+}
+
+function quitGame() {
+  clearInterval(timerInterval);
+  endGame();
+}
+
+// ====== RESULTADOS ======
+async function endGame() {
+  document.getElementById('game-screen').style.display = 'none';
+  document.getElementById('results-screen').style.display = 'block';
+  window.scrollTo(0, 0);
+
+  const total = sessionResults.length;
+  if (total === 0) {
+    window.location.href = 'index.html';
+    return;
+  }
+
+  const aciertos = sessionResults.filter(r => r.correcta).length;
+  const pctAciertos = Math.round((aciertos / total) * 100);
+  const tiempos = sessionResults.filter(r => r.tiempo > 0).map(r => r.tiempo);
+  const tiempoProm = tiempos.length > 0 ? Math.round(tiempos.reduce((a, b) => a + b, 0) / tiempos.length * 10) / 10 : 0;
+  const duracionTotal = Math.round((Date.now() - sessionStart) / 1000);
+
+  // XP: 10 base + 2 por acierto + 5 por cada 3 de streak
+  const xpGanado = 10 + (aciertos * 2) + Math.floor(maxStreak / 3) * 5;
+
+  // Emoji según rendimiento
+  let emoji = '⚡';
+  let titulo = 'Sesión completa';
+  if (pctAciertos >= 90) { emoji = '🏆'; titulo = '¡Increíble!'; }
+  else if (pctAciertos >= 70) { emoji = '🔥'; titulo = '¡Buen trabajo!'; }
+  else if (pctAciertos >= 50) { emoji = '💪'; titulo = 'Vas por buen camino'; }
+  else { emoji = '📚'; titulo = 'A seguir practicando'; }
+
+  document.getElementById('results-emoji').textContent = emoji;
+  document.getElementById('results-title').textContent = titulo;
+  document.getElementById('results-subtitle').textContent = `${total} preguntas en ${formatTime(duracionTotal)}`;
+
+  // Stats
+  document.getElementById('results-stats').innerHTML = `
+    <div class="r-stat">
+      <div class="r-stat-value">${pctAciertos}%</div>
+      <div class="r-stat-label">Aciertos</div>
+    </div>
+    <div class="r-stat">
+      <div class="r-stat-value teal">${tiempoProm}s</div>
+      <div class="r-stat-label">Promedio</div>
+    </div>
+    <div class="r-stat">
+      <div class="r-stat-value yellow">${maxStreak}</div>
+      <div class="r-stat-label">Mejor racha</div>
+    </div>
+    <div class="r-stat">
+      <div class="r-stat-value coral">${total - aciertos}</div>
+      <div class="r-stat-label">Errores</div>
+    </div>
+  `;
+
+  // Desglose por categoría
+  const categorias = {};
+  sessionResults.forEach(r => {
+    if (!categorias[r.tipo]) categorias[r.tipo] = { total: 0, correctas: 0, tiempos: [] };
+    categorias[r.tipo].total++;
+    if (r.correcta) categorias[r.tipo].correctas++;
+    if (r.tiempo > 0) categorias[r.tipo].tiempos.push(r.tiempo);
+  });
+
+  const catColors = { fracciones:'var(--teal)', porcentajes:'var(--yellow)', potencias:'var(--coral)', factorizacion:'#B8A5FF', calculo:'var(--neon)' };
+  const catNames = { fracciones:'Fracciones', porcentajes:'Porcentajes', potencias:'Potencias', factorizacion:'Factorización', calculo:'Cálculo' };
+
+  let catHTML = '';
+  Object.keys(categorias).forEach(cat => {
+    const c = categorias[cat];
+    const pct = Math.round((c.correctas / c.total) * 100);
+    catHTML += `
+      <div class="cat-row">
+        <div class="cat-name">${catNames[cat] || cat}</div>
+        <div class="cat-bar"><div class="cat-bar-fill" style="width:${pct}%;background:${catColors[cat] || 'var(--neon)'}"></div></div>
+        <div class="cat-pct" style="color:${catColors[cat] || 'var(--neon)'}">${pct}%</div>
+      </div>
+    `;
+  });
+  document.getElementById('cat-rows').innerHTML = catHTML;
+
+  // XP
+  document.getElementById('xp-value').textContent = `+${xpGanado} XP`;
+
+  // Tip post-sesión
+  const tipText = generateSessionTip(categorias, pctAciertos, tiempoProm, maxStreak);
+  document.getElementById('results-tip-text').textContent = tipText;
+
+  // Guardar en Supabase
+  await saveSession(total, aciertos, tiempoProm, duracionTotal, xpGanado);
+}
+
+function generateSessionTip(categorias, pctAciertos, tiempoProm, maxStreak) {
+  const tips = [];
+
+  // Por categoría débil
+  let peorCat = null;
+  let peorPct = 100;
+  Object.keys(categorias).forEach(cat => {
+    const c = categorias[cat];
+    const pct = (c.correctas / c.total) * 100;
+    if (pct < peorPct) { peorPct = pct; peorCat = cat; }
+  });
+
+  const catNames = { fracciones:'fracciones', porcentajes:'porcentajes', potencias:'potencias y raíces', factorizacion:'factorización', calculo:'cálculo mental' };
+
+  if (peorCat && peorPct < 60) {
+    tips.push(`Tu punto débil hoy fue ${catNames[peorCat]}. Hacé una sesión enfocada solo en esa categoría.`);
+  }
+
+  // Por velocidad
+  if (tiempoProm > 15) {
+    tips.push('Tu tiempo promedio es alto. Intentá responder más rápido aunque te equivoques — la velocidad se entrena.');
+  } else if (tiempoProm < 8) {
+    tips.push('Tu velocidad es excelente. Probá con tiempo límite de 15 segundos para subir el desafío.');
+  }
+
+  // Por aciertos
+  if (pctAciertos >= 90) {
+    tips.push('Rendimiento altísimo. Podés subir la dificultad bajando el tiempo o agregando más preguntas.');
+  } else if (pctAciertos < 50) {
+    tips.push('Enfocate en precisión primero. Mejor lento y correcto que rápido con errores.');
+  }
+
+  // Por racha
+  if (maxStreak >= 10) {
+    tips.push(`Racha de ${maxStreak}: tu concentración está afilada. Aprovechá para hacer un simulacro completo.`);
+  }
+
+  // Default
+  if (tips.length === 0) {
+    tips.push('Buen entrenamiento. La clave es la constancia: 10 minutos diarios hacen más que 2 horas el fin de semana.');
+  }
+
+  return tips[Math.floor(Math.random() * tips.length)];
+}
+
+function formatTime(seconds) {
+  const m = Math.floor(seconds / 60);
+  const s = seconds % 60;
+  if (m === 0) return `${s}s`;
+  return `${m}m ${s}s`;
+}
+
+async function saveSession(total, aciertos, tiempoProm, duracion, xp) {
+  const user = JSON.parse(localStorage.getItem('paes_lab_user') || '{}');
+  if (!user.id) return;
+
+  // Encontrar eje más lento y más débil
+  const categorias = {};
+  sessionResults.forEach(r => {
+    if (!categorias[r.tipo]) categorias[r.tipo] = { total: 0, correctas: 0, tiempos: [] };
+    categorias[r.tipo].total++;
+    if (r.correcta) categorias[r.tipo].correctas++;
+    if (r.tiempo > 0) categorias[r.tipo].tiempos.push(r.tiempo);
+  });
+
+  let ejeMasLento = null, maxTiempo = 0;
+  let ejeMasDebil = null, minPct = 101;
+  Object.keys(categorias).forEach(cat => {
+    const c = categorias[cat];
+    const avgT = c.tiempos.length > 0 ? c.tiempos.reduce((a, b) => a + b, 0) / c.tiempos.length : 0;
+    const pct = (c.correctas / c.total) * 100;
+    if (avgT > maxTiempo) { maxTiempo = avgT; ejeMasLento = cat; }
+    if (pct < minPct) { minPct = pct; ejeMasDebil = cat; }
+  });
+
+  // Guardar sesión
+  const sesionData = {
+    usuario_id: user.id,
+    modulo: 'relampago',
+    duracion_seg: duracion,
+    preguntas_total: total,
+    aciertos: aciertos,
+    tiempo_promedio_seg: tiempoProm,
+    completada: true,
+    pct_aciertos: Math.round((aciertos / total) * 100),
+    eje_mas_lento: ejeMasLento,
+    eje_mas_debil: ejeMasDebil
+  };
+
+  const sesionResp = await sbPost('sesiones', sesionData);
+
+  // Guardar respuestas individuales
+  if (sesionResp && sesionResp.length > 0) {
+    const sesionId = sesionResp[0].id;
+    const respuestasData = sessionResults.map(r => ({
+      sesion_id: sesionId,
+      usuario_id: user.id,
+      pregunta_id: r.pregunta_id,
+      modulo: 'relampago',
+      eje: r.tipo,
+      dificultad: 1,
+      respuesta_dada: null,
+      correcta: r.correcta,
+      tiempo_seg: r.tiempo,
+      saltada: r.saltada
+    }));
+
+    await sbPost('respuestas', respuestasData);
+  }
+
+  // Guardar racha del día
+  const hoy = new Date().toISOString().split('T')[0];
+  // Upsert racha: intentamos insertar, si falla (unique), actualizamos
+  try {
+    await fetch(`${SUPABASE_URL}/rest/v1/rachas`, {
+      method: 'POST',
+      headers: { ...SB_HEADERS, 'Prefer': 'return=representation,resolution=merge-duplicates' },
+      body: JSON.stringify({
+        usuario_id: user.id,
+        fecha: hoy,
+        sesiones_del_dia: 1,
+        xp_del_dia: xp
+      })
+    });
+  } catch (e) {
+    console.error('Error guardando racha:', e);
+  }
+}
+
+// ====== VERIFICAR LOGIN ======
+function checkLogin() {
+  const user = localStorage.getItem('paes_lab_user');
+  if (!user) {
+    window.location.href = 'index.html';
+  }
+}
+
+checkLogin();
+</script>
+</body>
+</html>

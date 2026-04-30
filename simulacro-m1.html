@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>PAES Lab — Simulacro M1</title>
+<meta name="theme-color" content="#05161A">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg-deep:#05161A;--bg-card:#0F2B33;--bg-elevated:#143A45;--border:#1A4050;--neon:#00FFD1;--neon-dim:#00FFD140;--neon-glow:#00FFD120;--coral:#FF6B6B;--coral-dim:#FF6B6B30;--teal:#4ECDC4;--teal-dim:#4ECDC430;--yellow:#FFE66D;--yellow-dim:#FFE66D30;--text:#B8FFF5;--text-muted:#6BA8A0;--text-dim:#3D6B63;--white:#E8FFFE}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Outfit',sans-serif;background:var(--bg-deep);color:var(--text);min-height:100vh;overflow-x:hidden}
+
+/* Pantalla inicio */
+#start-screen{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center}
+.start-icon{font-size:60px;margin-bottom:16px}
+.start-title{font-family:'Space Mono',monospace;font-size:28px;font-weight:700;color:var(--neon);margin-bottom:8px}
+.start-desc{font-size:14px;color:var(--text-muted);max-width:340px;line-height:1.6;margin-bottom:32px}
+.config-section{width:100%;max-width:340px;margin-bottom:24px}
+.config-label{font-size:12px;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;text-align:left}
+.config-options{display:flex;gap:8px;flex-wrap:wrap}
+.config-btn{flex:1;min-width:70px;padding:10px 8px;background:var(--bg-card);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'Outfit',sans-serif;font-size:13px;cursor:pointer;transition:all 0.2s;text-align:center}
+.config-btn:hover{border-color:var(--teal)}
+.config-btn.selected{border-color:var(--neon);background:var(--neon-glow);color:var(--neon)}
+.start-btn{width:100%;max-width:340px;padding:16px;background:var(--neon);border:none;border-radius:14px;color:var(--bg-deep);font-family:'Space Mono',monospace;font-size:18px;font-weight:700;cursor:pointer;transition:all 0.2s}
+.start-btn:hover{transform:translateY(-2px);box-shadow:0 4px 20px var(--neon-dim)}
+.back-link{margin-top:20px;font-size:13px;color:var(--text-muted);text-decoration:none}
+.back-link:hover{color:var(--neon)}
+
+.info-box{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:24px;width:100%;max-width:340px;text-align:left}
+.info-row{display:flex;justify-content:space-between;font-size:13px;padding:4px 0}
+.info-row .label{color:var(--text-muted)}
+.info-row .value{color:var(--neon);font-family:'Space Mono',monospace}
+
+/* Juego */
+#game-screen{display:none;min-height:100vh;padding:20px;max-width:600px;margin:0 auto}
+.game-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.game-progress{font-family:'Space Mono',monospace;font-size:14px;color:var(--text-muted)}
+.game-timer-global{font-family:'Space Mono',monospace;font-size:16px;font-weight:700;color:var(--yellow)}
+.game-quit{background:none;border:1px solid var(--border);border-radius:8px;padding:6px 12px;color:var(--text-muted);font-size:12px;cursor:pointer;font-family:'Outfit',sans-serif}
+.game-quit:hover{border-color:var(--coral);color:var(--coral)}
+
+/* Progress bar general */
+.progress-bar{height:4px;background:var(--bg-card);border-radius:2px;margin-bottom:20px;overflow:hidden}
+.progress-fill{height:100%;background:var(--neon);border-radius:2px;transition:width 0.3s}
+
+/* Eje badge */
+.eje-badge{display:inline-block;padding:4px 12px;border-radius:8px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px}
+.eje-numeros{background:var(--teal-dim);color:var(--teal)}
+.eje-algebra{background:var(--yellow-dim);color:var(--yellow)}
+.eje-geometria{background:var(--coral-dim);color:var(--coral)}
+.eje-prob_estadistica{background:#7B61FF30;color:#B8A5FF}
+
+.q-number{font-size:12px;color:var(--text-dim);margin-bottom:8px}
+.q-enunciado{font-size:18px;font-weight:500;color:var(--white);line-height:1.5;margin-bottom:24px;min-height:60px}
+
+.alternativas{display:grid;grid-template-columns:1fr;gap:10px}
+.alt-btn{padding:14px 16px;background:var(--bg-card);border:1.5px solid var(--border);border-radius:12px;color:var(--text);font-family:'Outfit',sans-serif;font-size:15px;cursor:pointer;transition:all 0.15s;text-align:left;line-height:1.4}
+.alt-btn:hover{border-color:var(--teal);background:var(--bg-elevated)}
+.alt-btn:active{transform:scale(0.98)}
+.alt-btn .alt-letter{font-family:'Space Mono',monospace;color:var(--text-muted);margin-right:10px;font-size:13px}
+.alt-btn.correct{border-color:var(--neon);background:var(--neon-glow);color:var(--neon)}
+.alt-btn.wrong{border-color:var(--coral);background:var(--coral-dim);color:var(--coral)}
+.alt-btn.disabled{pointer-events:none;opacity:0.4}
+.alt-btn.disabled.correct{opacity:1}
+
+.feedback{margin-top:16px;min-height:50px}
+.feedback-text{font-size:13px;line-height:1.5;padding:12px;border-radius:10px}
+.feedback-text.correct{background:var(--neon-glow);color:var(--neon)}
+.feedback-text.wrong{background:var(--coral-dim);color:var(--coral)}
+
+.nav-btns{display:flex;gap:10px;margin-top:16px}
+.nav-btn{flex:1;padding:12px;border-radius:10px;border:1px solid var(--border);background:var(--bg-card);color:var(--text);font-family:'Outfit',sans-serif;font-size:14px;cursor:pointer}
+.nav-btn:hover{border-color:var(--neon)}
+.nav-btn.primary{background:var(--neon);color:var(--bg-deep);border:none;font-weight:600}
+.nav-btn.skip{color:var(--text-muted)}
+
+/* Resultados */
+#results-screen{display:none;min-height:100vh;padding:24px;max-width:600px;margin:0 auto}
+.results-header{text-align:center;margin-bottom:28px}
+.results-emoji{font-size:50px;margin-bottom:10px}
+.results-title{font-family:'Space Mono',monospace;font-size:26px;font-weight:700;color:var(--neon);margin-bottom:6px}
+.results-subtitle{font-size:14px;color:var(--text-muted)}
+.results-stats{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:20px}
+.r-stat{background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:16px;text-align:center}
+.r-stat-value{font-family:'Space Mono',monospace;font-size:26px;font-weight:700;color:var(--neon)}
+.r-stat-value.coral{color:var(--coral)}.r-stat-value.teal{color:var(--teal)}.r-stat-value.yellow{color:var(--yellow)}
+.r-stat-label{font-size:11px;color:var(--text-muted);margin-top:4px}
+
+.eje-breakdown{background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:20px}
+.eje-breakdown-title{font-size:12px;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px}
+.eje-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.eje-row:last-child{margin-bottom:0}
+.eje-name{font-size:13px;color:var(--text);width:100px;flex-shrink:0}
+.eje-bar{flex:1;height:8px;background:var(--bg-deep);border-radius:4px;overflow:hidden}
+.eje-bar-fill{height:100%;border-radius:4px;transition:width 0.5s ease}
+.eje-pct{font-family:'Space Mono',monospace;font-size:13px;width:44px;text-align:right;flex-shrink:0}
+.eje-time{font-size:11px;color:var(--text-dim);width:50px;text-align:right;flex-shrink:0}
+
+.time-analysis{background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:20px}
+.time-analysis-title{font-size:12px;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px}
+.time-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(36px,1fr));gap:4px}
+.time-cell{height:36px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:10px;font-weight:700;cursor:default}
+
+.xp-earned{background:var(--neon-glow);border:1px solid var(--neon-dim);border-radius:14px;padding:14px;text-align:center;margin-bottom:20px}
+.xp-earned-value{font-family:'Space Mono',monospace;font-size:22px;font-weight:700;color:var(--neon)}
+.xp-earned-label{font-size:12px;color:var(--teal);margin-top:2px}
+
+.results-tip{background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:14px;margin-bottom:24px;display:flex;gap:10px}
+.results-tip-icon{font-size:18px;flex-shrink:0}
+.results-tip-text{font-size:13px;color:var(--text);line-height:1.5}
+
+.results-actions{display:flex;flex-direction:column;gap:10px;padding-bottom:40px}
+.results-btn{width:100%;padding:14px;border-radius:12px;font-family:'Outfit',sans-serif;font-size:15px;font-weight:600;cursor:pointer;border:none;text-align:center;text-decoration:none}
+.results-btn.primary{background:var(--neon);color:var(--bg-deep)}
+.results-btn.secondary{background:var(--bg-card);border:1px solid var(--border);color:var(--text)}
+.results-btn:hover{transform:translateY(-1px)}
+
+@media(max-width:400px){.q-enunciado{font-size:16px}.alt-btn{padding:12px 14px;font-size:14px}.r-stat-value{font-size:22px}}
+</style>
+</head>
+<body>
+
+<!-- INICIO -->
+<div id="start-screen">
+  <div class="start-icon">📐</div>
+  <div class="start-title">Simulacro M1</div>
+  <div class="start-desc">Mini-ensayo cronometrado tipo PAES. Practica gestionar tu tiempo bajo presión real.</div>
+
+  <div class="info-box">
+    <div class="info-row"><span class="label">PAES real M1</span><span class="value">65 preguntas / 140 min</span></div>
+    <div class="info-row"><span class="label">Tu simulacro</span><span class="value">Configurable</span></div>
+  </div>
+
+  <div class="config-section">
+    <div class="config-label">Preguntas</div>
+    <div class="config-options" id="qty-options">
+      <button class="config-btn" onclick="setQty(10,this)">10</button>
+      <button class="config-btn selected" onclick="setQty(20,this)">20</button>
+      <button class="config-btn" onclick="setQty(30,this)">30</button>
+      <button class="config-btn" onclick="setQty(50,this)">50</button>
+    </div>
+  </div>
+
+  <div class="config-section">
+    <div class="config-label">Tiempo total</div>
+    <div class="config-options" id="time-options">
+      <button class="config-btn" onclick="setTime(10,this)">10 min</button>
+      <button class="config-btn selected" onclick="setTime(20,this)">20 min</button>
+      <button class="config-btn" onclick="setTime(40,this)">40 min</button>
+      <button class="config-btn" onclick="setTime(0,this)">Sin límite</button>
+    </div>
+  </div>
+
+  <div class="config-section">
+    <div class="config-label">Eje temático</div>
+    <div class="config-options" id="eje-options">
+      <button class="config-btn selected" onclick="setEje('todos',this)">Todos</button>
+      <button class="config-btn" onclick="setEje('numeros',this)">Números</button>
+      <button class="config-btn" onclick="setEje('algebra',this)">Álgebra</button>
+      <button class="config-btn" onclick="setEje('geometria',this)">Geometría</button>
+      <button class="config-btn" onclick="setEje('prob_estadistica',this)">Prob/Est</button>
+    </div>
+  </div>
+
+  <button class="start-btn" onclick="startGame()">Iniciar simulacro</button>
+  <a class="back-link" href="index.html">← Volver al dashboard</a>
+</div>
+
+<!-- JUEGO -->
+<div id="game-screen">
+  <div class="game-top">
+    <div class="game-progress" id="game-progress">1/20</div>
+    <div class="game-timer-global" id="game-timer">20:00</div>
+    <button class="game-quit" onclick="endGame()">Terminar</button>
+  </div>
+  <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+
+  <div class="eje-badge" id="eje-badge">Números</div>
+  <div class="q-enunciado" id="q-enunciado"></div>
+  <div class="alternativas" id="alternativas"></div>
+  <div class="feedback" id="feedback"></div>
+  <div class="nav-btns" id="nav-btns" style="display:none">
+    <button class="nav-btn skip" onclick="skipQuestion()">Saltar</button>
+    <button class="nav-btn primary" onclick="nextQuestion()">Siguiente</button>
+  </div>
+</div>
+
+<!-- RESULTADOS -->
+<div id="results-screen">
+  <div class="results-header">
+    <div class="results-emoji" id="results-emoji">📐</div>
+    <div class="results-title" id="results-title">Simulacro completo</div>
+    <div class="results-subtitle" id="results-subtitle"></div>
+  </div>
+  <div class="results-stats" id="results-stats"></div>
+  <div class="eje-breakdown" id="eje-breakdown"><div class="eje-breakdown-title">Rendimiento por eje</div><div id="eje-rows"></div></div>
+  <div class="time-analysis" id="time-analysis"><div class="time-analysis-title">Mapa de tiempo por pregunta</div><div class="time-grid" id="time-grid"></div></div>
+  <div class="xp-earned"><div class="xp-earned-value" id="xp-value">+0 XP</div><div class="xp-earned-label">Experiencia ganada</div></div>
+  <div class="results-tip"><div class="results-tip-icon">💡</div><div class="results-tip-text" id="results-tip-text"></div></div>
+  <div class="results-actions">
+    <button class="results-btn primary" onclick="location.reload()">Otro simulacro</button>
+    <a class="results-btn secondary" href="index.html">Volver al dashboard</a>
+  </div>
+</div>
+
+<script>
+const SUPABASE_URL='https://cjpmainjspaygmrnnckk.supabase.co';
+const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNqcG1haW5qc3BheWdtcm5uY2trIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc1NjgwNjEsImV4cCI6MjA5MzE0NDA2MX0.4Cbb9nL_l9yoAEDS-1Otk4hYoxlbpHCY7Y51DITv1Sc';
+const SB_HEADERS={'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json','Prefer':'return=representation'};
+async function sbPost(t,d){try{const r=await fetch(`${SUPABASE_URL}/rest/v1/${t}`,{method:'POST',headers:SB_HEADERS,body:JSON.stringify(d)});return r.ok?await r.json():null}catch(e){return null}}
+
+// ====== BANCO M1: 100 PREGUNTAS ======
+const BANCO_M1 = [
+  // === NÚMEROS (25) ===
+  {id:'m1_n01',eje:'numeros',dif:1,enunciado:'Si a = −3 y b = 5, ¿cuánto vale a·b + a²?',alternativas:['−6','6','−24','24'],correcta:0,explicacion:'(−3)(5) + (−3)² = −15 + 9 = −6'},
+  {id:'m1_n02',eje:'numeros',dif:1,enunciado:'¿Cuál es el resultado de (−2)³ + (−1)⁴?',alternativas:['−7','−9','−8','7'],correcta:0,explicacion:'(−8) + 1 = −7'},
+  {id:'m1_n03',eje:'numeros',dif:1,enunciado:'El 30% de 250 es:',alternativas:['25','75','80','60'],correcta:1,explicacion:'0,3 × 250 = 75'},
+  {id:'m1_n04',eje:'numeros',dif:2,enunciado:'Un artículo costaba $40.000 y bajó un 15%. ¿Cuánto cuesta ahora?',alternativas:['$34.000','$36.000','$38.000','$25.000'],correcta:0,explicacion:'40.000 × 0,85 = 34.000'},
+  {id:'m1_n05',eje:'numeros',dif:1,enunciado:'¿Cuánto es 3/5 expresado como porcentaje?',alternativas:['30%','50%','60%','65%'],correcta:2,explicacion:'3 ÷ 5 = 0,6 = 60%'},
+  {id:'m1_n06',eje:'numeros',dif:2,enunciado:'Si el IVA es 19% y un producto cuesta $10.000 neto, ¿cuánto se paga con IVA?',alternativas:['$11.900','$11.000','$12.900','$10.190'],correcta:0,explicacion:'10.000 × 1,19 = 11.900'},
+  {id:'m1_n07',eje:'numeros',dif:1,enunciado:'Ordena de menor a mayor: −5, 3, −1, 0, 2',alternativas:['−5, −1, 0, 2, 3','−1, −5, 0, 2, 3','0, −1, −5, 2, 3','3, 2, 0, −1, −5'],correcta:0,explicacion:'De menor a mayor: −5 < −1 < 0 < 2 < 3'},
+  {id:'m1_n08',eje:'numeros',dif:2,enunciado:'¿Cuál fracción es equivalente a 0,125?',alternativas:['1/4','1/8','1/5','1/16'],correcta:1,explicacion:'0,125 = 125/1000 = 1/8'},
+  {id:'m1_n09',eje:'numeros',dif:2,enunciado:'Un estudiante obtuvo 45, 60, 75 y 80 en sus pruebas. Si necesita promedio 65, ¿cuánto necesita en la 5ª prueba?',alternativas:['55','65','60','75'],correcta:1,explicacion:'(45+60+75+80+x)/5 = 65 → 260+x = 325 → x = 65'},
+  {id:'m1_n10',eje:'numeros',dif:1,enunciado:'√(36) + √(64) =',alternativas:['10','14','100','12'],correcta:1,explicacion:'6 + 8 = 14'},
+  {id:'m1_n11',eje:'numeros',dif:2,enunciado:'Si 2/3 de un número es 48, ¿cuál es el número?',alternativas:['32','64','72','96'],correcta:2,explicacion:'x × 2/3 = 48 → x = 48 × 3/2 = 72'},
+  {id:'m1_n12',eje:'numeros',dif:1,enunciado:'(−4) × (−3) × (−1) =',alternativas:['12','−12','7','-7'],correcta:1,explicacion:'(−4)(−3) = 12, luego 12 × (−1) = −12'},
+  {id:'m1_n13',eje:'numeros',dif:2,enunciado:'Un precio sube de $800 a $1.000. ¿Cuál es el porcentaje de aumento?',alternativas:['20%','25%','30%','15%'],correcta:1,explicacion:'(1000−800)/800 × 100 = 25%'},
+  {id:'m1_n14',eje:'numeros',dif:3,enunciado:'Si el 40% de un curso son mujeres y hay 18 mujeres, ¿cuántos hombres hay?',alternativas:['27','32','12','45'],correcta:0,explicacion:'Total = 18/0,4 = 45. Hombres = 45 − 18 = 27'},
+  {id:'m1_n15',eje:'numeros',dif:1,enunciado:'2⁴ × 2³ =',alternativas:['2⁷','2¹²','4⁷','2¹'],correcta:0,explicacion:'Misma base, se suman exponentes: 2⁴⁺³ = 2⁷'},
+  {id:'m1_n16',eje:'numeros',dif:2,enunciado:'¿Cuánto es (3/4)² ?',alternativas:['6/8','9/16','3/8','6/16'],correcta:1,explicacion:'(3/4)² = 9/16'},
+  {id:'m1_n17',eje:'numeros',dif:2,enunciado:'Simplifica: 12/18',alternativas:['6/9','4/6','2/3','3/4'],correcta:2,explicacion:'MCD(12,18) = 6. 12/6 = 2, 18/6 = 3'},
+  {id:'m1_n18',eje:'numeros',dif:1,enunciado:'¿Cuál número es irracional?',alternativas:['3/7','0,5','√2','−4'],correcta:2,explicacion:'√2 no se puede expresar como fracción'},
+  {id:'m1_n19',eje:'numeros',dif:3,enunciado:'Un producto tiene dos descuentos sucesivos de 20% y 10%. ¿Descuento total equivalente?',alternativas:['30%','28%','25%','32%'],correcta:1,explicacion:'Factor: 0,8 × 0,9 = 0,72. Descuento: 1 − 0,72 = 0,28 = 28%'},
+  {id:'m1_n20',eje:'numeros',dif:2,enunciado:'¿Cuánto es 5⁰ + 3¹ + 2² ?',alternativas:['8','10','6','7'],correcta:0,explicacion:'1 + 3 + 4 = 8'},
+  {id:'m1_n21',eje:'numeros',dif:1,enunciado:'¿Cuál es el MCD de 24 y 36?',alternativas:['6','8','12','4'],correcta:2,explicacion:'24 = 2³×3, 36 = 2²×3². MCD = 2²×3 = 12'},
+  {id:'m1_n22',eje:'numeros',dif:2,enunciado:'3,5 × 10³ =',alternativas:['350','3.500','35.000','0,0035'],correcta:1,explicacion:'3,5 × 1000 = 3.500'},
+  {id:'m1_n23',eje:'numeros',dif:1,enunciado:'¿Cuál es el MCM de 4 y 6?',alternativas:['24','12','2','48'],correcta:1,explicacion:'MCM(4,6) = 12'},
+  {id:'m1_n24',eje:'numeros',dif:3,enunciado:'Si un auto pierde 12% de su valor cada año y costó $10.000.000, ¿cuánto vale después de 2 años?',alternativas:['$7.600.000','$7.744.000','$8.800.000','$7.500.000'],correcta:1,explicacion:'10M × 0,88² = 10M × 0,7744 = 7.744.000'},
+  {id:'m1_n25',eje:'numeros',dif:2,enunciado:'Ordena: 2/3, 0,7, 5/8, 0,65',alternativas:['5/8, 0,65, 2/3, 0,7','0,65, 5/8, 2/3, 0,7','2/3, 0,65, 0,7, 5/8','0,7, 2/3, 0,65, 5/8'],correcta:1,explicacion:'5/8=0,625 < 0,65 < 2/3≈0,667 < 0,7'},
+
+  // === ÁLGEBRA (30) ===
+  {id:'m1_a01',eje:'algebra',dif:1,enunciado:'Si 2x − 5 = 11, entonces x =',alternativas:['3','8','6','16'],correcta:1,explicacion:'2x = 16, x = 8'},
+  {id:'m1_a02',eje:'algebra',dif:1,enunciado:'Simplifica: 3(2x + 4) − 2x',alternativas:['4x + 12','4x + 4','8x + 12','6x + 4'],correcta:0,explicacion:'6x + 12 − 2x = 4x + 12'},
+  {id:'m1_a03',eje:'algebra',dif:2,enunciado:'Si f(x) = 3x − 7, ¿cuánto vale f(5)?',alternativas:['8','15','22','−2'],correcta:0,explicacion:'f(5) = 3(5) − 7 = 15 − 7 = 8'},
+  {id:'m1_a04',eje:'algebra',dif:2,enunciado:'Resuelve: x/3 + 2 = 5',alternativas:['1','6','9','21'],correcta:2,explicacion:'x/3 = 3, x = 9'},
+  {id:'m1_a05',eje:'algebra',dif:1,enunciado:'(x + 3)² =',alternativas:['x² + 9','x² + 3x + 9','x² + 6x + 9','2x + 6'],correcta:2,explicacion:'Binomio al cuadrado: x² + 2(x)(3) + 9'},
+  {id:'m1_a06',eje:'algebra',dif:2,enunciado:'¿Cuál es la pendiente de la recta 2x − 3y = 6?',alternativas:['2','−3','2/3','−2/3'],correcta:2,explicacion:'3y = 2x − 6, y = (2/3)x − 2. Pendiente = 2/3'},
+  {id:'m1_a07',eje:'algebra',dif:2,enunciado:'Si x + y = 10 y x − y = 4, entonces x =',alternativas:['3','7','6','14'],correcta:1,explicacion:'Sumando: 2x = 14, x = 7'},
+  {id:'m1_a08',eje:'algebra',dif:1,enunciado:'Factoriza: x² − 25',alternativas:['(x−5)²','(x+5)(x−5)','(x−25)(x+1)','(x+25)(x−1)'],correcta:1,explicacion:'Diferencia de cuadrados: a²−b² = (a+b)(a−b)'},
+  {id:'m1_a09',eje:'algebra',dif:2,enunciado:'¿Cuáles son las soluciones de x² − 5x + 6 = 0?',alternativas:['x=1, x=6','x=2, x=3','x=−2, x=−3','x=−1, x=6'],correcta:1,explicacion:'(x−2)(x−3) = 0'},
+  {id:'m1_a10',eje:'algebra',dif:3,enunciado:'Si f(x) = x² − 4x + 3, ¿cuál es el vértice de la parábola?',alternativas:['(2, −1)','(−2, 15)','(4, 3)','(2, 1)'],correcta:0,explicacion:'Vértice: x = −b/2a = 4/2 = 2. f(2) = 4−8+3 = −1'},
+  {id:'m1_a11',eje:'algebra',dif:1,enunciado:'¿Cuál es el valor de 3(a + 2b) si a=4 y b=1?',alternativas:['18','14','10','21'],correcta:0,explicacion:'3(4 + 2) = 3(6) = 18'},
+  {id:'m1_a12',eje:'algebra',dif:2,enunciado:'Una función lineal pasa por (0, 3) y (2, 7). ¿Su ecuación?',alternativas:['y = 2x + 3','y = 3x + 2','y = 7x','y = 2x − 3'],correcta:0,explicacion:'Pendiente = (7−3)/(2−0) = 2. Intercepto = 3'},
+  {id:'m1_a13',eje:'algebra',dif:1,enunciado:'Resuelve: −3x > 12',alternativas:['x > 4','x < −4','x > −4','x < 4'],correcta:1,explicacion:'Dividir por −3 invierte la desigualdad: x < −4'},
+  {id:'m1_a14',eje:'algebra',dif:2,enunciado:'Si 4ˣ = 64, entonces x =',alternativas:['2','3','4','16'],correcta:1,explicacion:'4³ = 64'},
+  {id:'m1_a15',eje:'algebra',dif:2,enunciado:'Desarrolla: (2x − 3)(x + 4)',alternativas:['2x² + 5x − 12','2x² + x − 12','2x² + 11x − 12','2x² − 5x − 12'],correcta:0,explicacion:'2x² + 8x − 3x − 12 = 2x² + 5x − 12'},
+  {id:'m1_a16',eje:'algebra',dif:3,enunciado:'¿Dónde corta y = x² − 4 al eje x?',alternativas:['x = 4','x = ±2','x = ±4','x = 2'],correcta:1,explicacion:'x² − 4 = 0 → x² = 4 → x = ±2'},
+  {id:'m1_a17',eje:'algebra',dif:1,enunciado:'Si un taxi cobra $500 de bajada de bandera y $200 por km, ¿cuánto cuesta un viaje de x km?',alternativas:['200x','500x + 200','500 + 200x','700x'],correcta:2,explicacion:'Costo = fijo + variable = 500 + 200x'},
+  {id:'m1_a18',eje:'algebra',dif:2,enunciado:'¿Cuál es el dominio de f(x) = 1/(x − 3)?',alternativas:['Todos los reales','x ≠ 0','x ≠ 3','x > 3'],correcta:2,explicacion:'El denominador no puede ser 0: x ≠ 3'},
+  {id:'m1_a19',eje:'algebra',dif:2,enunciado:'Resuelve: |x − 2| = 5',alternativas:['x = 7','x = −3','x = 7 o x = −3','x = 3 o x = −7'],correcta:2,explicacion:'x − 2 = 5 → x = 7, o x − 2 = −5 → x = −3'},
+  {id:'m1_a20',eje:'algebra',dif:1,enunciado:'¿Cuánto vale la expresión 2n + 1 para n = 0, 1, 2, 3?',alternativas:['0, 2, 4, 6','1, 3, 5, 7','2, 4, 6, 8','1, 2, 3, 4'],correcta:1,explicacion:'1, 3, 5, 7 — genera números impares'},
+  {id:'m1_a21',eje:'algebra',dif:3,enunciado:'Si f(x) = 2x + 1, ¿cuánto vale f(f(3))?',alternativas:['7','15','13','9'],correcta:1,explicacion:'f(3) = 7. f(7) = 15'},
+  {id:'m1_a22',eje:'algebra',dif:2,enunciado:'La sucesión 3, 7, 11, 15, ... ¿cuál es el término 10?',alternativas:['39','43','35','41'],correcta:0,explicacion:'a_n = 3 + (n−1)×4. a_10 = 3 + 36 = 39'},
+  {id:'m1_a23',eje:'algebra',dif:1,enunciado:'Factoriza: 6x² + 9x',alternativas:['3x(2x + 3)','6x(x + 9)','3(2x² + 3x)','9x(x + 1)'],correcta:0,explicacion:'Factor común 3x: 3x(2x + 3)'},
+  {id:'m1_a24',eje:'algebra',dif:2,enunciado:'Si la recta pasa por (1, 2) con pendiente −3, ¿cuál es su ecuación?',alternativas:['y = −3x + 5','y = −3x − 1','y = 3x − 1','y = −3x + 2'],correcta:0,explicacion:'y − 2 = −3(x − 1) → y = −3x + 5'},
+  {id:'m1_a25',eje:'algebra',dif:3,enunciado:'¿Cuántas soluciones tiene x² + 4 = 0?',alternativas:['Ninguna real','Una','Dos','Infinitas'],correcta:0,explicacion:'x² = −4 no tiene solución en los reales'},
+  {id:'m1_a26',eje:'algebra',dif:2,enunciado:'Dos rectas son paralelas si tienen:',alternativas:['Mismo intercepto','Misma pendiente','Pendientes opuestas','Pendientes recíprocas'],correcta:1,explicacion:'Rectas paralelas tienen la misma pendiente'},
+  {id:'m1_a27',eje:'algebra',dif:1,enunciado:'Si 5 − 2x = 1, entonces x =',alternativas:['−2','2','3','−3'],correcta:1,explicacion:'−2x = −4, x = 2'},
+  {id:'m1_a28',eje:'algebra',dif:2,enunciado:'¿Cuál es el rango de f(x) = x² + 1?',alternativas:['y ≥ 0','y ≥ 1','y > 1','Todos los reales'],correcta:1,explicacion:'x² ≥ 0, entonces x² + 1 ≥ 1'},
+  {id:'m1_a29',eje:'algebra',dif:3,enunciado:'Si log₂(x) = 5, entonces x =',alternativas:['10','25','32','64'],correcta:2,explicacion:'2⁵ = 32'},
+  {id:'m1_a30',eje:'algebra',dif:2,enunciado:'¿Cuál es la inversa de f(x) = 2x + 6?',alternativas:['f⁻¹(x) = (x−6)/2','f⁻¹(x) = x/2 − 6','f⁻¹(x) = 2x − 6','f⁻¹(x) = (x+6)/2'],correcta:0,explicacion:'y = 2x+6 → x = (y−6)/2'},
+
+  // === GEOMETRÍA (20) ===
+  {id:'m1_g01',eje:'geometria',dif:1,enunciado:'¿Cuánto mide la hipotenusa de un triángulo rectángulo con catetos 3 y 4?',alternativas:['5','6','7','25'],correcta:0,explicacion:'√(9+16) = √25 = 5'},
+  {id:'m1_g02',eje:'geometria',dif:1,enunciado:'El área de un cuadrado de lado 7 cm es:',alternativas:['28 cm²','14 cm²','49 cm²','21 cm²'],correcta:2,explicacion:'7² = 49 cm²'},
+  {id:'m1_g03',eje:'geometria',dif:2,enunciado:'¿Cuál es el perímetro de un círculo de radio 5 cm? (usa π ≈ 3,14)',alternativas:['31,4 cm','15,7 cm','78,5 cm','10 cm'],correcta:0,explicacion:'2πr = 2 × 3,14 × 5 = 31,4 cm'},
+  {id:'m1_g04',eje:'geometria',dif:2,enunciado:'Un triángulo tiene lados 5, 12, 13. ¿Es rectángulo?',alternativas:['Sí, porque 5²+12²=13²','No, porque no cumple Pitágoras','Sí, porque 5+12=17>13','No se puede determinar'],correcta:0,explicacion:'25 + 144 = 169 = 13²'},
+  {id:'m1_g05',eje:'geometria',dif:1,enunciado:'El área de un triángulo de base 10 y altura 6 es:',alternativas:['60','30','16','20'],correcta:1,explicacion:'(10 × 6)/2 = 30'},
+  {id:'m1_g06',eje:'geometria',dif:2,enunciado:'¿Cuál es el volumen de un cubo de arista 4 cm?',alternativas:['16 cm³','48 cm³','64 cm³','12 cm³'],correcta:2,explicacion:'4³ = 64 cm³'},
+  {id:'m1_g07',eje:'geometria',dif:2,enunciado:'El área de un círculo de radio 3 cm es: (π ≈ 3,14)',alternativas:['9,42 cm²','28,26 cm²','18,84 cm²','6,28 cm²'],correcta:1,explicacion:'πr² = 3,14 × 9 = 28,26 cm²'},
+  {id:'m1_g08',eje:'geometria',dif:2,enunciado:'Un cilindro tiene radio 3 cm y altura 10 cm. ¿Cuál es su volumen? (π ≈ 3,14)',alternativas:['94,2 cm³','188,4 cm³','282,6 cm³','30 cm³'],correcta:2,explicacion:'πr²h = 3,14 × 9 × 10 = 282,6'},
+  {id:'m1_g09',eje:'geometria',dif:1,enunciado:'La suma de los ángulos interiores de un triángulo es:',alternativas:['90°','180°','360°','270°'],correcta:1,explicacion:'Propiedad fundamental del triángulo'},
+  {id:'m1_g10',eje:'geometria',dif:2,enunciado:'Si dos ángulos son suplementarios y uno mide 65°, ¿cuánto mide el otro?',alternativas:['25°','115°','295°','65°'],correcta:1,explicacion:'Suplementarios suman 180°. 180 − 65 = 115°'},
+  {id:'m1_g11',eje:'geometria',dif:2,enunciado:'Un trapecio tiene bases 8 y 12 cm, y altura 5 cm. ¿Cuál es su área?',alternativas:['50 cm²','100 cm²','60 cm²','40 cm²'],correcta:0,explicacion:'(8+12)/2 × 5 = 50 cm²'},
+  {id:'m1_g12',eje:'geometria',dif:3,enunciado:'Al reflejar el punto (3, −2) respecto al eje x, se obtiene:',alternativas:['(−3, −2)','(3, 2)','(−3, 2)','(3, −2)'],correcta:1,explicacion:'Reflexión en eje x: (x, y) → (x, −y). (3, 2)'},
+  {id:'m1_g13',eje:'geometria',dif:1,enunciado:'¿Cuántas caras tiene un prisma rectangular (paralelepípedo)?',alternativas:['4','5','6','8'],correcta:2,explicacion:'Un paralelepípedo tiene 6 caras'},
+  {id:'m1_g14',eje:'geometria',dif:2,enunciado:'El perímetro de un rectángulo es 30 cm y su largo es 10 cm. ¿Cuánto mide el ancho?',alternativas:['5 cm','10 cm','15 cm','20 cm'],correcta:0,explicacion:'2(10 + a) = 30 → a = 5 cm'},
+  {id:'m1_g15',eje:'geometria',dif:3,enunciado:'Si se traslada el punto (2, 5) según el vector (−3, 4), se obtiene:',alternativas:['(5, 1)','(−1, 9)','(−1, 1)','(5, 9)'],correcta:1,explicacion:'(2+(−3), 5+4) = (−1, 9)'},
+  {id:'m1_g16',eje:'geometria',dif:2,enunciado:'Dos triángulos son semejantes. Si uno tiene lados 3, 4, 5 y el lado mayor del otro mide 15, ¿cuánto mide el menor?',alternativas:['6','9','12','3'],correcta:1,explicacion:'Factor de escala: 15/5 = 3. Lado menor: 3 × 3 = 9'},
+  {id:'m1_g17',eje:'geometria',dif:1,enunciado:'¿Cuánto miden los ángulos interiores de un cuadrado?',alternativas:['60° cada uno','90° cada uno','120° cada uno','45° cada uno'],correcta:1,explicacion:'Todos los ángulos de un cuadrado miden 90°'},
+  {id:'m1_g18',eje:'geometria',dif:2,enunciado:'La superficie lateral de un cilindro de radio 2 y altura 7 es: (π ≈ 3,14)',alternativas:['43,96','87,92','28','25,12'],correcta:1,explicacion:'2πrh = 2 × 3,14 × 2 × 7 = 87,92'},
+  {id:'m1_g19',eje:'geometria',dif:3,enunciado:'Un triángulo equilátero tiene lado 6. ¿Cuál es su altura?',alternativas:['3','3√3','6√3','3√2'],correcta:1,explicacion:'h = (√3/2) × 6 = 3√3'},
+  {id:'m1_g20',eje:'geometria',dif:2,enunciado:'Al rotar el punto (1, 0) en 90° antihorario respecto al origen, se obtiene:',alternativas:['(0, 1)','(0, −1)','(−1, 0)','(1, 0)'],correcta:0,explicacion:'Rotación 90°: (x,y) → (−y, x). (0, 1)'},
+
+  // === PROBABILIDAD Y ESTADÍSTICA (25) ===
+  {id:'m1_p01',eje:'prob_estadistica',dif:1,enunciado:'Si lanzas un dado, ¿cuál es la probabilidad de obtener un número par?',alternativas:['1/6','1/3','1/2','2/3'],correcta:2,explicacion:'Pares: 2, 4, 6. Son 3 de 6 = 1/2'},
+  {id:'m1_p02',eje:'prob_estadistica',dif:1,enunciado:'La media de 4, 6, 8, 10, 12 es:',alternativas:['6','8','10','40'],correcta:1,explicacion:'(4+6+8+10+12)/5 = 40/5 = 8'},
+  {id:'m1_p03',eje:'prob_estadistica',dif:1,enunciado:'La mediana de 3, 7, 1, 9, 5 es:',alternativas:['7','5','1','9'],correcta:1,explicacion:'Ordenados: 1, 3, 5, 7, 9. Mediana = 5'},
+  {id:'m1_p04',eje:'prob_estadistica',dif:2,enunciado:'En una bolsa hay 3 rojas, 5 azules y 2 verdes. ¿P(azul)?',alternativas:['3/10','5/10','2/10','5/8'],correcta:1,explicacion:'5 azules de 10 total = 5/10 = 1/2'},
+  {id:'m1_p05',eje:'prob_estadistica',dif:1,enunciado:'La moda de 2, 3, 3, 5, 7, 3, 8 es:',alternativas:['2','5','3','7'],correcta:2,explicacion:'El 3 se repite más (3 veces)'},
+  {id:'m1_p06',eje:'prob_estadistica',dif:2,enunciado:'Si P(A) = 0,3 y P(B) = 0,5 y son independientes, ¿P(A y B)?',alternativas:['0,8','0,15','0,2','0,35'],correcta:1,explicacion:'P(A∩B) = P(A)×P(B) = 0,3 × 0,5 = 0,15'},
+  {id:'m1_p07',eje:'prob_estadistica',dif:2,enunciado:'El rango de los datos 5, 12, 3, 18, 7 es:',alternativas:['13','15','18','10'],correcta:1,explicacion:'Rango = máx − mín = 18 − 3 = 15'},
+  {id:'m1_p08',eje:'prob_estadistica',dif:2,enunciado:'Si lanzo dos dados, ¿cuántos resultados posibles hay?',alternativas:['12','6','36','24'],correcta:2,explicacion:'6 × 6 = 36 resultados posibles'},
+  {id:'m1_p09',eje:'prob_estadistica',dif:2,enunciado:'Un gráfico de barras muestra: Lunes=10, Martes=15, Miércoles=5. ¿Cuál es la media?',alternativas:['10','15','30','5'],correcta:0,explicacion:'(10+15+5)/3 = 30/3 = 10'},
+  {id:'m1_p10',eje:'prob_estadistica',dif:3,enunciado:'¿Cuál es la probabilidad de sacar al menos una cara al lanzar 2 monedas?',alternativas:['1/2','3/4','1/4','1'],correcta:1,explicacion:'P(al menos 1 cara) = 1 − P(2 sellos) = 1 − 1/4 = 3/4'},
+  {id:'m1_p11',eje:'prob_estadistica',dif:1,enunciado:'¿Qué tipo de gráfico es más adecuado para mostrar porcentajes de un total?',alternativas:['Barras','Circular (torta)','Histograma','Dispersión'],correcta:1,explicacion:'El gráfico circular muestra partes de un todo'},
+  {id:'m1_p12',eje:'prob_estadistica',dif:2,enunciado:'La desviación media de 2, 4, 6 (media=4) es:',alternativas:['2','4/3','0','4'],correcta:1,explicacion:'|2−4|+|4−4|+|6−4| = 2+0+2 = 4. 4/3 ≈ 1,33'},
+  {id:'m1_p13',eje:'prob_estadistica',dif:2,enunciado:'Se lanza un dado 60 veces. ¿Cuántas veces se espera obtener un 3?',alternativas:['3','6','10','12'],correcta:2,explicacion:'P(3) = 1/6. Frecuencia esperada = 60/6 = 10'},
+  {id:'m1_p14',eje:'prob_estadistica',dif:1,enunciado:'¿Cuál es la frecuencia relativa de "azul" si en 50 intentos salió 15 veces?',alternativas:['15%','0,3','35','0,15'],correcta:1,explicacion:'15/50 = 0,3'},
+  {id:'m1_p15',eje:'prob_estadistica',dif:2,enunciado:'Si P(A) = 0,7, ¿cuánto es P(no A)?',alternativas:['0,7','0,3','1,3','0'],correcta:1,explicacion:'P(Ā) = 1 − P(A) = 1 − 0,7 = 0,3'},
+  {id:'m1_p16',eje:'prob_estadistica',dif:2,enunciado:'Los datos 10, 10, 20, 20, 20, 30 tienen moda = 20 y mediana:',alternativas:['15','20','10','25'],correcta:1,explicacion:'Ordenados: 10,10,20,20,20,30. Mediana = (20+20)/2 = 20'},
+  {id:'m1_p17',eje:'prob_estadistica',dif:3,enunciado:'En una muestra, la media es 50 y la desviación estándar es 5. ¿Qué porcentaje de datos está entre 45 y 55 (aprox)?',alternativas:['50%','68%','95%','99%'],correcta:1,explicacion:'±1 desviación estándar contiene aprox. 68% de los datos'},
+  {id:'m1_p18',eje:'prob_estadistica',dif:1,enunciado:'¿Cuál medida de tendencia central se ve más afectada por valores extremos?',alternativas:['Moda','Mediana','Media','Rango'],correcta:2,explicacion:'La media es sensible a valores atípicos'},
+  {id:'m1_p19',eje:'prob_estadistica',dif:2,enunciado:'De un mazo de 52 cartas, ¿P(sacar un as)?',alternativas:['4/52','1/4','4/13','1/52'],correcta:0,explicacion:'Hay 4 ases de 52 cartas. P = 4/52 = 1/13'},
+  {id:'m1_p20',eje:'prob_estadistica',dif:2,enunciado:'Si la tabla de frecuencias tiene intervalos [0-10), [10-20), [20-30) con frecuencias 5, 12, 3, la moda está en:',alternativas:['[0-10)','[10-20)','[20-30)','No se puede determinar'],correcta:1,explicacion:'El intervalo [10-20) tiene la mayor frecuencia (12)'},
+  {id:'m1_p21',eje:'prob_estadistica',dif:1,enunciado:'¿Cuántos resultados posibles hay al lanzar una moneda 3 veces?',alternativas:['3','6','8','12'],correcta:2,explicacion:'2³ = 8 resultados posibles'},
+  {id:'m1_p22',eje:'prob_estadistica',dif:2,enunciado:'El percentil 75 indica que:',alternativas:['75% de los datos están por encima','75% de los datos están por debajo','El dato vale 75','El 75% está en la media'],correcta:1,explicacion:'El percentil 75 supera al 75% de los datos'},
+  {id:'m1_p23',eje:'prob_estadistica',dif:2,enunciado:'Dos eventos son mutuamente excluyentes si:',alternativas:['Pueden ocurrir juntos','No pueden ocurrir juntos','Son independientes','Tienen igual probabilidad'],correcta:1,explicacion:'Mutuamente excluyentes: no pueden ocurrir al mismo tiempo'},
+  {id:'m1_p24',eje:'prob_estadistica',dif:3,enunciado:'La varianza de 2, 4, 4, 4, 6 (media=4) es:',alternativas:['1,2','1,6','2,0','0,8'],correcta:1,explicacion:'[(2−4)²+(4−4)²+(4−4)²+(4−4)²+(6−4)²]/5 = (4+0+0+0+4)/5 = 1,6'},
+  {id:'m1_p25',eje:'prob_estadistica',dif:2,enunciado:'¿Cuál diagrama se usa para datos cuantitativos continuos agrupados?',alternativas:['Barras','Circular','Histograma','Pictograma'],correcta:2,explicacion:'El histograma se usa para datos continuos agrupados en intervalos'}
+];
+
+// ====== ESTADO ======
+let cfg = { qty: 20, time: 20, eje: 'todos' };
+let questions = [], curIdx = 0, results = [], sessionStart = null;
+let globalTimer = null, globalTimeLeft = 0;
+let questionStart = null;
+
+function setQty(n,btn){cfg.qty=n;document.querySelectorAll('#qty-options .config-btn').forEach(b=>b.classList.remove('selected'));btn.classList.add('selected')}
+function setTime(t,btn){cfg.time=t;document.querySelectorAll('#time-options .config-btn').forEach(b=>b.classList.remove('selected'));btn.classList.add('selected')}
+function setEje(e,btn){cfg.eje=e;document.querySelectorAll('#eje-options .config-btn').forEach(b=>b.classList.remove('selected'));btn.classList.add('selected')}
+
+function startGame(){
+  let pool = cfg.eje==='todos' ? [...BANCO_M1] : BANCO_M1.filter(q=>q.eje===cfg.eje);
+  pool.sort(()=>Math.random()-0.5);
+  questions = pool.slice(0, Math.min(cfg.qty, pool.length));
+  curIdx=0; results=[]; sessionStart=Date.now(); questionStart=Date.now();
+
+  document.getElementById('start-screen').style.display='none';
+  document.getElementById('results-screen').style.display='none';
+  document.getElementById('game-screen').style.display='block';
+
+  if(cfg.time>0){
+    globalTimeLeft=cfg.time*60;
+    globalTimer=setInterval(()=>{
+      globalTimeLeft--;
+      document.getElementById('game-timer').textContent=formatTimer(globalTimeLeft);
+      if(globalTimeLeft<=60)document.getElementById('game-timer').style.color='var(--coral)';
+      if(globalTimeLeft<=0){clearInterval(globalTimer);endGame();}
+    },1000);
+  } else {
+    document.getElementById('game-timer').textContent='∞';
+  }
+
+  showQ();
+}
+
+function formatTimer(s){const m=Math.floor(s/60);const ss=s%60;return `${m}:${ss<10?'0':''}${ss}`}
+
+function showQ(){
+  if(curIdx>=questions.length){endGame();return}
+  const q=questions[curIdx];
+  questionStart=Date.now();
+
+  document.getElementById('game-progress').textContent=`${curIdx+1}/${questions.length}`;
+  document.getElementById('progress-fill').style.width=`${((curIdx)/questions.length)*100}%`;
+
+  const ejeNames={numeros:'Números',algebra:'Álgebra',geometria:'Geometría',prob_estadistica:'Prob. y Estadística'};
+  const badge=document.getElementById('eje-badge');
+  badge.textContent=ejeNames[q.eje]||q.eje;
+  badge.className='eje-badge eje-'+q.eje;
+
+  document.getElementById('q-enunciado').innerHTML=q.enunciado;
+
+  const letters=['A','B','C','D'];
+  document.getElementById('alternativas').innerHTML=q.alternativas.map((a,i)=>`
+    <button class="alt-btn" onclick="answer(${i})"><span class="alt-letter">${letters[i]})</span>${a}</button>
+  `).join('');
+
+  document.getElementById('feedback').innerHTML='';
+  document.getElementById('nav-btns').style.display='none';
+}
+
+function answer(idx){
+  const q=questions[curIdx];
+  const timeTaken=Math.round((Date.now()-questionStart)/100)/10;
+  const isCorrect=idx===q.correcta;
+
+  const btns=document.querySelectorAll('.alt-btn');
+  btns.forEach((btn,i)=>{
+    btn.classList.add('disabled');
+    if(i===q.correcta)btn.classList.add('correct');
+    if(i===idx&&!isCorrect)btn.classList.add('wrong');
+  });
+
+  const feedbackEl=document.getElementById('feedback');
+  if(isCorrect){
+    feedbackEl.innerHTML=`<div class="feedback-text correct">✓ Correcto</div>`;
+  } else {
+    feedbackEl.innerHTML=`<div class="feedback-text wrong">✗ ${q.explicacion}</div>`;
+  }
+
+  results.push({pregunta_id:q.id,eje:q.eje,dificultad:q.dif,correcta:isCorrect,tiempo:timeTaken,saltada:false});
+
+  document.getElementById('nav-btns').style.display='flex';
+}
+
+function skipQuestion(){
+  const q=questions[curIdx];
+  const timeTaken=Math.round((Date.now()-questionStart)/100)/10;
+  results.push({pregunta_id:q.id,eje:q.eje,dificultad:q.dif,correcta:false,tiempo:timeTaken,saltada:true});
+  curIdx++;
+  showQ();
+}
+
+function nextQuestion(){curIdx++;showQ()}
+
+async function endGame(){
+  clearInterval(globalTimer);
+  document.getElementById('game-screen').style.display='none';
+  document.getElementById('results-screen').style.display='block';
+  window.scrollTo(0,0);
+
+  const total=results.length;
+  if(total===0){window.location.href='index.html';return}
+
+  const aciertos=results.filter(r=>r.correcta).length;
+  const pct=Math.round((aciertos/total)*100);
+  const tiempos=results.filter(r=>r.tiempo>0).map(r=>r.tiempo);
+  const tiempoProm=tiempos.length>0?Math.round(tiempos.reduce((a,b)=>a+b,0)/tiempos.length*10)/10:0;
+  const duracion=Math.round((Date.now()-sessionStart)/1000);
+  const saltadas=results.filter(r=>r.saltada).length;
+  const xp=15+(aciertos*3);
+
+  let emoji='📐',titulo='Simulacro completo';
+  if(pct>=85){emoji='🏆';titulo='¡Excelente!';}
+  else if(pct>=65){emoji='🔥';titulo='¡Bien hecho!';}
+  else if(pct>=45){emoji='💪';titulo='Vas avanzando';}
+  else{emoji='📚';titulo='A reforzar';}
+
+  document.getElementById('results-emoji').textContent=emoji;
+  document.getElementById('results-title').textContent=titulo;
+  document.getElementById('results-subtitle').textContent=`${total} preguntas en ${formatTime(duracion)}`;
+
+  document.getElementById('results-stats').innerHTML=`
+    <div class="r-stat"><div class="r-stat-value">${pct}%</div><div class="r-stat-label">Aciertos</div></div>
+    <div class="r-stat"><div class="r-stat-value teal">${tiempoProm}s</div><div class="r-stat-label">Promedio/preg</div></div>
+    <div class="r-stat"><div class="r-stat-value yellow">${saltadas}</div><div class="r-stat-label">Saltadas</div></div>
+    <div class="r-stat"><div class="r-stat-value coral">${total-aciertos}</div><div class="r-stat-label">Errores</div></div>
+  `;
+
+  // Desglose por eje
+  const ejes={};
+  const ejeColors={numeros:'var(--teal)',algebra:'var(--yellow)',geometria:'var(--coral)',prob_estadistica:'#B8A5FF'};
+  const ejeNames={numeros:'Números',algebra:'Álgebra',geometria:'Geometría',prob_estadistica:'Prob/Est'};
+  results.forEach(r=>{
+    if(!ejes[r.eje])ejes[r.eje]={total:0,ok:0,tiempos:[]};
+    ejes[r.eje].total++;
+    if(r.correcta)ejes[r.eje].ok++;
+    ejes[r.eje].tiempos.push(r.tiempo);
+  });
+
+  let ejeHTML='';
+  Object.keys(ejes).forEach(eje=>{
+    const e=ejes[eje];
+    const p=Math.round((e.ok/e.total)*100);
+    const avgT=Math.round(e.tiempos.reduce((a,b)=>a+b,0)/e.tiempos.length*10)/10;
+    ejeHTML+=`<div class="eje-row">
+      <div class="eje-name">${ejeNames[eje]||eje}</div>
+      <div class="eje-bar"><div class="eje-bar-fill" style="width:${p}%;background:${ejeColors[eje]||'var(--neon)'}"></div></div>
+      <div class="eje-pct" style="color:${ejeColors[eje]||'var(--neon)'}">${p}%</div>
+      <div class="eje-time">${avgT}s</div>
+    </div>`;
+  });
+  document.getElementById('eje-rows').innerHTML=ejeHTML;
+
+  // Mapa de calor de tiempo
+  let gridHTML='';
+  results.forEach((r,i)=>{
+    let bg='var(--neon-glow)',color='var(--neon)';
+    if(!r.correcta){bg='var(--coral-dim)';color='var(--coral)';}
+    if(r.tiempo>60){bg='var(--coral)';color='var(--white)';}
+    else if(r.tiempo>30){bg='var(--yellow-dim)';color='var(--yellow)';}
+    gridHTML+=`<div class="time-cell" style="background:${bg};color:${color}" title="P${i+1}: ${r.tiempo}s ${r.correcta?'✓':'✗'}">${Math.round(r.tiempo)}s</div>`;
+  });
+  document.getElementById('time-grid').innerHTML=gridHTML;
+
+  document.getElementById('xp-value').textContent=`+${xp} XP`;
+
+  // Tip
+  let tip='Buen entrenamiento. La constancia es la clave.';
+  let peorEje=null,peorPct=100;
+  Object.keys(ejes).forEach(eje=>{
+    const p=(ejes[eje].ok/ejes[eje].total)*100;
+    if(p<peorPct){peorPct=p;peorEje=eje;}
+  });
+  if(peorEje&&peorPct<50)tip=`${ejeNames[peorEje]} necesita refuerzo. Dedica sesiones enfocadas en ese eje.`;
+  else if(tiempoProm>45)tip='Tu tiempo promedio es alto. Practicá decidir más rápido: si no sabes en 30 segundos, marca la que más te convenza y avanza.';
+  else if(saltadas>total*0.2)tip='Saltaste muchas preguntas. En la PAES no hay descuento por responder mal — siempre conviene marcar algo.';
+  else if(pct>=85)tip='Rendimiento excelente. Probá con más preguntas o menos tiempo para subir el desafío.';
+  document.getElementById('results-tip-text').textContent=tip;
+
+  // Guardar en Supabase
+  const user=JSON.parse(localStorage.getItem('paes_lab_user')||'{}');
+  if(user.id){
+    const sesionData={usuario_id:user.id,modulo:'simulacro_m1',duracion_seg:duracion,preguntas_total:total,aciertos,tiempo_promedio_seg:tiempoProm,completada:true,pct_aciertos:pct,eje_mas_lento:null,eje_mas_debil:peorEje};
+    // Encontrar eje más lento
+    let maxT=0;
+    Object.keys(ejes).forEach(eje=>{const avgT=ejes[eje].tiempos.reduce((a,b)=>a+b,0)/ejes[eje].tiempos.length;if(avgT>maxT){maxT=avgT;sesionData.eje_mas_lento=eje;}});
+
+    const resp=await sbPost('sesiones',sesionData);
+    if(resp&&resp.length>0){
+      const sid=resp[0].id;
+      await sbPost('respuestas',results.map(r=>({sesion_id:sid,usuario_id:user.id,pregunta_id:r.pregunta_id,modulo:'simulacro_m1',eje:r.eje,dificultad:r.dificultad,correcta:r.correcta,tiempo_seg:r.tiempo,saltada:r.saltada})));
+    }
+    // Racha
+    await fetch(`${SUPABASE_URL}/rest/v1/rachas`,{method:'POST',headers:{...SB_HEADERS,'Prefer':'return=representation,resolution=merge-duplicates'},body:JSON.stringify({usuario_id:user.id,fecha:new Date().toISOString().split('T')[0],sesiones_del_dia:1,xp_del_dia:xp})}).catch(()=>{});
+  }
+}
+
+function formatTime(s){const m=Math.floor(s/60);const ss=s%60;return m>0?`${m}m ${ss}s`:`${ss}s`}
+
+// Check login
+if(!localStorage.getItem('paes_lab_user'))window.location.href='index.html';
+</script>
+</body>
+</html>

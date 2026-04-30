@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>PAES Lab — Mis Errores</title>
+<meta name="theme-color" content="#05161A">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg-deep:#05161A;--bg-card:#0F2B33;--bg-elevated:#143A45;--border:#1A4050;--neon:#00FFD1;--neon-dim:#00FFD140;--neon-glow:#00FFD120;--coral:#FF6B6B;--coral-dim:#FF6B6B30;--teal:#4ECDC4;--teal-dim:#4ECDC430;--yellow:#FFE66D;--yellow-dim:#FFE66D30;--text:#B8FFF5;--text-muted:#6BA8A0;--text-dim:#3D6B63;--white:#E8FFFE}
+*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Outfit',sans-serif;background:var(--bg-deep);color:var(--text);min-height:100vh;padding:20px;padding-bottom:60px}
+.container{max-width:600px;margin:0 auto}
+.header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+.header h1{font-size:20px;font-weight:600;color:var(--white)}
+.back-link{font-size:13px;color:var(--text-muted);text-decoration:none}.back-link:hover{color:var(--neon)}
+
+.summary{background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:20px;text-align:center}
+.summary-num{font-family:'Space Mono',monospace;font-size:36px;font-weight:700;color:var(--coral)}
+.summary-label{font-size:12px;color:var(--text-muted);margin-top:4px}
+
+.filter-row{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+.filter-btn{padding:8px 14px;background:var(--bg-card);border:1px solid var(--border);border-radius:8px;color:var(--text-muted);font-family:'Outfit',sans-serif;font-size:12px;cursor:pointer}.filter-btn:hover{border-color:var(--teal)}.filter-btn.selected{border-color:var(--neon);color:var(--neon);background:var(--neon-glow)}
+
+.error-card{background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:12px}
+.error-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.error-module{font-size:11px;padding:3px 10px;border-radius:6px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px}
+.mod-lectora{background:var(--teal-dim);color:var(--teal)}
+.mod-ciencias{background:#22C55E30;color:#4ADE80}
+.mod-historia{background:var(--yellow-dim);color:var(--yellow)}
+.mod-simulacro_m1{background:var(--coral-dim);color:var(--coral)}
+.mod-simulacro_m2{background:#7B61FF30;color:#B8A5FF}
+.mod-relampago{background:var(--neon-glow);color:var(--neon)}
+.mod-estratega{background:var(--teal-dim);color:var(--teal)}
+.error-date{font-size:11px;color:var(--text-dim)}
+.error-question{font-size:15px;font-weight:500;color:var(--white);line-height:1.4;margin-bottom:10px}
+
+.error-answers{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.error-answer{padding:8px 12px;border-radius:8px;font-size:13px}
+.error-wrong{background:var(--coral-dim);color:var(--coral);border:1px solid var(--coral)}
+.error-correct{background:var(--neon-glow);color:var(--neon);border:1px solid var(--neon-dim)}
+.answer-label{font-size:10px;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:2px;opacity:0.7}
+
+.error-explicacion{font-size:13px;color:var(--text);line-height:1.5;padding:10px 12px;background:var(--bg-elevated);border-radius:8px;margin-bottom:8px}
+.error-metodo{font-size:13px;color:var(--teal);line-height:1.5;padding:10px 12px;background:var(--teal-dim);border-radius:8px;border-left:3px solid var(--teal)}
+
+.empty{text-align:center;padding:60px 20px}
+.empty-icon{font-size:50px;margin-bottom:16px}
+.empty-title{font-size:18px;font-weight:600;color:var(--white);margin-bottom:8px}
+.empty-text{font-size:14px;color:var(--text-muted);line-height:1.5}
+
+.clear-btn{width:100%;padding:12px;border-radius:10px;border:1px solid var(--border);background:var(--bg-card);color:var(--text-muted);font-family:'Outfit',sans-serif;font-size:13px;cursor:pointer;margin-top:20px}.clear-btn:hover{border-color:var(--coral);color:var(--coral)}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>Mis Errores</h1>
+    <a class="back-link" href="index.html">← Dashboard</a>
+  </div>
+
+  <div class="summary">
+    <div class="summary-num" id="total-errores">0</div>
+    <div class="summary-label">errores acumulados para revisar</div>
+  </div>
+
+  <div class="filter-row" id="filters">
+    <button class="filter-btn selected" onclick="filtrar('todos',this)">Todos</button>
+    <button class="filter-btn" onclick="filtrar('lectora',this)">Lectora</button>
+    <button class="filter-btn" onclick="filtrar('ciencias',this)">Ciencias</button>
+    <button class="filter-btn" onclick="filtrar('historia',this)">Historia</button>
+    <button class="filter-btn" onclick="filtrar('simulacro_m1',this)">M1</button>
+    <button class="filter-btn" onclick="filtrar('simulacro_m2',this)">M2</button>
+  </div>
+
+  <div id="errores-list"></div>
+
+  <button class="clear-btn" id="clear-btn" onclick="limpiarErrores()" style="display:none">Limpiar todos los errores</button>
+</div>
+
+<script>
+let filtroActual = 'todos';
+
+function cargarErrores(){
+  const errores = JSON.parse(localStorage.getItem('paes_lab_errores') || '[]');
+  document.getElementById('total-errores').textContent = errores.length;
+
+  if(errores.length === 0){
+    document.getElementById('errores-list').innerHTML = `
+      <div class="empty">
+        <div class="empty-icon">✨</div>
+        <div class="empty-title">Sin errores registrados</div>
+        <div class="empty-text">Los errores que cometas en Lectora, Ciencias, Historia, M1 y M2 aparecerán acá para que puedas revisarlos y aprender de ellos.</div>
+      </div>`;
+    document.getElementById('clear-btn').style.display = 'none';
+    return;
+  }
+
+  document.getElementById('clear-btn').style.display = 'block';
+
+  // Filtrar
+  const filtered = filtroActual === 'todos' ? errores : errores.filter(e => e.modulo === filtroActual);
+
+  if(filtered.length === 0){
+    document.getElementById('errores-list').innerHTML = `<div class="empty"><div class="empty-text">No hay errores en esta categoría.</div></div>`;
+    return;
+  }
+
+  // Mostrar más recientes primero
+  const sorted = [...filtered].reverse();
+
+  const modNames = {lectora:'Lectora',ciencias:'Ciencias',historia:'Historia',simulacro_m1:'M1',simulacro_m2:'M2',relampago:'Relámpago',estratega:'Estratega'};
+
+  document.getElementById('errores-list').innerHTML = sorted.map(e => {
+    const fecha = e.fecha ? new Date(e.fecha).toLocaleDateString('es-CL',{day:'numeric',month:'short'}) : '';
+    return `
+    <div class="error-card">
+      <div class="error-header">
+        <span class="error-module mod-${e.modulo}">${modNames[e.modulo]||e.modulo}${e.eje?' · '+e.eje:''}</span>
+        <span class="error-date">${fecha}</span>
+      </div>
+      <div class="error-question">${e.pregunta}</div>
+      <div class="error-answers">
+        <div class="error-answer error-wrong">
+          <div class="answer-label">Tu respuesta</div>
+          ${e.tu_respuesta}
+        </div>
+        <div class="error-answer error-correct">
+          <div class="answer-label">Correcta</div>
+          ${e.respuesta_correcta}
+        </div>
+      </div>
+      ${e.explicacion ? `<div class="error-explicacion">${e.explicacion}</div>` : ''}
+      ${e.metodo ? `<div class="error-metodo">💡 ${e.metodo}</div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+function filtrar(modulo, btn){
+  filtroActual = modulo;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  cargarErrores();
+}
+
+function limpiarErrores(){
+  if(confirm('¿Seguro que quieres borrar todos tus errores? Esta acción no se puede deshacer.')){
+    localStorage.setItem('paes_lab_errores', '[]');
+    cargarErrores();
+  }
+}
+
+if(!localStorage.getItem('paes_lab_user')) window.location.href = 'index.html';
+cargarErrores();
+</script>
+</body>
+</html>

@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>PAES Lab — Simulacro M2</title>
+<meta name="theme-color" content="#05161A">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg-deep:#05161A;--bg-card:#0F2B33;--bg-elevated:#143A45;--border:#1A4050;--neon:#00FFD1;--neon-dim:#00FFD140;--neon-glow:#00FFD120;--coral:#FF6B6B;--coral-dim:#FF6B6B30;--teal:#4ECDC4;--teal-dim:#4ECDC430;--yellow:#FFE66D;--yellow-dim:#FFE66D30;--text:#B8FFF5;--text-muted:#6BA8A0;--text-dim:#3D6B63;--white:#E8FFFE}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Outfit',sans-serif;background:var(--bg-deep);color:var(--text);min-height:100vh;overflow-x:hidden}
+#start-screen{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center}
+.start-icon{font-size:60px;margin-bottom:16px}.start-title{font-family:'Space Mono',monospace;font-size:28px;font-weight:700;color:var(--neon);margin-bottom:8px}.start-desc{font-size:14px;color:var(--text-muted);max-width:340px;line-height:1.6;margin-bottom:32px}
+.config-section{width:100%;max-width:340px;margin-bottom:24px}.config-label{font-size:12px;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;text-align:left}.config-options{display:flex;gap:8px;flex-wrap:wrap}
+.config-btn{flex:1;min-width:70px;padding:10px 8px;background:var(--bg-card);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'Outfit',sans-serif;font-size:13px;cursor:pointer;transition:all 0.2s;text-align:center}.config-btn:hover{border-color:var(--teal)}.config-btn.selected{border-color:var(--neon);background:var(--neon-glow);color:var(--neon)}
+.start-btn{width:100%;max-width:340px;padding:16px;background:var(--neon);border:none;border-radius:14px;color:var(--bg-deep);font-family:'Space Mono',monospace;font-size:18px;font-weight:700;cursor:pointer}.start-btn:hover{transform:translateY(-2px);box-shadow:0 4px 20px var(--neon-dim)}
+.back-link{margin-top:20px;font-size:13px;color:var(--text-muted);text-decoration:none}.back-link:hover{color:var(--neon)}
+.info-box{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:24px;width:100%;max-width:340px;text-align:left}.info-row{display:flex;justify-content:space-between;font-size:13px;padding:4px 0}.info-row .label{color:var(--text-muted)}.info-row .value{color:var(--neon);font-family:'Space Mono',monospace}
+#game-screen{display:none;min-height:100vh;padding:20px;max-width:600px;margin:0 auto}
+.game-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}.game-progress{font-family:'Space Mono',monospace;font-size:14px;color:var(--text-muted)}.game-timer-global{font-family:'Space Mono',monospace;font-size:16px;font-weight:700;color:var(--yellow)}.game-quit{background:none;border:1px solid var(--border);border-radius:8px;padding:6px 12px;color:var(--text-muted);font-size:12px;cursor:pointer;font-family:'Outfit',sans-serif}.game-quit:hover{border-color:var(--coral);color:var(--coral)}
+.progress-bar{height:4px;background:var(--bg-card);border-radius:2px;margin-bottom:20px;overflow:hidden}.progress-fill{height:100%;background:var(--neon);border-radius:2px;transition:width 0.3s}
+.eje-badge{display:inline-block;padding:4px 12px;border-radius:8px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px}
+.eje-algebra_av{background:var(--yellow-dim);color:var(--yellow)}.eje-funciones{background:var(--teal-dim);color:var(--teal)}.eje-geometria_3d{background:var(--coral-dim);color:var(--coral)}.eje-prob_avanzada{background:#7B61FF30;color:#B8A5FF}
+.q-enunciado{font-size:18px;font-weight:500;color:var(--white);line-height:1.5;margin-bottom:24px;min-height:60px}
+.alternativas{display:grid;grid-template-columns:1fr;gap:10px}.alt-btn{padding:14px 16px;background:var(--bg-card);border:1.5px solid var(--border);border-radius:12px;color:var(--text);font-family:'Outfit',sans-serif;font-size:15px;cursor:pointer;transition:all 0.15s;text-align:left;line-height:1.4}.alt-btn:hover{border-color:var(--teal);background:var(--bg-elevated)}.alt-btn .alt-letter{font-family:'Space Mono',monospace;color:var(--text-muted);margin-right:10px;font-size:13px}.alt-btn.correct{border-color:var(--neon);background:var(--neon-glow);color:var(--neon)}.alt-btn.wrong{border-color:var(--coral);background:var(--coral-dim);color:var(--coral)}.alt-btn.disabled{pointer-events:none;opacity:0.4}.alt-btn.disabled.correct{opacity:1}
+.feedback{margin-top:16px;min-height:50px}.feedback-text{font-size:13px;line-height:1.5;padding:12px;border-radius:10px}.feedback-text.correct{background:var(--neon-glow);color:var(--neon)}.feedback-text.wrong{background:var(--coral-dim);color:var(--coral)}
+.nav-btns{display:flex;gap:10px;margin-top:16px}.nav-btn{flex:1;padding:12px;border-radius:10px;border:1px solid var(--border);background:var(--bg-card);color:var(--text);font-family:'Outfit',sans-serif;font-size:14px;cursor:pointer}.nav-btn:hover{border-color:var(--neon)}.nav-btn.primary{background:var(--neon);color:var(--bg-deep);border:none;font-weight:600}.nav-btn.skip{color:var(--text-muted)}
+#results-screen{display:none;min-height:100vh;padding:24px;max-width:600px;margin:0 auto}.results-header{text-align:center;margin-bottom:28px}.results-emoji{font-size:50px;margin-bottom:10px}.results-title{font-family:'Space Mono',monospace;font-size:26px;font-weight:700;color:var(--neon);margin-bottom:6px}.results-subtitle{font-size:14px;color:var(--text-muted)}.results-stats{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:20px}.r-stat{background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:16px;text-align:center}.r-stat-value{font-family:'Space Mono',monospace;font-size:26px;font-weight:700;color:var(--neon)}.r-stat-value.coral{color:var(--coral)}.r-stat-value.teal{color:var(--teal)}.r-stat-value.yellow{color:var(--yellow)}.r-stat-label{font-size:11px;color:var(--text-muted);margin-top:4px}
+.eje-breakdown{background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:20px}.eje-breakdown-title{font-size:12px;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px}.eje-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}.eje-row:last-child{margin-bottom:0}.eje-name{font-size:13px;color:var(--text);width:100px;flex-shrink:0}.eje-bar{flex:1;height:8px;background:var(--bg-deep);border-radius:4px;overflow:hidden}.eje-bar-fill{height:100%;border-radius:4px}.eje-pct{font-family:'Space Mono',monospace;font-size:13px;width:44px;text-align:right;flex-shrink:0}
+.xp-earned{background:var(--neon-glow);border:1px solid var(--neon-dim);border-radius:14px;padding:14px;text-align:center;margin-bottom:20px}.xp-earned-value{font-family:'Space Mono',monospace;font-size:22px;font-weight:700;color:var(--neon)}.xp-earned-label{font-size:12px;color:var(--teal);margin-top:2px}
+.results-tip{background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:14px;margin-bottom:24px;display:flex;gap:10px}.results-tip-icon{font-size:18px;flex-shrink:0}.results-tip-text{font-size:13px;color:var(--text);line-height:1.5}
+.results-actions{display:flex;flex-direction:column;gap:10px;padding-bottom:40px}.results-btn{width:100%;padding:14px;border-radius:12px;font-family:'Outfit',sans-serif;font-size:15px;font-weight:600;cursor:pointer;border:none;text-align:center;text-decoration:none}.results-btn.primary{background:var(--neon);color:var(--bg-deep)}.results-btn.secondary{background:var(--bg-card);border:1px solid var(--border);color:var(--text)}.results-btn:hover{transform:translateY(-1px)}
+@media(max-width:400px){.q-enunciado{font-size:16px}.alt-btn{padding:12px 14px;font-size:14px}}
+</style>
+</head>
+<body>
+<div id="start-screen">
+  <div class="start-icon">📊</div>
+  <div class="start-title">Simulacro M2</div>
+  <div class="start-desc">Contenidos avanzados: funciones, geometría analítica, probabilidad compuesta. Lo que necesitas para ingeniería.</div>
+  <div class="info-box">
+    <div class="info-row"><span class="label">PAES real M2</span><span class="value">55 preguntas / 140 min</span></div>
+    <div class="info-row"><span class="label">Requerido para</span><span class="value">Ing. Civil / Comercial</span></div>
+  </div>
+  <div class="config-section"><div class="config-label">Preguntas</div><div class="config-options" id="qty-options">
+    <button class="config-btn" onclick="setQty(10,this)">10</button>
+    <button class="config-btn selected" onclick="setQty(20,this)">20</button>
+    <button class="config-btn" onclick="setQty(30,this)">30</button>
+  </div></div>
+  <div class="config-section"><div class="config-label">Tiempo total</div><div class="config-options" id="time-options">
+    <button class="config-btn" onclick="setTime(15,this)">15 min</button>
+    <button class="config-btn selected" onclick="setTime(25,this)">25 min</button>
+    <button class="config-btn" onclick="setTime(0,this)">Sin límite</button>
+  </div></div>
+  <button class="start-btn" onclick="startGame()">Iniciar simulacro M2</button>
+  <a class="back-link" href="index.html">← Volver al dashboard</a>
+</div>
+
+<div id="game-screen">
+  <div class="game-top"><div class="game-progress" id="game-progress">1/20</div><div class="game-timer-global" id="game-timer">25:00</div><button class="game-quit" onclick="endGame()">Terminar</button></div>
+  <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+  <div class="eje-badge" id="eje-badge">Funciones</div>
+  <div class="q-enunciado" id="q-enunciado"></div>
+  <div class="alternativas" id="alternativas"></div>
+  <div class="feedback" id="feedback"></div>
+  <div class="nav-btns" id="nav-btns" style="display:none"><button class="nav-btn skip" onclick="skipQ()">Saltar</button><button class="nav-btn primary" onclick="nextQ()">Siguiente</button></div>
+</div>
+
+<div id="results-screen">
+  <div class="results-header"><div class="results-emoji" id="r-emoji">📊</div><div class="results-title" id="r-title">Simulacro M2</div><div class="results-subtitle" id="r-sub"></div></div>
+  <div class="results-stats" id="r-stats"></div>
+  <div class="eje-breakdown"><div class="eje-breakdown-title">Rendimiento por eje</div><div id="eje-rows"></div></div>
+  <div class="xp-earned"><div class="xp-earned-value" id="xp-val">+0 XP</div><div class="xp-earned-label">Experiencia ganada</div></div>
+  <div class="results-tip"><div class="results-tip-icon">💡</div><div class="results-tip-text" id="r-tip"></div></div>
+  <div class="results-actions"><button class="results-btn primary" onclick="location.reload()">Otro simulacro M2</button><a class="results-btn secondary" href="index.html">Volver al dashboard</a></div>
+</div>
+
+<script>
+const SUPABASE_URL='https://cjpmainjspaygmrnnckk.supabase.co';
+const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNqcG1haW5qc3BheWdtcm5uY2trIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc1NjgwNjEsImV4cCI6MjA5MzE0NDA2MX0.4Cbb9nL_l9yoAEDS-1Otk4hYoxlbpHCY7Y51DITv1Sc';
+const SB_H={'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json','Prefer':'return=representation'};
+async function sbPost(t,d){try{const r=await fetch(`${SUPABASE_URL}/rest/v1/${t}`,{method:'POST',headers:SB_H,body:JSON.stringify(d)});return r.ok?await r.json():null}catch(e){return null}}
+
+const BANCO_M2=[
+  // === ÁLGEBRA AVANZADA (20) ===
+  {id:'m2_a01',eje:'algebra_av',dif:2,enunciado:'Si f(x) = x³ − 3x² + 2x, ¿cuáles son los ceros de f?',alternativas:['0, 1, 2','0, −1, −2','1, 2, 3','−1, 0, 1'],correcta:0,explicacion:'f(x) = x(x²−3x+2) = x(x−1)(x−2). Ceros: 0, 1, 2'},
+  {id:'m2_a02',eje:'algebra_av',dif:2,enunciado:'Simplifica: (x²−4)/(x+2)',alternativas:['x−2','x+2','x²−2','(x−2)/(x+2)'],correcta:0,explicacion:'(x+2)(x−2)/(x+2) = x−2'},
+  {id:'m2_a03',eje:'algebra_av',dif:3,enunciado:'Si log(x) + log(x−3) = log(10), entonces x =',alternativas:['5','−2','5 y −2','10'],correcta:0,explicacion:'log[x(x−3)]=log(10) → x²−3x−10=0 → (x−5)(x+2)=0. x=5 (x=−2 no válido)'},
+  {id:'m2_a04',eje:'algebra_av',dif:2,enunciado:'¿Cuál es el cociente de (x³+2x²−5x−6) ÷ (x+1)?',alternativas:['x²+x−6','x²+3x−6','x²−x−6','x²+x+6'],correcta:0,explicacion:'División sintética: x²+x−6'},
+  {id:'m2_a05',eje:'algebra_av',dif:2,enunciado:'Si 2ˣ⁺¹ = 32, entonces x =',alternativas:['3','4','5','15'],correcta:1,explicacion:'2ˣ⁺¹ = 2⁵ → x+1 = 5 → x = 4'},
+  {id:'m2_a06',eje:'algebra_av',dif:3,enunciado:'Resuelve: √(2x+1) = 3',alternativas:['x = 4','x = 5','x = 1','x = 8'],correcta:0,explicacion:'2x+1 = 9 → 2x = 8 → x = 4'},
+  {id:'m2_a07',eje:'algebra_av',dif:2,enunciado:'Si f(x) = 3ˣ, ¿cuánto vale f(0) + f(1) + f(2)?',alternativas:['12','13','9','6'],correcta:1,explicacion:'1 + 3 + 9 = 13'},
+  {id:'m2_a08',eje:'algebra_av',dif:3,enunciado:'La función f(x) = log₂(x−1) tiene dominio:',alternativas:['x > 0','x > 1','x ≥ 1','x ≥ 0'],correcta:1,explicacion:'x−1 > 0 → x > 1'},
+  {id:'m2_a09',eje:'algebra_av',dif:2,enunciado:'Si P(x) = 2x³ − x + 5, ¿cuánto vale P(−1)?',alternativas:['4','8','6','−4'],correcta:0,explicacion:'2(−1)³−(−1)+5 = −2+1+5 = 4'},
+  {id:'m2_a10',eje:'algebra_av',dif:3,enunciado:'¿Cuántas raíces reales tiene x⁴ − 5x² + 4 = 0?',alternativas:['2','4','0','1'],correcta:1,explicacion:'Sea u=x²: u²−5u+4=0 → u=1,4 → x=±1,±2. Cuatro raíces'},
+  {id:'m2_a11',eje:'algebra_av',dif:2,enunciado:'Simplifica: (27)^(1/3)',alternativas:['3','9','√27','3√3'],correcta:0,explicacion:'∛27 = 3'},
+  {id:'m2_a12',eje:'algebra_av',dif:3,enunciado:'Si f(x) = eˣ y g(x) = ln(x), entonces f(g(x)) =',alternativas:['x','eˣ','ln(eˣ)','x·eˣ'],correcta:0,explicacion:'e^(ln(x)) = x. Son inversas'},
+  {id:'m2_a13',eje:'algebra_av',dif:2,enunciado:'Suma: Σ(k=1 hasta 5) 2k =',alternativas:['30','20','15','10'],correcta:0,explicacion:'2+4+6+8+10 = 30'},
+  {id:'m2_a14',eje:'algebra_av',dif:3,enunciado:'La sucesión geométrica 2, 6, 18, 54... tiene razón:',alternativas:['3','4','2','6'],correcta:0,explicacion:'r = 6/2 = 3'},
+  {id:'m2_a15',eje:'algebra_av',dif:2,enunciado:'Si |2x − 3| ≤ 5, entonces:',alternativas:['−1 ≤ x ≤ 4','x ≤ 4','x ≥ −1','−4 ≤ x ≤ 1'],correcta:0,explicacion:'−5 ≤ 2x−3 ≤ 5 → −2 ≤ 2x ≤ 8 → −1 ≤ x ≤ 4'},
+  {id:'m2_a16',eje:'algebra_av',dif:2,enunciado:'¿Cuál es la asíntota horizontal de f(x) = (3x+1)/(x−2)?',alternativas:['y = 3','y = 0','y = −2','y = 1/3'],correcta:0,explicacion:'Mismo grado → cociente de coeficientes líderes = 3/1 = 3'},
+  {id:'m2_a17',eje:'algebra_av',dif:3,enunciado:'Resuelve: x² − 2x − 8 > 0',alternativas:['x < −2 o x > 4','−2 < x < 4','x > 4','x < −2'],correcta:0,explicacion:'(x−4)(x+2) > 0 → x < −2 o x > 4'},
+  {id:'m2_a18',eje:'algebra_av',dif:2,enunciado:'Si f(x) = x² y g(x) = x+3, ¿cuánto vale (f∘g)(2)?',alternativas:['7','25','9','49'],correcta:1,explicacion:'g(2) = 5. f(5) = 25'},
+  {id:'m2_a19',eje:'algebra_av',dif:3,enunciado:'¿Cuántos términos tiene la expansión de (a+b)⁶?',alternativas:['6','7','5','12'],correcta:1,explicacion:'(a+b)ⁿ tiene n+1 términos. 6+1 = 7'},
+  {id:'m2_a20',eje:'algebra_av',dif:2,enunciado:'Si log₃(81) = x, entonces x =',alternativas:['3','4','27','9'],correcta:1,explicacion:'3⁴ = 81, entonces x = 4'},
+
+  // === FUNCIONES (15) ===
+  {id:'m2_f01',eje:'funciones',dif:2,enunciado:'La función f(x) = sen(x) tiene periodo:',alternativas:['π','2π','π/2','4π'],correcta:1,explicacion:'El periodo del seno es 2π'},
+  {id:'m2_f02',eje:'funciones',dif:2,enunciado:'Si f(x) = cos(x), ¿cuánto vale f(π)?',alternativas:['1','0','−1','π'],correcta:2,explicacion:'cos(π) = −1'},
+  {id:'m2_f03',eje:'funciones',dif:2,enunciado:'La función f(x) = 2sen(3x) tiene amplitud:',alternativas:['1','2','3','6'],correcta:1,explicacion:'La amplitud es el coeficiente: 2'},
+  {id:'m2_f04',eje:'funciones',dif:3,enunciado:'¿Cuál es el rango de f(x) = 3cos(x) − 1?',alternativas:['[−4, 2]','[−3, 3]','[−1, 3]','[−2, 4]'],correcta:0,explicacion:'cos va de −1 a 1. 3cos va de −3 a 3. 3cos−1 va de −4 a 2'},
+  {id:'m2_f05',eje:'funciones',dif:2,enunciado:'sen(30°) =',alternativas:['√3/2','1/2','√2/2','1'],correcta:1,explicacion:'sen(30°) = 1/2'},
+  {id:'m2_f06',eje:'funciones',dif:2,enunciado:'cos(60°) =',alternativas:['√3/2','1/2','√2/2','0'],correcta:1,explicacion:'cos(60°) = 1/2'},
+  {id:'m2_f07',eje:'funciones',dif:3,enunciado:'Si sen(α) = 3/5 y α está en el primer cuadrante, cos(α) =',alternativas:['4/5','3/4','5/3','2/5'],correcta:0,explicacion:'cos²α = 1−9/25 = 16/25. cos α = 4/5'},
+  {id:'m2_f08',eje:'funciones',dif:2,enunciado:'La función exponencial f(x) = 2ˣ es siempre:',alternativas:['Positiva','Negativa','Par','Decreciente'],correcta:0,explicacion:'2ˣ > 0 para todo x real'},
+  {id:'m2_f09',eje:'funciones',dif:2,enunciado:'¿Dónde corta f(x) = ln(x) al eje x?',alternativas:['x = 0','x = 1','x = e','No lo corta'],correcta:1,explicacion:'ln(1) = 0, entonces corta en x = 1'},
+  {id:'m2_f10',eje:'funciones',dif:3,enunciado:'tan(45°) =',alternativas:['0','1','√2','indefinido'],correcta:1,explicacion:'tan(45°) = sen(45°)/cos(45°) = 1'},
+  {id:'m2_f11',eje:'funciones',dif:2,enunciado:'La función f(x) = |x| es:',alternativas:['Par','Impar','Ni par ni impar','Periódica'],correcta:0,explicacion:'f(−x) = |−x| = |x| = f(x). Es par'},
+  {id:'m2_f12',eje:'funciones',dif:3,enunciado:'Si f(x) = sen(2x), ¿cuál es su periodo?',alternativas:['2π','π','π/2','4π'],correcta:1,explicacion:'Periodo = 2π/2 = π'},
+  {id:'m2_f13',eje:'funciones',dif:2,enunciado:'La gráfica de f(x) = (x−3)² + 2 tiene vértice en:',alternativas:['(3, 2)','(−3, 2)','(3, −2)','(2, 3)'],correcta:0,explicacion:'Forma vertex: vértice = (h, k) = (3, 2)'},
+  {id:'m2_f14',eje:'funciones',dif:3,enunciado:'¿Cuál función es la inversa de f(x) = eˣ?',alternativas:['f⁻¹(x) = 1/eˣ','f⁻¹(x) = ln(x)','f⁻¹(x) = e⁻ˣ','f⁻¹(x) = 10ˣ'],correcta:1,explicacion:'ln es la función inversa de la exponencial'},
+  {id:'m2_f15',eje:'funciones',dif:2,enunciado:'La recta tangente a y = x² en x = 2 tiene pendiente:',alternativas:['2','4','8','1'],correcta:1,explicacion:'y\' = 2x. En x=2: pendiente = 4'},
+
+  // === GEOMETRÍA ANALÍTICA (15) ===
+  {id:'m2_g01',eje:'geometria_3d',dif:2,enunciado:'La distancia entre A(1,2) y B(4,6) es:',alternativas:['5','7','√25','3'],correcta:0,explicacion:'√((4−1)²+(6−2)²) = √(9+16) = √25 = 5'},
+  {id:'m2_g02',eje:'geometria_3d',dif:2,enunciado:'El punto medio de A(2,8) y B(6,4) es:',alternativas:['(4, 6)','(8, 12)','(3, 5)','(4, 4)'],correcta:0,explicacion:'((2+6)/2, (8+4)/2) = (4, 6)'},
+  {id:'m2_g03',eje:'geometria_3d',dif:2,enunciado:'La ecuación de la circunferencia con centro (0,0) y radio 5 es:',alternativas:['x²+y²=5','x²+y²=25','x²+y²=10','(x−5)²+(y−5)²=25'],correcta:1,explicacion:'x²+y²=r² = 25'},
+  {id:'m2_g04',eje:'geometria_3d',dif:3,enunciado:'¿Cuál es la ecuación de la recta perpendicular a y = 2x+1 que pasa por (0,3)?',alternativas:['y = −(1/2)x + 3','y = 2x + 3','y = −2x + 3','y = (1/2)x + 3'],correcta:0,explicacion:'Pendiente perpendicular = −1/2. y = −(1/2)x + 3'},
+  {id:'m2_g05',eje:'geometria_3d',dif:2,enunciado:'El volumen de una esfera de radio 3 es: (usa π ≈ 3,14)',alternativas:['113,04','36π','84,78','28,26'],correcta:0,explicacion:'V = 4πr³/3 = 4(3,14)(27)/3 = 113,04'},
+  {id:'m2_g06',eje:'geometria_3d',dif:3,enunciado:'La recta 3x − 4y + 12 = 0 tiene intercepto en x:',alternativas:['−4','4','3','−3'],correcta:0,explicacion:'y=0: 3x+12=0 → x=−4'},
+  {id:'m2_g07',eje:'geometria_3d',dif:2,enunciado:'Dos rectas con pendientes m₁=2 y m₂=−1/2 son:',alternativas:['Paralelas','Perpendiculares','Coincidentes','Oblicuas'],correcta:1,explicacion:'m₁ × m₂ = 2 × (−1/2) = −1. Son perpendiculares'},
+  {id:'m2_g08',eje:'geometria_3d',dif:3,enunciado:'La distancia del punto (3,4) a la recta 3x+4y−10=0 es:',alternativas:['3','15/5','5','15/7'],correcta:1,explicacion:'d = |3(3)+4(4)−10|/√(9+16) = |9+16−10|/5 = 15/5 = 3'},
+  {id:'m2_g09',eje:'geometria_3d',dif:2,enunciado:'La superficie de una esfera de radio 2 es:',alternativas:['16π','8π','4π','32π'],correcta:0,explicacion:'S = 4πr² = 4π(4) = 16π'},
+  {id:'m2_g10',eje:'geometria_3d',dif:2,enunciado:'¿Cuál es el radio de x²+y²=49?',alternativas:['49','7','√49','24,5'],correcta:1,explicacion:'r² = 49, r = 7'},
+  {id:'m2_g11',eje:'geometria_3d',dif:3,enunciado:'El ángulo entre las rectas y=x e y=−x es:',alternativas:['45°','90°','180°','60°'],correcta:1,explicacion:'Pendientes 1 y −1. m₁×m₂ = −1, son perpendiculares (90°)'},
+  {id:'m2_g12',eje:'geometria_3d',dif:2,enunciado:'La parábola y = x² − 6x + 8 tiene eje de simetría en:',alternativas:['x = 3','x = −3','x = 6','x = 8'],correcta:0,explicacion:'x = −b/2a = 6/2 = 3'},
+  {id:'m2_g13',eje:'geometria_3d',dif:3,enunciado:'¿En cuántos puntos se cortan y=x² e y=4?',alternativas:['0','1','2','4'],correcta:2,explicacion:'x²=4 → x=±2. Se cortan en 2 puntos'},
+  {id:'m2_g14',eje:'geometria_3d',dif:2,enunciado:'El volumen de un cono de radio 3 y altura 4 es:',alternativas:['12π','36π','48π','16π'],correcta:0,explicacion:'V = πr²h/3 = π(9)(4)/3 = 12π'},
+  {id:'m2_g15',eje:'geometria_3d',dif:3,enunciado:'La elipse x²/9 + y²/4 = 1 tiene semieje mayor:',alternativas:['3','2','9','4'],correcta:0,explicacion:'a² = 9, a = 3 (semieje mayor)'},
+
+  // === PROBABILIDAD AVANZADA (15) ===
+  {id:'m2_p01',eje:'prob_avanzada',dif:2,enunciado:'¿De cuántas formas se pueden ordenar 4 libros distintos?',alternativas:['4','12','24','16'],correcta:2,explicacion:'4! = 4×3×2×1 = 24'},
+  {id:'m2_p02',eje:'prob_avanzada',dif:2,enunciado:'C(5,2) =',alternativas:['10','20','25','5'],correcta:0,explicacion:'5!/(2!×3!) = 120/(2×6) = 10'},
+  {id:'m2_p03',eje:'prob_avanzada',dif:3,enunciado:'Si P(A|B) = 0,4 y P(B) = 0,5, ¿cuánto es P(A∩B)?',alternativas:['0,2','0,9','0,8','0,1'],correcta:0,explicacion:'P(A|B) = P(A∩B)/P(B) → P(A∩B) = 0,4 × 0,5 = 0,2'},
+  {id:'m2_p04',eje:'prob_avanzada',dif:2,enunciado:'¿De cuántas formas se puede elegir un comité de 3 personas de un grupo de 7?',alternativas:['21','35','210','42'],correcta:1,explicacion:'C(7,3) = 7!/(3!×4!) = 35'},
+  {id:'m2_p05',eje:'prob_avanzada',dif:3,enunciado:'Si X ~ N(50, 10), ¿qué porcentaje de datos está entre 40 y 60?',alternativas:['50%','68%','95%','99%'],correcta:1,explicacion:'40 a 60 = μ ± 1σ ≈ 68%'},
+  {id:'m2_p06',eje:'prob_avanzada',dif:2,enunciado:'P(A∪B) = P(A) + P(B) − P(A∩B). Si P(A)=0,6, P(B)=0,4, P(A∩B)=0,2:',alternativas:['0,8','1,0','1,2','0,6'],correcta:0,explicacion:'0,6 + 0,4 − 0,2 = 0,8'},
+  {id:'m2_p07',eje:'prob_avanzada',dif:2,enunciado:'¿Cuántas diagonales tiene un hexágono?',alternativas:['6','9','12','15'],correcta:1,explicacion:'n(n−3)/2 = 6(3)/2 = 9'},
+  {id:'m2_p08',eje:'prob_avanzada',dif:3,enunciado:'Si se lanzan 3 monedas, ¿P(exactamente 2 caras)?',alternativas:['1/4','3/8','1/2','1/8'],correcta:1,explicacion:'C(3,2)×(1/2)³ = 3/8'},
+  {id:'m2_p09',eje:'prob_avanzada',dif:2,enunciado:'La esperanza de un dado justo es:',alternativas:['3','3,5','4','3,25'],correcta:1,explicacion:'E(X) = (1+2+3+4+5+6)/6 = 3,5'},
+  {id:'m2_p10',eje:'prob_avanzada',dif:3,enunciado:'Si la correlación entre X e Y es r = −0,9, las variables tienen:',alternativas:['Relación lineal positiva fuerte','Sin relación','Relación lineal negativa fuerte','Relación cuadrática'],correcta:2,explicacion:'r cercano a −1 indica relación lineal negativa fuerte'},
+  {id:'m2_p11',eje:'prob_avanzada',dif:2,enunciado:'¿Cuántas placas de auto se pueden formar con 2 letras (26) y 4 dígitos (10)?',alternativas:['260','6.760.000','676.000','67.600'],correcta:1,explicacion:'26² × 10⁴ = 676 × 10.000 = 6.760.000'},
+  {id:'m2_p12',eje:'prob_avanzada',dif:2,enunciado:'Si Z es normal estándar, P(Z < 0) =',alternativas:['0','0,25','0,5','1'],correcta:2,explicacion:'La normal es simétrica respecto a 0'},
+  {id:'m2_p13',eje:'prob_avanzada',dif:3,enunciado:'En un examen de V o F con 5 preguntas, ¿P(acertar las 5 al azar)?',alternativas:['1/5','1/10','1/32','1/25'],correcta:2,explicacion:'(1/2)⁵ = 1/32'},
+  {id:'m2_p14',eje:'prob_avanzada',dif:2,enunciado:'La varianza de X es 16. La desviación estándar es:',alternativas:['4','8','16','256'],correcta:0,explicacion:'σ = √16 = 4'},
+  {id:'m2_p15',eje:'prob_avanzada',dif:3,enunciado:'Si P(A)=1/3, P(B)=1/4 y son independientes, P(A∪B)=',alternativas:['7/12','1/2','1/12','5/12'],correcta:0,explicacion:'P(A∪B) = 1/3 + 1/4 − (1/3)(1/4) = 4/12+3/12−1/12 = 6/12... wait, let me recalculate. 1/3+1/4 = 7/12. P(A∩B) = 1/12. P(A∪B) = 7/12−1/12 = 6/12 = 1/2'},
+];
+// Fix the last one
+BANCO_M2[BANCO_M2.length-1].correcta = 1;
+
+// ====== MOTOR DE JUEGO (igual que M1) ======
+let cfg={qty:20,time:25,eje:'todos'};
+let questions=[],curIdx=0,results=[],sessionStart=null;
+let globalTimer=null,globalTimeLeft=0,questionStart=null;
+
+function setQty(n,btn){cfg.qty=n;document.querySelectorAll('#qty-options .config-btn').forEach(b=>b.classList.remove('selected'));btn.classList.add('selected')}
+function setTime(t,btn){cfg.time=t;document.querySelectorAll('#time-options .config-btn').forEach(b=>b.classList.remove('selected'));btn.classList.add('selected')}
+
+function startGame(){
+  let pool=[...BANCO_M2];
+  pool.sort(()=>Math.random()-0.5);
+  questions=pool.slice(0,Math.min(cfg.qty,pool.length));
+  curIdx=0;results=[];sessionStart=Date.now();questionStart=Date.now();
+
+  document.getElementById('start-screen').style.display='none';
+  document.getElementById('results-screen').style.display='none';
+  document.getElementById('game-screen').style.display='block';
+
+  if(cfg.time>0){
+    globalTimeLeft=cfg.time*60;
+    globalTimer=setInterval(()=>{
+      globalTimeLeft--;
+      const m=Math.floor(globalTimeLeft/60),s=globalTimeLeft%60;
+      document.getElementById('game-timer').textContent=`${m}:${s<10?'0':''}${s}`;
+      if(globalTimeLeft<=60)document.getElementById('game-timer').style.color='var(--coral)';
+      if(globalTimeLeft<=0){clearInterval(globalTimer);endGame();}
+    },1000);
+  } else document.getElementById('game-timer').textContent='∞';
+  showQ();
+}
+
+function showQ(){
+  if(curIdx>=questions.length){endGame();return}
+  const q=questions[curIdx];
+  questionStart=Date.now();
+  document.getElementById('game-progress').textContent=`${curIdx+1}/${questions.length}`;
+  document.getElementById('progress-fill').style.width=`${(curIdx/questions.length)*100}%`;
+  const ejeN={algebra_av:'Álgebra Avanzada',funciones:'Funciones',geometria_3d:'Geometría Analítica',prob_avanzada:'Prob. Avanzada'};
+  const badge=document.getElementById('eje-badge');
+  badge.textContent=ejeN[q.eje]||q.eje;
+  badge.className='eje-badge eje-'+q.eje;
+  document.getElementById('q-enunciado').innerHTML=q.enunciado;
+  const L=['A','B','C','D'];
+  document.getElementById('alternativas').innerHTML=q.alternativas.map((a,i)=>`<button class="alt-btn" onclick="answer(${i})"><span class="alt-letter">${L[i]})</span>${a}</button>`).join('');
+  document.getElementById('feedback').innerHTML='';
+  document.getElementById('nav-btns').style.display='none';
+}
+
+function answer(idx){
+  const q=questions[curIdx];
+  const t=Math.round((Date.now()-questionStart)/100)/10;
+  const ok=idx===q.correcta;
+  document.querySelectorAll('.alt-btn').forEach((btn,i)=>{btn.classList.add('disabled');if(i===q.correcta)btn.classList.add('correct');if(i===idx&&!ok)btn.classList.add('wrong');});
+  document.getElementById('feedback').innerHTML=ok?`<div class="feedback-text correct">✓ Correcto</div>`:`<div class="feedback-text wrong">✗ ${q.explicacion}</div>`;
+  results.push({pregunta_id:q.id,eje:q.eje,dificultad:q.dif,correcta:ok,tiempo:t,saltada:false});
+  document.getElementById('nav-btns').style.display='flex';
+}
+
+function skipQ(){const q=questions[curIdx];results.push({pregunta_id:q.id,eje:q.eje,dificultad:q.dif,correcta:false,tiempo:Math.round((Date.now()-questionStart)/100)/10,saltada:true});curIdx++;showQ()}
+function nextQ(){curIdx++;showQ()}
+
+async function endGame(){
+  clearInterval(globalTimer);
+  document.getElementById('game-screen').style.display='none';
+  document.getElementById('results-screen').style.display='block';
+  window.scrollTo(0,0);
+
+  const total=results.length;
+  if(total===0){window.location.href='index.html';return}
+  const aciertos=results.filter(r=>r.correcta).length;
+  const pct=Math.round((aciertos/total)*100);
+  const tiempos=results.filter(r=>r.tiempo>0).map(r=>r.tiempo);
+  const tp=tiempos.length>0?Math.round(tiempos.reduce((a,b)=>a+b,0)/tiempos.length*10)/10:0;
+  const dur=Math.round((Date.now()-sessionStart)/1000);
+  const saltadas=results.filter(r=>r.saltada).length;
+  const xp=20+(aciertos*4);
+
+  let emoji='📊',titulo='Simulacro M2';
+  if(pct>=85){emoji='🏆';titulo='¡Increíble!';}else if(pct>=65){emoji='🔥';titulo='¡Buen nivel!';}else if(pct>=45){emoji='💪';titulo='Avanzando';}else{emoji='📚';titulo='A reforzar';}
+
+  document.getElementById('r-emoji').textContent=emoji;
+  document.getElementById('r-title').textContent=titulo;
+  const m=Math.floor(dur/60),s=dur%60;
+  document.getElementById('r-sub').textContent=`${total} preguntas en ${m>0?m+'m ':''}${s}s`;
+
+  document.getElementById('r-stats').innerHTML=`
+    <div class="r-stat"><div class="r-stat-value">${pct}%</div><div class="r-stat-label">Aciertos</div></div>
+    <div class="r-stat"><div class="r-stat-value teal">${tp}s</div><div class="r-stat-label">Promedio/preg</div></div>
+    <div class="r-stat"><div class="r-stat-value yellow">${saltadas}</div><div class="r-stat-label">Saltadas</div></div>
+    <div class="r-stat"><div class="r-stat-value coral">${total-aciertos}</div><div class="r-stat-label">Errores</div></div>`;
+
+  const ejes={};
+  const ejeC={algebra_av:'var(--yellow)',funciones:'var(--teal)',geometria_3d:'var(--coral)',prob_avanzada:'#B8A5FF'};
+  const ejeN={algebra_av:'Álgebra Av.',funciones:'Funciones',geometria_3d:'Geom. Analít.',prob_avanzada:'Prob. Avanz.'};
+  results.forEach(r=>{if(!ejes[r.eje])ejes[r.eje]={total:0,ok:0,ts:[]};ejes[r.eje].total++;if(r.correcta)ejes[r.eje].ok++;ejes[r.eje].ts.push(r.tiempo);});
+
+  let html='';let peorEje=null,peorPct=100;
+  Object.keys(ejes).forEach(eje=>{
+    const e=ejes[eje],p=Math.round((e.ok/e.total)*100);
+    if(p<peorPct){peorPct=p;peorEje=eje;}
+    html+=`<div class="eje-row"><div class="eje-name">${ejeN[eje]||eje}</div><div class="eje-bar"><div class="eje-bar-fill" style="width:${p}%;background:${ejeC[eje]||'var(--neon)'}"></div></div><div class="eje-pct" style="color:${ejeC[eje]||'var(--neon)'}">${p}%</div></div>`;
+  });
+  document.getElementById('eje-rows').innerHTML=html;
+  document.getElementById('xp-val').textContent=`+${xp} XP`;
+
+  let tip='M2 es la prueba que te diferencia para ingeniería. Seguí practicando.';
+  if(peorEje&&peorPct<50)tip=`${ejeN[peorEje]} necesita trabajo. Dedica sesiones enfocadas a ese eje.`;
+  else if(tp>60)tip='Estás tardando mucho por pregunta. Practicá decidir más rápido.';
+  else if(pct>=80)tip='Excelente nivel M2. Subí la dificultad con más preguntas y menos tiempo.';
+  document.getElementById('r-tip').textContent=tip;
+
+  const user=JSON.parse(localStorage.getItem('paes_lab_user')||'{}');
+  if(user.id){
+    const sd={usuario_id:user.id,modulo:'simulacro_m2',duracion_seg:dur,preguntas_total:total,aciertos,tiempo_promedio_seg:tp,completada:true,pct_aciertos:pct,eje_mas_debil:peorEje};
+    const resp=await sbPost('sesiones',sd);
+    if(resp&&resp.length>0){
+      await sbPost('respuestas',results.map(r=>({sesion_id:resp[0].id,usuario_id:user.id,pregunta_id:r.pregunta_id,modulo:'simulacro_m2',eje:r.eje,dificultad:r.dificultad,correcta:r.correcta,tiempo_seg:r.tiempo,saltada:r.saltada})));
+    }
+    await fetch(`${SUPABASE_URL}/rest/v1/rachas`,{method:'POST',headers:{...SB_H,'Prefer':'return=representation,resolution=merge-duplicates'},body:JSON.stringify({usuario_id:user.id,fecha:new Date().toISOString().split('T')[0],sesiones_del_dia:1,xp_del_dia:xp})}).catch(()=>{});
+  }
+}
+
+if(!localStorage.getItem('paes_lab_user'))window.location.href='index.html';
+</script>
+</body>
+</html>

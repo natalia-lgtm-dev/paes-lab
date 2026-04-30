@@ -1,0 +1,1009 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>PAES Lab</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#05161A">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg-deep: #05161A;
+  --bg-card: #0F2B33;
+  --bg-elevated: #143A45;
+  --border: #1A4050;
+  --neon: #00FFD1;
+  --neon-dim: #00FFD140;
+  --neon-glow: #00FFD120;
+  --coral: #FF6B6B;
+  --coral-dim: #FF6B6B30;
+  --teal: #4ECDC4;
+  --teal-dim: #4ECDC430;
+  --yellow: #FFE66D;
+  --yellow-dim: #FFE66D30;
+  --text: #B8FFF5;
+  --text-muted: #6BA8A0;
+  --text-dim: #3D6B63;
+  --white: #E8FFFE;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Outfit', sans-serif;
+  background: var(--bg-deep);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ====== LOGIN ====== */
+#login-screen {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  position: relative;
+}
+
+.login-bg {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  z-index: 0;
+}
+
+.login-bg::before {
+  content: '';
+  position: absolute;
+  width: 300px; height: 300px;
+  background: radial-gradient(circle, var(--neon-dim) 0%, transparent 70%);
+  top: 10%; left: -10%;
+  animation: float1 8s ease-in-out infinite;
+}
+
+.login-bg::after {
+  content: '';
+  position: absolute;
+  width: 250px; height: 250px;
+  background: radial-gradient(circle, var(--coral-dim) 0%, transparent 70%);
+  bottom: 10%; right: -5%;
+  animation: float2 10s ease-in-out infinite;
+}
+
+@keyframes float1 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(30px,20px)} }
+@keyframes float2 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(-20px,-30px)} }
+
+.login-content {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  width: 100%;
+  max-width: 340px;
+}
+
+.login-logo {
+  font-family: 'Space Mono', monospace;
+  font-size: 42px;
+  font-weight: 700;
+  color: var(--neon);
+  margin-bottom: 4px;
+  letter-spacing: -2px;
+}
+
+.login-logo span { color: var(--text-muted); font-weight: 400; font-size: 28px; }
+
+.login-subtitle {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-bottom: 40px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.user-select {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+.user-btn {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px 20px;
+  color: var(--text);
+  font-family: 'Outfit', sans-serif;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.user-btn:hover, .user-btn.selected {
+  border-color: var(--neon);
+  background: var(--bg-elevated);
+}
+
+.user-btn.selected { box-shadow: 0 0 20px var(--neon-glow); }
+
+.user-btn .user-icon {
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; font-weight: 600;
+}
+
+.user-btn .user-info { flex: 1; }
+.user-btn .user-name { font-weight: 500; }
+.user-btn .user-role { font-size: 12px; color: var(--text-muted); }
+
+.pin-section {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  animation: fadeIn 0.3s ease;
+}
+
+.pin-section.visible { display: flex; }
+
+@keyframes fadeIn { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+
+.pin-label { font-size: 14px; color: var(--text-muted); }
+
+.pin-dots {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.pin-dot {
+  width: 16px; height: 16px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  transition: all 0.2s;
+}
+
+.pin-dot.filled {
+  background: var(--neon);
+  border-color: var(--neon);
+  box-shadow: 0 0 8px var(--neon-dim);
+}
+
+.pin-dot.error { border-color: var(--coral); background: var(--coral); }
+
+.pin-pad {
+  display: grid;
+  grid-template-columns: repeat(3, 72px);
+  gap: 10px;
+}
+
+.pin-key {
+  width: 72px; height: 56px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  color: var(--text);
+  font-family: 'Space Mono', monospace;
+  font-size: 22px;
+  cursor: pointer;
+  transition: all 0.15s;
+  display: flex; align-items: center; justify-content: center;
+}
+
+.pin-key:hover { background: var(--bg-elevated); border-color: var(--neon); }
+.pin-key:active { transform: scale(0.95); }
+.pin-key.wide { grid-column: span 1; font-size: 14px; }
+
+.pin-error {
+  font-size: 13px;
+  color: var(--coral);
+  min-height: 20px;
+}
+
+/* ====== DASHBOARD ====== */
+#dashboard {
+  display: none;
+  min-height: 100vh;
+  padding: 20px;
+  padding-bottom: 100px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+#dashboard.visible { display: block; animation: fadeIn 0.4s ease; }
+
+.dash-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.dash-greeting { font-size: 13px; color: var(--text-muted); }
+.dash-name { font-size: 22px; font-weight: 600; color: var(--white); }
+
+.dash-logout {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 6px 12px;
+  color: var(--text-muted);
+  font-size: 12px;
+  cursor: pointer;
+  font-family: 'Outfit', sans-serif;
+}
+
+.dash-logout:hover { border-color: var(--coral); color: var(--coral); }
+
+/* Countdown */
+.countdown-card {
+  background: linear-gradient(135deg, var(--bg-card) 0%, #0A2228 100%);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+.countdown-card::after {
+  content: '';
+  position: absolute;
+  top: -30px; right: -30px;
+  width: 120px; height: 120px;
+  background: radial-gradient(circle, var(--neon-glow) 0%, transparent 70%);
+}
+
+.countdown-label {
+  font-size: 12px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 8px;
+}
+
+.countdown-days {
+  font-family: 'Space Mono', monospace;
+  font-size: 48px;
+  font-weight: 700;
+  color: var(--neon);
+  line-height: 1;
+}
+
+.countdown-days span {
+  font-size: 18px;
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
+.countdown-date {
+  font-size: 12px;
+  color: var(--text-dim);
+  margin-top: 4px;
+}
+
+/* Stats row */
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.stat-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px 12px;
+  text-align: center;
+}
+
+.stat-value {
+  font-family: 'Space Mono', monospace;
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--neon);
+  line-height: 1.2;
+}
+
+.stat-value.coral { color: var(--coral); }
+.stat-value.yellow { color: var(--yellow); }
+.stat-value.teal { color: var(--teal); }
+
+.stat-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 4px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* Level / XP */
+.level-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 20px;
+}
+
+.level-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.level-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--teal);
+}
+
+.level-xp {
+  font-family: 'Space Mono', monospace;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.xp-bar {
+  height: 8px;
+  background: var(--bg-deep);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.xp-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--neon), var(--teal));
+  border-radius: 4px;
+  transition: width 0.5s ease;
+}
+
+/* Tip del día */
+.tip-card {
+  background: var(--neon-glow);
+  border: 1px solid var(--neon-dim);
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-bottom: 20px;
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.tip-icon {
+  font-size: 20px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.tip-text {
+  font-size: 13px;
+  color: var(--text);
+  line-height: 1.5;
+}
+
+/* Módulos */
+.section-title {
+  font-size: 13px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 12px;
+}
+
+.modules-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.module-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 18px 16px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-decoration: none;
+  display: block;
+}
+
+.module-card:hover {
+  border-color: var(--neon);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 20px var(--neon-glow);
+}
+
+.module-card.disabled {
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+.module-emoji { font-size: 28px; margin-bottom: 8px; }
+
+.module-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--white);
+  margin-bottom: 4px;
+}
+
+.module-desc {
+  font-size: 11px;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+.module-badge {
+  display: inline-block;
+  margin-top: 8px;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.module-badge.active { background: var(--neon-dim); color: var(--neon); }
+.module-badge.soon { background: var(--yellow-dim); color: var(--yellow); }
+
+/* Última sesión */
+.last-session {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.last-session-title {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.last-session-empty {
+  font-size: 14px;
+  color: var(--text-dim);
+  text-align: center;
+  padding: 20px 0;
+}
+
+.last-session-data {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.last-session-info { font-size: 14px; color: var(--text); }
+.last-session-info small { display: block; font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+.last-session-score {
+  font-family: 'Space Mono', monospace;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--neon);
+}
+
+/* Responsive */
+@media (max-width: 400px) {
+  .modules-grid { grid-template-columns: 1fr; }
+  .countdown-days { font-size: 40px; }
+  .pin-pad { grid-template-columns: repeat(3, 64px); gap: 8px; }
+  .pin-key { width: 64px; height: 50px; font-size: 20px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ====== LOGIN SCREEN ====== -->
+<div id="login-screen">
+  <div class="login-bg"></div>
+  <div class="login-content">
+    <div class="login-logo">PAES<span>lab</span></div>
+    <div class="login-subtitle">Entrena tu velocidad</div>
+
+    <div class="user-select" id="user-select">
+      <!-- Se llenan desde Supabase -->
+    </div>
+
+    <div class="pin-section" id="pin-section">
+      <div class="pin-label">Ingresa tu PIN</div>
+      <div class="pin-dots" id="pin-dots">
+        <div class="pin-dot"></div>
+        <div class="pin-dot"></div>
+        <div class="pin-dot"></div>
+        <div class="pin-dot"></div>
+      </div>
+      <div class="pin-error" id="pin-error"></div>
+      <div class="pin-pad">
+        <button class="pin-key" onclick="addPin('1')">1</button>
+        <button class="pin-key" onclick="addPin('2')">2</button>
+        <button class="pin-key" onclick="addPin('3')">3</button>
+        <button class="pin-key" onclick="addPin('4')">4</button>
+        <button class="pin-key" onclick="addPin('5')">5</button>
+        <button class="pin-key" onclick="addPin('6')">6</button>
+        <button class="pin-key" onclick="addPin('7')">7</button>
+        <button class="pin-key" onclick="addPin('8')">8</button>
+        <button class="pin-key" onclick="addPin('9')">9</button>
+        <button class="pin-key wide" onclick="clearPin()">borrar</button>
+        <button class="pin-key" onclick="addPin('0')">0</button>
+        <button class="pin-key wide" style="color:var(--neon)" onclick="submitPin()">ok</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ====== DASHBOARD ====== -->
+<div id="dashboard">
+  <div class="dash-header">
+    <div>
+      <div class="dash-greeting" id="dash-greeting">Hola</div>
+      <div class="dash-name" id="dash-name">Martín</div>
+    </div>
+    <button class="dash-logout" onclick="logout()">Salir</button>
+  </div>
+
+  <!-- Countdown PAES -->
+  <div class="countdown-card">
+    <div class="countdown-label">Faltan para la PAES</div>
+    <div class="countdown-days" id="countdown-days">214 <span>días</span></div>
+    <div class="countdown-date">30 de noviembre, 2026</div>
+  </div>
+
+  <!-- Stats rápidas -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-value" id="stat-streak">0</div>
+      <div class="stat-label">Racha</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value teal" id="stat-xp">0</div>
+      <div class="stat-label">XP Total</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value yellow" id="stat-sesiones">0</div>
+      <div class="stat-label">Sesiones</div>
+    </div>
+  </div>
+
+  <!-- Nivel -->
+  <div class="level-card">
+    <div class="level-header">
+      <div class="level-name" id="level-name">Novato</div>
+      <div class="level-xp" id="level-xp">0 / 100 XP</div>
+    </div>
+    <div class="xp-bar">
+      <div class="xp-fill" id="xp-fill" style="width:0%"></div>
+    </div>
+  </div>
+
+  <!-- Tip del día -->
+  <div class="tip-card" id="tip-card">
+    <div class="tip-icon">💡</div>
+    <div class="tip-text" id="tip-text">Empieza con el Modo Relámpago para calentar motores. 10 minutos diarios marcan la diferencia.</div>
+  </div>
+
+  <!-- Módulos -->
+  <div class="section-title">Módulos</div>
+  <div class="modules-grid">
+    <a class="module-card" href="relampago.html">
+      <div class="module-emoji">⚡</div>
+      <div class="module-name">Relámpago</div>
+      <div class="module-desc">Cálculo mental rápido. Automatiza lo básico.</div>
+      <div class="module-badge active">Disponible</div>
+    </a>
+    <div class="module-card disabled">
+      <div class="module-emoji">🧠</div>
+      <div class="module-name">Estratega</div>
+      <div class="module-desc">Clasifica y decide antes de resolver.</div>
+      <div class="module-badge soon">Próximamente</div>
+    </div>
+    <div class="module-card disabled">
+      <div class="module-emoji">📐</div>
+      <div class="module-name">Simulacro M1</div>
+      <div class="module-desc">Mini-ensayos cronometrados.</div>
+      <div class="module-badge soon">Próximamente</div>
+    </div>
+    <div class="module-card disabled">
+      <div class="module-emoji">📊</div>
+      <div class="module-name">Simulacro M2</div>
+      <div class="module-desc">Contenidos de 3° y 4° medio.</div>
+      <div class="module-badge soon">Próximamente</div>
+    </div>
+    <div class="module-card disabled">
+      <div class="module-emoji">📖</div>
+      <div class="module-name">Lectora</div>
+      <div class="module-desc">Lectura táctica cronometrada.</div>
+      <div class="module-badge soon">Próximamente</div>
+    </div>
+    <div class="module-card disabled">
+      <div class="module-emoji">📈</div>
+      <div class="module-name">Mi Progreso</div>
+      <div class="module-desc">Gráficos y logros.</div>
+      <div class="module-badge soon">Próximamente</div>
+    </div>
+  </div>
+
+  <!-- Última sesión -->
+  <div class="section-title">Última sesión</div>
+  <div class="last-session">
+    <div class="last-session-empty" id="last-session-empty">Aún no tienes sesiones. ¡Empieza con Relámpago!</div>
+    <div class="last-session-data" id="last-session-data" style="display:none">
+      <div class="last-session-info">
+        <span id="last-mod"></span>
+        <small id="last-date"></small>
+      </div>
+      <div class="last-session-score" id="last-score"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ====== CONFIGURACIÓN SUPABASE ======
+const SUPABASE_URL = 'https://cjpmainjspaygmrnnckk.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNqcG1haW5qc3BheWdtcm5uY2trIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc1NjgwNjEsImV4cCI6MjA5MzE0NDA2MX0.4Cbb9nL_l9yoAEDS-1Otk4hYoxlbpHCY7Y51DITv1Sc';
+
+const SB_HEADERS = {
+  'apikey': SUPABASE_KEY,
+  'Authorization': 'Bearer ' + SUPABASE_KEY,
+  'Content-Type': 'application/json',
+  'Prefer': 'return=representation'
+};
+
+async function sbGet(table, query = '') {
+  const r = await fetch(`${SUPABASE_URL}/rest/v1/${table}?${query}`, { headers: SB_HEADERS });
+  return r.ok ? await r.json() : [];
+}
+
+async function sbPost(table, data) {
+  const r = await fetch(`${SUPABASE_URL}/rest/v1/${table}`, {
+    method: 'POST', headers: SB_HEADERS, body: JSON.stringify(data)
+  });
+  return r.ok ? await r.json() : null;
+}
+
+// ====== ESTADO ======
+let usuarios = [];
+let selectedUser = null;
+let pinCode = '';
+let currentUser = null;
+
+// ====== FECHA PAES ======
+const PAES_DATE = new Date(2026, 10, 30); // 30 nov 2026
+
+function calcCountdown() {
+  const now = new Date();
+  const diff = PAES_DATE - now;
+  return Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)));
+}
+
+// ====== NIVELES ======
+const LEVELS = [
+  { name: 'Novato', min: 0, max: 100 },
+  { name: 'Aprendiz', min: 100, max: 300 },
+  { name: 'Competente', min: 300, max: 700 },
+  { name: 'Avanzado', min: 700, max: 1500 },
+  { name: 'Elite', min: 1500, max: 3000 },
+  { name: 'PAES Ready', min: 3000, max: 99999 }
+];
+
+function getLevel(xp) {
+  for (let i = LEVELS.length - 1; i >= 0; i--) {
+    if (xp >= LEVELS[i].min) return LEVELS[i];
+  }
+  return LEVELS[0];
+}
+
+// ====== LOGIN ======
+async function loadUsuarios() {
+  try {
+    usuarios = await sbGet('usuarios', 'activo=eq.true&order=created_at');
+  } catch (e) {
+    console.error('Error cargando usuarios:', e);
+    usuarios = [];
+  }
+
+  const container = document.getElementById('user-select');
+  if (usuarios.length === 0) {
+    container.innerHTML = '<div style="color:var(--coral);font-size:14px;padding:20px;">No se pudo conectar a la base de datos.<br>Verifica tu conexión a internet.</div>';
+    return;
+  }
+
+  const colors = { estudiante: 'var(--neon)', padre: 'var(--teal)' };
+  const icons = { estudiante: 'M', padre: '' };
+
+  container.innerHTML = usuarios.map(u => `
+    <button class="user-btn" onclick="selectUser('${u.id}')">
+      <div class="user-icon" style="background:${colors[u.rol]}20;color:${colors[u.rol]}">
+        ${u.nombre.charAt(0)}
+      </div>
+      <div class="user-info">
+        <div class="user-name">${u.nombre}</div>
+        <div class="user-role">${u.rol === 'estudiante' ? 'Estudiante' : 'Apoderado'}</div>
+      </div>
+    </button>
+  `).join('');
+}
+
+function selectUser(id) {
+  selectedUser = usuarios.find(u => u.id === id);
+  document.querySelectorAll('.user-btn').forEach(btn => btn.classList.remove('selected'));
+  event.currentTarget.classList.add('selected');
+  document.getElementById('pin-section').classList.add('visible');
+  pinCode = '';
+  updatePinDots();
+  document.getElementById('pin-error').textContent = '';
+}
+
+function addPin(digit) {
+  if (pinCode.length >= 4) return;
+  pinCode += digit;
+  updatePinDots();
+  if (pinCode.length === 4) {
+    setTimeout(submitPin, 200);
+  }
+}
+
+function clearPin() {
+  pinCode = pinCode.slice(0, -1);
+  updatePinDots();
+  document.getElementById('pin-error').textContent = '';
+}
+
+function updatePinDots() {
+  const dots = document.querySelectorAll('.pin-dot');
+  dots.forEach((dot, i) => {
+    dot.classList.remove('filled', 'error');
+    if (i < pinCode.length) dot.classList.add('filled');
+  });
+}
+
+function submitPin() {
+  if (!selectedUser || pinCode.length !== 4) return;
+
+  if (pinCode === selectedUser.pin) {
+    currentUser = selectedUser;
+    localStorage.setItem('paes_lab_user', JSON.stringify(currentUser));
+    showDashboard();
+  } else {
+    document.querySelectorAll('.pin-dot').forEach(d => d.classList.add('error'));
+    document.getElementById('pin-error').textContent = 'PIN incorrecto';
+    setTimeout(() => {
+      pinCode = '';
+      updatePinDots();
+    }, 600);
+  }
+}
+
+// ====== DASHBOARD ======
+async function showDashboard() {
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('dashboard').classList.add('visible');
+
+  // Si es padre, redirigir a padres.html
+  if (currentUser.rol === 'padre') {
+    window.location.href = 'padres.html';
+    return;
+  }
+
+  // Greeting según hora
+  const hora = new Date().getHours();
+  let saludo = 'Buenas noches';
+  if (hora >= 6 && hora < 12) saludo = 'Buenos días';
+  else if (hora >= 12 && hora < 20) saludo = 'Buenas tardes';
+
+  document.getElementById('dash-greeting').textContent = saludo;
+  document.getElementById('dash-name').textContent = currentUser.nombre;
+
+  // Countdown
+  document.getElementById('countdown-days').innerHTML = `${calcCountdown()} <span>días</span>`;
+
+  // Cargar stats
+  await loadStats();
+}
+
+async function loadStats() {
+  try {
+    // Sesiones del usuario
+    const sesiones = await sbGet('sesiones', `usuario_id=eq.${currentUser.id}&completada=eq.true&order=created_at.desc`);
+
+    // Total sesiones
+    document.getElementById('stat-sesiones').textContent = sesiones.length;
+
+    // XP: calculamos basándonos en sesiones
+    // 10 XP base por sesión + aciertos * 2
+    let totalXP = 0;
+    sesiones.forEach(s => {
+      totalXP += 10 + (s.aciertos || 0) * 2;
+    });
+    document.getElementById('stat-xp').textContent = totalXP;
+
+    // Nivel
+    const level = getLevel(totalXP);
+    document.getElementById('level-name').textContent = level.name;
+    document.getElementById('level-xp').textContent = `${totalXP} / ${level.max} XP`;
+    const pct = Math.min(100, ((totalXP - level.min) / (level.max - level.min)) * 100);
+    document.getElementById('xp-fill').style.width = pct + '%';
+
+    // Racha: días consecutivos con al menos 1 sesión
+    const streak = calcStreak(sesiones);
+    document.getElementById('stat-streak').textContent = streak;
+    const streakEl = document.getElementById('stat-streak');
+    streakEl.className = 'stat-value' + (streak >= 7 ? ' coral' : '');
+    if (streak >= 3) streakEl.style.color = 'var(--neon)';
+
+    // Última sesión
+    if (sesiones.length > 0) {
+      const last = sesiones[0];
+      document.getElementById('last-session-empty').style.display = 'none';
+      document.getElementById('last-session-data').style.display = 'flex';
+
+      const modNames = {
+        relampago: 'Relámpago', simulacro_m1: 'Simulacro M1',
+        simulacro_m2: 'Simulacro M2', estratega: 'Estratega', lectora: 'Lectora'
+      };
+      document.getElementById('last-mod').textContent = modNames[last.modulo] || last.modulo;
+
+      const fecha = new Date(last.created_at);
+      document.getElementById('last-date').textContent = fecha.toLocaleDateString('es-CL', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+
+      const pctAciertos = last.preguntas_total > 0 ? Math.round((last.aciertos / last.preguntas_total) * 100) : 0;
+      document.getElementById('last-score').textContent = pctAciertos + '%';
+
+    }
+
+    // Tip basado en datos
+    generateTip(sesiones, streak, totalXP);
+
+  } catch (e) {
+    console.error('Error cargando stats:', e);
+  }
+}
+
+function calcStreak(sesiones) {
+  if (sesiones.length === 0) return 0;
+
+  // Agrupar por fecha (solo fecha, sin hora)
+  const fechas = new Set();
+  sesiones.forEach(s => {
+    fechas.add(s.fecha || s.created_at.split('T')[0]);
+  });
+
+  const hoy = new Date();
+  let streak = 0;
+  let checkDate = new Date(hoy);
+
+  // Ver si hoy tiene sesión, si no, empezar desde ayer
+  const hoyStr = checkDate.toISOString().split('T')[0];
+  if (!fechas.has(hoyStr)) {
+    checkDate.setDate(checkDate.getDate() - 1);
+  }
+
+  while (true) {
+    const dateStr = checkDate.toISOString().split('T')[0];
+    if (fechas.has(dateStr)) {
+      streak++;
+      checkDate.setDate(checkDate.getDate() - 1);
+    } else {
+      break;
+    }
+  }
+
+  return streak;
+}
+
+function generateTip(sesiones, streak, xp) {
+  const tipEl = document.getElementById('tip-text');
+  const tips = [];
+
+  if (sesiones.length === 0) {
+    tipEl.textContent = 'Empieza con el Modo Relámpago para calentar motores. 10 minutos diarios marcan la diferencia.';
+    return;
+  }
+
+  // Tip por racha
+  if (streak === 0) {
+    tips.push('Llevas un día sin practicar. 10 minutos de Relámpago hoy marca la diferencia.');
+  } else if (streak >= 7) {
+    tips.push(`¡${streak} días seguidos! La consistencia es lo que más impacta en la PAES. Seguí así.`);
+  } else if (streak >= 3) {
+    tips.push(`${streak} días de racha. Buen ritmo, no pierdas el impulso.`);
+  }
+
+  // Tip por velocidad
+  const recientes = sesiones.slice(0, 5);
+  const tiemposProm = recientes.filter(s => s.tiempo_promedio_seg).map(s => Number(s.tiempo_promedio_seg));
+  if (tiemposProm.length >= 2) {
+    const mejora = tiemposProm[tiemposProm.length - 1] - tiemposProm[0];
+    if (mejora > 0) {
+      tips.push('Tu velocidad está mejorando. Seguí practicando para que sea automático.');
+    } else if (mejora < -3) {
+      tips.push('La velocidad bajó un poco. Hacé unas rondas de Relámpago para recuperar el ritmo.');
+    }
+  }
+
+  // Tip por aciertos
+  const ultimasSesiones = sesiones.slice(0, 3);
+  const pctProm = ultimasSesiones.reduce((acc, s) => {
+    return acc + (s.preguntas_total > 0 ? (s.aciertos / s.preguntas_total) * 100 : 0);
+  }, 0) / ultimasSesiones.length;
+
+  if (pctProm >= 85) {
+    tips.push('Tus aciertos están altos. Podés subir la dificultad o probar sesiones más largas.');
+  } else if (pctProm < 60) {
+    tips.push('Enfocate en precisión antes que velocidad. Mejor lento y correcto que rápido y con errores.');
+  }
+
+  // Tip genérico motivacional
+  const countdown = calcCountdown();
+  if (countdown <= 60) {
+    tips.push(`Quedan ${countdown} días. Cada sesión cuenta. Hoy es un buen día para practicar.`);
+  }
+
+  if (tips.length > 0) {
+    tipEl.textContent = tips[Math.floor(Math.random() * tips.length)];
+  }
+}
+
+function logout() {
+  localStorage.removeItem('paes_lab_user');
+  currentUser = null;
+  selectedUser = null;
+  pinCode = '';
+  document.getElementById('dashboard').classList.remove('visible');
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('pin-section').classList.remove('visible');
+  document.querySelectorAll('.user-btn').forEach(b => b.classList.remove('selected'));
+  updatePinDots();
+}
+
+// ====== INIT ======
+async function init() {
+  // Verificar sesión guardada
+  const saved = localStorage.getItem('paes_lab_user');
+  if (saved) {
+    try {
+      currentUser = JSON.parse(saved);
+      // Verificar que el usuario sigue existiendo
+      const check = await sbGet('usuarios', `id=eq.${currentUser.id}&activo=eq.true`);
+      if (check.length > 0) {
+        currentUser = check[0];
+        showDashboard();
+        return;
+      }
+    } catch (e) {
+      console.error(e);
+    }
+    localStorage.removeItem('paes_lab_user');
+  }
+
+  await loadUsuarios();
+}
+
+init();
+
+// Registrar Service Worker
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js').catch(e => console.log('SW:', e));
+}
+</script>
+</body>
+</html>

@@ -238,6 +238,14 @@ function answer(idx){
   document.querySelectorAll('.alt-btn').forEach((btn,i)=>{btn.classList.add('disabled');if(i===q.correcta)btn.classList.add('correct');if(i===idx&&!ok)btn.classList.add('wrong');});
   document.getElementById('feedback').innerHTML=ok?`<div class="feedback-text correct">✓ Correcto</div>`:`<div class="feedback-text wrong">✗ ${q.explicacion}</div>`;
   results.push({pregunta_id:q.id,eje:q.eje,dificultad:q.dif,correcta:ok,tiempo:t,saltada:false});
+
+  if(!ok){
+    const errores=JSON.parse(localStorage.getItem('paes_lab_errores')||'[]');
+    errores.push({modulo:'simulacro_m2',eje:q.eje,pregunta:q.enunciado,tu_respuesta:q.alternativas[idx],respuesta_correcta:q.alternativas[q.correcta],explicacion:q.explicacion,fecha:new Date().toISOString()});
+    if(errores.length>200)errores.splice(0,errores.length-200);
+    localStorage.setItem('paes_lab_errores',JSON.stringify(errores));
+  }
+
   document.getElementById('nav-btns').style.display='flex';
 }
 

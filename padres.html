@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>PAES Lab — Panel Padres</title>
+<meta name="theme-color" content="#05161A">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg-deep:#05161A;--bg-card:#0F2B33;--bg-elevated:#143A45;--border:#1A4050;--neon:#00FFD1;--neon-dim:#00FFD140;--neon-glow:#00FFD120;--coral:#FF6B6B;--coral-dim:#FF6B6B30;--teal:#4ECDC4;--teal-dim:#4ECDC430;--yellow:#FFE66D;--yellow-dim:#FFE66D30;--text:#B8FFF5;--text-muted:#6BA8A0;--text-dim:#3D6B63;--white:#E8FFFE}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Outfit',sans-serif;background:var(--bg-deep);color:var(--text);min-height:100vh;padding:20px;padding-bottom:60px}
+.container{max-width:600px;margin:0 auto}
+.header{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px}
+.header-title{font-size:20px;font-weight:600;color:var(--white)}
+.header-sub{font-size:12px;color:var(--text-muted)}
+.logout-btn{background:none;border:1px solid var(--border);border-radius:8px;padding:6px 12px;color:var(--text-muted);font-size:12px;cursor:pointer;font-family:'Outfit',sans-serif}.logout-btn:hover{border-color:var(--coral);color:var(--coral)}
+
+.alert-card{border-radius:12px;padding:14px 16px;margin-bottom:16px;display:flex;gap:10px;align-items:flex-start}
+.alert-card.warning{background:var(--coral-dim);border:1px solid var(--coral)}
+.alert-card.success{background:var(--neon-glow);border:1px solid var(--neon-dim)}
+.alert-icon{font-size:18px;flex-shrink:0}.alert-text{font-size:13px;line-height:1.5}
+
+.section-title{font-size:12px;color:var(--text-muted);text-transform:uppercase;letter-spacing:2px;margin:24px 0 12px}
+
+.stats-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:20px}
+.stat-card{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:14px;text-align:center}
+.stat-val{font-family:'Space Mono',monospace;font-size:28px;font-weight:700;color:var(--neon)}.stat-val.coral{color:var(--coral)}.stat-val.teal{color:var(--teal)}.stat-val.yellow{color:var(--yellow)}
+.stat-lbl{font-size:11px;color:var(--text-muted);margin-top:4px}
+
+.card{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:16px}
+.card-title{font-size:12px;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px}
+
+.eje-row{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.eje-row:last-child{margin-bottom:0}
+.eje-name{font-size:13px;color:var(--text);width:90px;flex-shrink:0}
+.eje-bar{flex:1;height:8px;background:var(--bg-deep);border-radius:4px;overflow:hidden}
+.eje-bar-fill{height:100%;border-radius:4px}
+.eje-pct{font-family:'Space Mono',monospace;font-size:12px;width:40px;text-align:right;flex-shrink:0}
+
+.session-item{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)}
+.session-item:last-child{border:none}
+.session-mod{font-size:14px;color:var(--text)}
+.session-date{font-size:11px;color:var(--text-muted)}
+.session-score{font-family:'Space Mono',monospace;font-size:16px;font-weight:700}
+
+.tip-item{padding:10px 0;border-bottom:1px solid var(--border);font-size:13px;line-height:1.5;display:flex;gap:8px}
+.tip-item:last-child{border:none}
+.tip-bullet{color:var(--neon);flex-shrink:0}
+
+.empty{text-align:center;padding:30px;color:var(--text-dim);font-size:14px}
+
+.countdown{background:linear-gradient(135deg,var(--bg-card),#0A2228);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center}
+.countdown-days{font-family:'Space Mono',monospace;font-size:36px;font-weight:700;color:var(--neon)}
+.countdown-days span{font-size:14px;color:var(--text-muted);font-weight:400}
+.countdown-label{font-size:12px;color:var(--text-muted);text-align:right}
+.countdown-date{font-size:11px;color:var(--text-dim)}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <div>
+      <div class="header-title" id="header-title">Panel de seguimiento</div>
+      <div class="header-sub">Progreso de Martín</div>
+    </div>
+    <button class="logout-btn" onclick="logout()">Salir</button>
+  </div>
+
+  <div class="countdown">
+    <div>
+      <div class="countdown-days" id="countdown-days">--- <span>días</span></div>
+      <div class="countdown-date">30 de noviembre, 2026</div>
+    </div>
+    <div class="countdown-label">para<br>la PAES</div>
+  </div>
+
+  <div id="alerts"></div>
+
+  <div class="section-title">Resumen general</div>
+  <div class="stats-grid">
+    <div class="stat-card"><div class="stat-val" id="s-streak">0</div><div class="stat-lbl">Racha (días)</div></div>
+    <div class="stat-card"><div class="stat-val teal" id="s-total">0</div><div class="stat-lbl">Sesiones totales</div></div>
+    <div class="stat-card"><div class="stat-val yellow" id="s-prom">0%</div><div class="stat-lbl">Aciertos promedio</div></div>
+    <div class="stat-card"><div class="stat-val" id="s-xp">0</div><div class="stat-lbl">XP acumulado</div></div>
+  </div>
+
+  <div class="section-title">Rendimiento por eje (M1)</div>
+  <div class="card" id="eje-card">
+    <div class="empty">Cargando datos...</div>
+  </div>
+
+  <div class="section-title">Últimas sesiones</div>
+  <div class="card" id="sessions-card">
+    <div class="empty">Cargando...</div>
+  </div>
+
+  <div class="section-title">Tips para apoyar en casa</div>
+  <div class="card" id="tips-card">
+    <div class="empty">Los tips aparecen según el rendimiento de Martín.</div>
+  </div>
+</div>
+
+<script>
+const SUPABASE_URL='https://cjpmainjspaygmrnnckk.supabase.co';
+const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNqcG1haW5qc3BheWdtcm5uY2trIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc1NjgwNjEsImV4cCI6MjA5MzE0NDA2MX0.4Cbb9nL_l9yoAEDS-1Otk4hYoxlbpHCY7Y51DITv1Sc';
+const SB_H={'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json'};
+
+async function sbGet(t,q=''){const r=await fetch(`${SUPABASE_URL}/rest/v1/${t}?${q}`,{headers:SB_H});return r.ok?await r.json():[]}
+
+const PAES_DATE=new Date(2026,10,30);
+function daysLeft(){return Math.max(0,Math.ceil((PAES_DATE-new Date())/(1000*60*60*24)))}
+
+async function loadDashboard(){
+  document.getElementById('countdown-days').innerHTML=`${daysLeft()} <span>días</span>`;
+
+  const user=JSON.parse(localStorage.getItem('paes_lab_user')||'{}');
+  if(user.rol!=='padre'){window.location.href='index.html';return}
+
+  document.getElementById('header-title').textContent=`Hola, ${user.nombre}`;
+
+  // Buscar el usuario estudiante
+  const estudiantes=await sbGet('usuarios','rol=eq.estudiante&activo=eq.true');
+  if(estudiantes.length===0){document.getElementById('sessions-card').innerHTML='<div class="empty">No hay estudiantes registrados.</div>';return}
+  const martin=estudiantes[0];
+
+  // Sesiones
+  const sesiones=await sbGet('sesiones',`usuario_id=eq.${martin.id}&completada=eq.true&order=created_at.desc`);
+
+  // Stats
+  document.getElementById('s-total').textContent=sesiones.length;
+
+  let totalXP=0,totalPct=0;
+  sesiones.forEach(s=>{totalXP+=10+(s.aciertos||0)*2;if(s.pct_aciertos)totalPct+=Number(s.pct_aciertos);});
+  document.getElementById('s-xp').textContent=totalXP;
+  document.getElementById('s-prom').textContent=sesiones.length>0?Math.round(totalPct/sesiones.length)+'%':'—';
+
+  // Racha
+  const fechas=new Set();
+  sesiones.forEach(s=>fechas.add(s.fecha||s.created_at.split('T')[0]));
+  let streak=0,check=new Date();
+  if(!fechas.has(check.toISOString().split('T')[0]))check.setDate(check.getDate()-1);
+  while(fechas.has(check.toISOString().split('T')[0])){streak++;check.setDate(check.getDate()-1);}
+  document.getElementById('s-streak').textContent=streak;
+
+  // Alertas
+  const alertsEl=document.getElementById('alerts');
+  let alertsHTML='';
+  const lastDate=sesiones.length>0?new Date(sesiones[0].created_at):null;
+  const daysSinceLast=lastDate?Math.floor((Date.now()-lastDate)/(1000*60*60*24)):999;
+
+  if(daysSinceLast>=3){
+    alertsHTML+=`<div class="alert-card warning"><div class="alert-icon">⚠️</div><div class="alert-text">Martín lleva <strong>${daysSinceLast} días</strong> sin practicar. Un recordatorio casual puede ayudar.</div></div>`;
+  } else if(streak>=7){
+    alertsHTML+=`<div class="alert-card success"><div class="alert-icon">🔥</div><div class="alert-text">¡Racha de ${streak} días! Está siendo constante. Reconocérselo lo motiva.</div></div>`;
+  }
+  alertsEl.innerHTML=alertsHTML;
+
+  // Rendimiento por eje
+  const respuestas=await sbGet('respuestas',`usuario_id=eq.${martin.id}&modulo=eq.simulacro_m1&order=created_at.desc&limit=200`);
+  const ejes={};
+  const ejeC={numeros:'var(--teal)',algebra:'var(--yellow)',geometria:'var(--coral)',prob_estadistica:'#B8A5FF'};
+  const ejeN={numeros:'Números',algebra:'Álgebra',geometria:'Geometría',prob_estadistica:'Prob/Est'};
+  respuestas.forEach(r=>{if(!r.eje)return;if(!ejes[r.eje])ejes[r.eje]={total:0,ok:0};ejes[r.eje].total++;if(r.correcta)ejes[r.eje].ok++;});
+
+  if(Object.keys(ejes).length>0){
+    let ejeHTML='';
+    Object.keys(ejes).forEach(eje=>{
+      const e=ejes[eje],p=Math.round((e.ok/e.total)*100);
+      ejeHTML+=`<div class="eje-row"><div class="eje-name">${ejeN[eje]||eje}</div><div class="eje-bar"><div class="eje-bar-fill" style="width:${p}%;background:${ejeC[eje]||'var(--neon)'}"></div></div><div class="eje-pct" style="color:${ejeC[eje]||'var(--neon)'}">${p}%</div></div>`;
+    });
+    document.getElementById('eje-card').innerHTML=ejeHTML;
+  } else {
+    document.getElementById('eje-card').innerHTML='<div class="empty">Aún no hay datos de simulacros M1.</div>';
+  }
+
+  // Últimas sesiones
+  const modN={relampago:'⚡ Relámpago',simulacro_m1:'📐 Simulacro M1',simulacro_m2:'📊 Simulacro M2',estratega:'🧠 Estratega',lectora:'📖 Lectora'};
+  if(sesiones.length>0){
+    let sessHTML='';
+    sesiones.slice(0,10).forEach(s=>{
+      const fecha=new Date(s.created_at);
+      const fStr=fecha.toLocaleDateString('es-CL',{day:'numeric',month:'short'});
+      const pct=s.pct_aciertos?Math.round(s.pct_aciertos)+'%':'—';
+      const color=s.pct_aciertos>=70?'var(--neon)':s.pct_aciertos>=50?'var(--yellow)':'var(--coral)';
+      sessHTML+=`<div class="session-item"><div><div class="session-mod">${modN[s.modulo]||s.modulo}</div><div class="session-date">${fStr} · ${s.preguntas_total} preguntas · ${Math.round(s.duracion_seg/60)}min</div></div><div class="session-score" style="color:${color}">${pct}</div></div>`;
+    });
+    document.getElementById('sessions-card').innerHTML=sessHTML;
+  } else {
+    document.getElementById('sessions-card').innerHTML='<div class="empty">Aún no hay sesiones registradas.</div>';
+  }
+
+  // Tips para padres
+  const tips=[];
+  if(daysSinceLast>=3)tips.push('Lleva días sin practicar. Un recordatorio sin presión puede activarlo.');
+  if(sesiones.length>=5){
+    const recientes=sesiones.slice(0,5);
+    const pctProm=recientes.reduce((a,s)=>a+(Number(s.pct_aciertos)||0),0)/recientes.length;
+    if(pctProm<50)tips.push('Los aciertos están bajo 50% en las últimas sesiones. Puede que necesite revisar conceptos base antes de seguir practicando velocidad.');
+    if(pctProm>=80)tips.push('Rendimiento alto sostenido. Puede subir la dificultad (menos tiempo o más preguntas) para seguir desafiándose.');
+  }
+  // Eje débil
+  let peorEje=null,peorPct=100;
+  Object.keys(ejes).forEach(eje=>{const p=(ejes[eje].ok/ejes[eje].total)*100;if(p<peorPct){peorPct=p;peorEje=eje;}});
+  if(peorEje&&peorPct<50)tips.push(`${ejeN[peorEje]} es el eje más débil (${Math.round(peorPct)}%). Pueden buscar material complementario o videos de repaso.`);
+  if(streak>=7)tips.push('La constancia de Martín es excelente. Reconocérselo refuerza el hábito.');
+  if(daysLeft()<=60)tips.push(`Quedan ${daysLeft()} días para la PAES. Buen momento para aumentar la frecuencia de simulacros completos.`);
+
+  if(tips.length===0)tips.push('Martín recién está empezando. Los tips aparecerán a medida que acumule sesiones.');
+
+  document.getElementById('tips-card').innerHTML=tips.map(t=>`<div class="tip-item"><div class="tip-bullet">→</div><div>${t}</div></div>`).join('');
+}
+
+function logout(){localStorage.removeItem('paes_lab_user');window.location.href='index.html'}
+
+if(!localStorage.getItem('paes_lab_user'))window.location.href='index.html';
+loadDashboard();
+</script>
+</body>
+</html>
